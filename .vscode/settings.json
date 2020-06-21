@@ -1,0 +1,46 @@
+{
+  "actionButtons": {
+    "defaultColor": "#ff0034", // Can also use string color names.
+    "loadNpmCommands": false, // Disables automatic generation of actions for npm commands.
+    "reloadButton": "♻️", // Custom reload button text or icon (default ↻). null value enables automatic reload on configuration change
+    "homepage": "https://holykiller.github.io/AngularBasics/",
+    "commands": [
+      {
+        "name": "Start Server",
+        "singleInstance": true,
+        "color": "#fff",
+        "command": "ng serve -o"
+      },
+      //   {
+      //     "name": "Buid Div",
+      //     "singleInstance": true,
+      //     "color": "#fff",
+      //     "command": "ng build --prod --base-href https://holykiller.github.io/Resume/"
+      //   },
+      {
+        "name": "Deploy",
+        "singleInstance": true,
+        "color": "#fff",
+        "command": "ng deploy --repo https://github.com/holykiller/EpubReader.git --base-href https://holykiller.github.io/EpubReader/"
+      },
+      {
+        "name": "Deploy To Pages",
+        "singleInstance": true,
+        "color": "#fff",
+        "command": "ngh"
+      },
+      {
+        "name": "Start Testing",
+        "singleInstance": true,
+        "color": "#fff",
+        "command": "ng test"
+      },
+      {
+        "name": "Update Angular and Angular Cli",
+        "singleInstance": true,
+        "color": "#fff",
+        "command": "ng update @angular/core @angular/cli"
+      }
+    ]
+  }
+}
