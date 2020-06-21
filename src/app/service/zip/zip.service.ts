@@ -11,7 +11,7 @@ declare const zip: any;
 })
 export class ZipService {
   constructor() {
-    zip.workerScriptsPath = 'scripts/js/';
+    zip.workerScriptsPath = 'assets/js/';
     // console.log(zip);
   }
   getEntries(file): Observable<Array<ZipEntry>> {
@@ -20,10 +20,8 @@ export class ZipService {
       zip.createReader(
         reader,
         (zipReader) => {
-          console.log('loadeding');
           zipReader.getEntries((entries) => {
             console.log('loaded');
-
             subscriber.next(entries);
             subscriber.complete();
           });

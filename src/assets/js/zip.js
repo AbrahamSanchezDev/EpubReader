@@ -1290,6 +1290,7 @@
       );
       return;
     }
+
     var scripts;
     if (obj.zip.workerScripts) {
       scripts = obj.zip.workerScripts[type];
@@ -1302,6 +1303,7 @@
       scripts = DEFAULT_WORKER_SCRIPTS[type].slice(0);
       scripts[0] = (obj.zip.workerScriptsPath || "") + scripts[0];
     }
+
     var worker = new Worker(scripts[0]);
     // record total consumed time by inflater/deflater/crc32 in this worker
     worker.codecTime = worker.crcTime = 0;

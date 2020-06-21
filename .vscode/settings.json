@@ -42,5 +42,8 @@
         "command": "ng update @angular/core @angular/cli"
       }
     ]
-  }
+  },
+  "cSpell.words": [
+    "htmls"
+  ]
 }

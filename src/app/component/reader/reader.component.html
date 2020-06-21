@@ -6,4 +6,10 @@
   </div>
 
   <input type="file" (change)="fileChanged($event)" />
+
+  <div>
+    <p [innerHTML]="curData"></p>
+    <!-- <pre [innerHTML]="curData"></pre> -->
+    <!-- <pre>{{ curData }}</pre> -->
+  </div>
 </div>
