@@ -4,10 +4,8 @@
   <div class="book">
     <h1 class="book-title">{{ getBookName() }}</h1>
     <div class="book-index">
+      <!-- Episodes -->
       <div #indexMenu [innerHTML]="getIndexContent()" class="index-html"></div>
-      <div *ngFor="let obj of getContent()">
-        <p>{{ getContentName(obj) }}</p>
-      </div>
     </div>
     <div class="book-content">
       <p [innerHTML]="curData"></p>

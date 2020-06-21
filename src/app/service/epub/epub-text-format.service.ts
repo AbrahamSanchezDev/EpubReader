@@ -19,18 +19,27 @@ export class EpubTextFormatService extends TextControlService {
     //Remove starting comment and Head
     originalString = this.removeFromTo(originalString, '', '<?', '?>');
     originalString = this.removeFromTo(originalString, '', '<head>', '</head>');
+    originalString = this.removeAllOptions(originalString, options);
+
+    //Replace the <a></a> link html to Button
+    originalString = this.replaceText(
+      originalString,
+      '<a ',
+      '<button  type="button" id ="'
+    );
+    originalString = this.replaceText(originalString, '</a>', '</button>');
+
     //Check if it needs to Format text
     let index = originalString.indexOf(beginString);
+
     if (index != -1) {
       while (index != -1) {
-        originalString = this.removeAllOptions(originalString, options);
-
         //Get Start Index for the starting string
         let startIndex = originalString.indexOf(options.beginString);
         if (startIndex == -1) {
           return originalString;
         }
-        let middleIndex = originalString.indexOf(midString);
+        let middleIndex = originalString.indexOf(midString, startIndex);
         if (middleIndex == -1) {
           return originalString;
         }
@@ -44,13 +53,6 @@ export class EpubTextFormatService extends TextControlService {
           startToMidText,
           replaceMidFor
         );
-        //Replace the index Container To Button
-        originalString = this.replaceText(
-          originalString,
-          '<a ',
-          '<button  type="button" id ='
-        );
-        originalString = this.replaceText(originalString, '</a>', '</button>');
         //Check if it should replace is finished
         index = originalString.indexOf('xhtml#');
       }

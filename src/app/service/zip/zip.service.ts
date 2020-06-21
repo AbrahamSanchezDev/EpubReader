@@ -14,6 +14,7 @@ export class ZipService {
     zip.workerScriptsPath = 'assets/js/';
     // console.log(zip);
   }
+  //Gets the zip files and return them as entry data
   getEntries(file): Observable<Array<ZipEntry>> {
     return new Observable((subscriber) => {
       const reader = new zip.BlobReader(file);
@@ -21,7 +22,6 @@ export class ZipService {
         reader,
         (zipReader) => {
           zipReader.getEntries((entries) => {
-            console.log('loaded');
             subscriber.next(entries);
             subscriber.complete();
           });

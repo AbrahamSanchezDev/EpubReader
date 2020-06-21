@@ -28,7 +28,6 @@ export class TextControlService {
         );
       }
     }
-    //Remove unwanted html tags
     if (removeAllTags) {
       for (let i = 0; i < removeAllTags.length; i++) {
         originalString = this.removeAllTags(originalString, removeAllTags[i]);
@@ -36,10 +35,17 @@ export class TextControlService {
     }
     return originalString;
   }
+  removedTotal = 0;
   //Remove all the given tag
   removeAllTags(originalString: string, tag: string): string {
-    originalString = this.removeFromTo(originalString, '', `<${tag}`, '>');
-    originalString = this.removeFromTo(originalString, '', `</${tag}`, '>');
+    this.removedTotal = 0;
+    while (originalString.indexOf(`<${tag}`) != -1) {
+      originalString = this.removeFromTo(originalString, '', `<${tag}`, '>');
+      originalString = this.removeFromTo(originalString, '', `</${tag}`, '>');
+    }
+    if (this.removedTotal == 0) {
+      console.log("Didn't remove any " + tag + 'tag');
+    }
     return originalString;
   }
   //Replace all the text from with in
@@ -61,8 +67,10 @@ export class TextControlService {
     if (endIndex == -1) {
       return originalString;
     }
+
     let original = originalString.substring(startIndex, endIndex + end.length);
     originalString = this.replaceText(originalString, original, replaceFor);
+    this.removedTotal++;
     return originalString;
   }
   //Get the text between the given start and the end
