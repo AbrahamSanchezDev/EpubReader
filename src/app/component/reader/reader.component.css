@@ -1,0 +1,40 @@
+.render-parent {
+  background-color: rgb(196, 196, 196);
+  height: 98vh;
+  width: 100%;
+}
+.book {
+  background-color: rgb(155, 141, 13);
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+.book-title {
+  position: absolute;
+  width: 100%;
+  left: 20%;
+  top: 0;
+  height: 50px;
+  background-color: rgb(26, 107, 15);
+}
+.book-index {
+  position: absolute;
+  background-color: rgb(241, 241, 241);
+  border: 2px solid rgb(65, 65, 65);
+  height: 100%;
+  width: 20%;
+  left: 0;
+}
+.book-content {
+  position: absolute;
+  background-color: aqua;
+  left: 20%;
+  top: 100px;
+  height: 100%;
+  width: 90%;
+}
+.book-index {
+  cursor: pointer;
+  color: black;
+  font-weight: bold;
+}
