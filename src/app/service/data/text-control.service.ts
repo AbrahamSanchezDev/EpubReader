@@ -1,79 +1,68 @@
 import { Injectable } from '@angular/core';
+import { TextReplaceData } from 'src/app/interface/text-replace-data';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TextControlService {
   constructor() {}
-  replaceAllTextBetween(
-    originalString: string,
-    beginString: string,
-    endString: string,
-    replaceStart: string,
-    replaceEndFor: string
-  ): string {
-    beginString = 'href=';
-    endString = '"';
-    replaceStart = ' ';
-    replaceEndFor = ' >';
-
-    let index = originalString.indexOf(beginString);
-    if (index != -1) {
-      while (index != -1) {
-        let startIndex = originalString.indexOf(beginString);
-        if (startIndex == -1) {
-          return originalString;
-        }
-        let middleIndex = originalString.indexOf('h.');
-        if (middleIndex == -1) {
-          return originalString;
-        }
-        let endIndex = originalString.indexOf(endString, middleIndex);
-        if (endIndex == -1) {
-          return originalString;
-        }
-
-        let midText = originalString.substring(startIndex - 1, middleIndex);
-        originalString = this.replaceText(
+  //Remove all the text given by the options
+  removeAllOptions(originalString: string, options: TextReplaceData): string {
+    const { removeFromTo, replaceText, removeAllTags } = options;
+    if (removeFromTo) {
+      for (let i = 0; i < removeFromTo.length; i++) {
+        originalString = this.removeFromTo(
           originalString,
-          midText,
-          replaceStart
+          removeFromTo[i].replaceFor,
+          removeFromTo[i].original,
+          removeFromTo[i].originalEnd
         );
-
-        originalString = this.replaceText(
-          originalString,
-          '<nav epub:type="toc" id="toc">',
-          '<div class= "menu" >'
-        );
-        originalString = this.replaceText(originalString, '</nav>', ' </div>');
-
-        originalString = this.replaceText(
-          originalString,
-          '<li id="front">',
-          ' '
-        );
-
-        originalString = this.replaceText(originalString, '">', replaceEndFor);
-
-        originalString = this.replaceText(
-          originalString,
-          '<a ',
-          '<button  type="button" id ="'
-        );
-        originalString = this.replaceText(originalString, '</a>', '</button>');
-        originalString = this.replaceText(originalString, '<ol>', ' ');
-        originalString = this.replaceText(originalString, '</ol>', ' ');
-
-        originalString = this.replaceText(originalString, '<li>', ' ');
-        originalString = this.replaceText(originalString, '<li>', ' ');
-        originalString = this.replaceText(originalString, '</li>', ' ');
-
-        index = originalString.indexOf('xhtml#');
       }
-    } else {
-      console.log('no replace');
     }
-
+    if (replaceText) {
+      for (let i = 0; i < replaceText.length; i++) {
+        originalString = this.replaceText(
+          originalString,
+          replaceText[i].original,
+          replaceText[i].replaceFor
+        );
+      }
+    }
+    //Remove unwanted html tags
+    if (removeAllTags) {
+      for (let i = 0; i < removeAllTags.length; i++) {
+        originalString = this.removeAllTags(originalString, removeAllTags[i]);
+      }
+    }
+    return originalString;
+  }
+  //Remove all the given tag
+  removeAllTags(originalString: string, tag: string): string {
+    originalString = this.removeFromTo(originalString, '', `<${tag}`, '>');
+    originalString = this.removeFromTo(originalString, '', `</${tag}`, '>');
+    return originalString;
+  }
+  //Replace all the text from with in
+  removeFromTo(
+    originalString: string,
+    replaceFor: string,
+    start: string,
+    end: string,
+    startLookingAt?: number
+  ): string {
+    if (startLookingAt == null) {
+      startLookingAt = 0;
+    }
+    let startIndex = originalString.indexOf(start, startLookingAt);
+    if (startIndex == -1) {
+      return originalString;
+    }
+    let endIndex = originalString.indexOf(end, startIndex);
+    if (endIndex == -1) {
+      return originalString;
+    }
+    let original = originalString.substring(startIndex, endIndex + end.length);
+    originalString = this.replaceText(originalString, original, replaceFor);
     return originalString;
   }
   //Get the text between the given start and the end

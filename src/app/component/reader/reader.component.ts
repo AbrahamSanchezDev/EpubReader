@@ -14,41 +14,60 @@ import { PageModule } from 'src/app/model/epub/page/page.module';
 import { TextControlService } from 'src/app/service/data/text-control.service';
 import { SafeHtml } from '@angular/platform-browser';
 import { DomSanitizer } from '@angular/platform-browser';
+import { TextReplaceData } from 'src/app/interface/text-replace-data';
 
+const navOptions: TextReplaceData = {
+  beginString: 'href=',
+  midString: 'h.',
+  replaceMidFor: ' ',
+  removeFromTo: [
+    //Remove the Nav
+    { replaceFor: '<div class= "menu" >', original: '<nav', originalEnd: '>' },
+  ],
+  replaceText: [
+    {
+      original: '</nav>',
+      replaceFor: '</div>',
+    },
+  ],
+  removeAllTags: ['li', 'ol'],
+};
 @Component({
   selector: 'app-reader',
   templateUrl: './reader.component.html',
   styleUrls: ['./reader.component.css'],
 })
-export class ReaderComponent implements AfterViewInit {
+export class ReaderComponent implements AfterViewChecked {
   @ViewChild('bookArea') bookArea;
   @ViewChild('indexMenu') elementRef: ElementRef;
   filePath = 'assets/TheDefeatedDragon.epub';
 
-  private myHtml: SafeHtml;
+  myHtml: SafeHtml;
   added: boolean;
+  curData;
+  book: BookObjModule;
+
   constructor(
     private zip: ZipService,
     private textControl: TextControlService,
     private sanitizer: DomSanitizer
   ) {}
-  ngAfterViewInit(): void {
-    // Solution for catching click events on anchors using querySelectorAll:
+
+  //Add the events to the menu index after the inner html is updated
+  ngAfterViewChecked(): void {
     this.addEvents();
   }
-
+  //Add the events to the menu index
   addEvents() {
     if (this.added) return;
     let anchors = this.elementRef.nativeElement.querySelectorAll(
       'button'
     ) as HTMLButtonElement[];
-    // console.log(anchors);
-
     anchors.forEach((anchor: HTMLButtonElement) => {
       anchor.addEventListener(
         'click',
         (e) => {
-          // console.log(anchor);
+          //call to skip to the same id as the element
           this.skipTo(anchor.id);
         },
         false
@@ -56,20 +75,12 @@ export class ReaderComponent implements AfterViewInit {
       this.added = true;
     });
   }
-  ngAfterViewChecked(): void {
-    this.addEvents();
-  }
-
-  curData;
-  book: BookObjModule;
 
   ngOnInit(): void {}
+
   fileChanged(event) {
     const file = event.target.files[0];
     this.book = new BookObjModule();
-    this.book.pages = [];
-    // console.log(file);
-
     this.book.name = file.name;
     this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
       // console.log(data);
@@ -101,10 +112,7 @@ export class ReaderComponent implements AfterViewInit {
         this.myHtml = this.sanitizer.bypassSecurityTrustHtml(
           this.textControl.replaceAllTextBetween(
             reader.result.toString(),
-            '',
-            '',
-            '',
-            ''
+            navOptions
           )
         );
         this.book.index = this.myHtml;
@@ -161,12 +169,8 @@ export class ReaderComponent implements AfterViewInit {
       return '';
     }
     return this.myHtml;
-    return this.book.index;
   }
 
-  test() {
-    console.log('clicked');
-  }
   formatIndex() {}
   skipTo(id: string) {
     console.log('skip to -' + id);

@@ -11,4 +11,7 @@ export class BookObjModule {
   name: string;
   pages: PageModule[];
   index: SafeHtml;
+  constructor() {
+    this.pages = [];
+  }
 }
