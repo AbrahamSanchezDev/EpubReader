@@ -38,14 +38,18 @@ const navOptions: TextReplaceData = {
 export class ReaderComponent implements AfterViewChecked {
   @ViewChild('bookArea') bookArea;
   @ViewChild('indexMenu') elementRef: ElementRef;
+  @ViewChild('content') content: ElementRef;
+
   filePath = 'assets/TheDefeatedDragon.epub';
 
   myHtml: SafeHtml;
   added: boolean;
-  curData;
+  addedImages: boolean = false;
   book: BookObjModule;
   currentFiles: number;
   currentMaxFiles: number;
+  notFoundImg: string =
+    'https://c.wallhere.com/photos/b0/78/nozomu_itoshiki_Sayonara_Zetsubou_Sensei_Kafuka_Fuura_anime-231302.jpg!d';
   constructor(
     private zip: ZipService,
     private textControl: EpubTextFormatService,
@@ -58,11 +62,19 @@ export class ReaderComponent implements AfterViewChecked {
   }
   //Add the events to the menu index
   addEvents() {
-    if (this.added && this.myHtml != null) return;
-    let anchors = this.elementRef.nativeElement.querySelectorAll(
+    if (this.addedImages == false) {
+      let images = this.content.nativeElement.querySelectorAll('img');
+
+      images.forEach((img) => {
+        img.src = this.getImg(img.id);
+        this.addedImages = true;
+      });
+    }
+    if (this.added) return;
+    let buttons = this.elementRef.nativeElement.querySelectorAll(
       'button'
     ) as HTMLButtonElement[];
-    anchors.forEach((anchor: HTMLButtonElement) => {
+    buttons.forEach((anchor: HTMLButtonElement) => {
       anchor.addEventListener(
         'click',
         (e) => {
@@ -76,7 +88,7 @@ export class ReaderComponent implements AfterViewChecked {
   }
 
   ngOnInit(): void {}
-
+  //Called when adding a new file from selector
   fileChanged(event) {
     const file = event.target.files[0];
     this.resetData();
@@ -90,12 +102,15 @@ export class ReaderComponent implements AfterViewChecked {
         if (name.includes('.png')) {
           this.loadImg(data[i]);
         }
+        this.currentFiles++;
+      }
+      for (let i = 0; i < data.length; i++) {
+        const name = data[i].filename;
         //htmls = ".xhtml"
-        else if (name.includes('.xhtml')) {
+        if (name.includes('.xhtml')) {
           //directory = nav.xhtml
           if (this.isAnIndexer(name)) {
             console.log('Is Index : ' + name);
-
             this.loadIndex(data[i]);
           }
           //Content
@@ -104,25 +119,23 @@ export class ReaderComponent implements AfterViewChecked {
             this.loadContent(data[i]);
           }
         }
-        this.currentFiles++;
       }
     });
   }
-
+  //Reset the values to default
   resetData(): void {
     this.currentFiles = 0;
     this.currentMaxFiles = 0;
     this.book = new BookObjModule();
+    this.addedImages = false;
   }
+  //#endregion Index content
   //Check if its an index file
   isAnIndexer(name: string): boolean {
     if (name.includes('nav.xhtml')) {
       return true;
     }
     return false;
-  }
-  loadImg(obj: ZipEntry) {
-    // console.log('Its the Img');
   }
   loadIndex(obj: ZipEntry) {
     console.warn('Loading ' + obj.filename);
@@ -148,16 +161,45 @@ export class ReaderComponent implements AfterViewChecked {
       reader.readAsText(o);
     });
   }
+  //#endregion
+
+  loadImg(obj: ZipEntry) {
+    let data = this.zip.getData(obj);
+    data.data.subscribe((o) => {
+      let reader = new FileReader();
+      reader.onload = () => {
+        let imgUrl = window.URL.createObjectURL(o);
+        this.book.images.push({ name: obj.filename, url: imgUrl });
+      };
+
+      reader.readAsDataURL(o);
+    });
+  }
+  //Returns the img url that was created for the book
+  getImg(id: string): string {
+    if (this.book) {
+      for (let i = 0; i < this.book.images.length; i++) {
+        if (this.book.images[i].name.includes(id)) {
+          return this.book.images[i].url;
+        }
+      }
+    }
+    return this.notFoundImg;
+  }
+  //#endregion Content
   loadContent(obj: ZipEntry) {
     let data = this.zip.getData(obj);
     data.data.subscribe((o) => {
       let reader = new FileReader();
       reader.onload = () => {
-        this.curData = reader.result;
+        let formattedText: string = this.textControl.cleanUpContent(
+          reader.result.toString()
+        );
+
         this.book.pages.push({
           name: obj.filename,
           fullName: obj.filename,
-          content: reader.result.toString(),
+          content: this.sanitizer.bypassSecurityTrustHtml(formattedText),
         });
       };
       reader.readAsText(o);
@@ -168,7 +210,12 @@ export class ReaderComponent implements AfterViewChecked {
       console.log(data);
     });
   }
-
+  //Skip to the given id
+  skipTo(id: string) {
+    console.log('skip to -' + id);
+  }
+  //#endregion
+  //#region Html callback
   hasBook(): boolean {
     return this.book != null;
   }
@@ -184,21 +231,21 @@ export class ReaderComponent implements AfterViewChecked {
     }
     return this.book.pages;
   }
+  getContentData(obj: PageModule) {
+    return obj.content;
+  }
   getContentName(page: PageModule) {
     if (this.book == null) {
       return '';
     }
     return page.name;
   }
+
   getIndexContent(): SafeHtml {
     if (this.book == null) {
       return '';
     }
     return this.myHtml;
   }
-
-  //Skip to the given id
-  skipTo(id: string) {
-    console.log('skip to -' + id);
-  }
+  //#endregion
 }

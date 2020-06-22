@@ -10,6 +10,15 @@ export class EpubTextFormatService extends TextControlService {
     super();
   }
 
+  cleanUpContent(originalString: string): string {
+    originalString = this.removeAllButTheBody(originalString);
+    originalString = this.replaceImgSrcToId(originalString);
+    return originalString;
+  }
+  //Remove starting comment and Head
+  removeAllButTheBody(originalString: string): string {
+    return this.keepAllTextInBetween(originalString, '<body', '</body>');
+  }
   //Formats the given text
   replaceAllTextBetween(
     originalString: string,
@@ -17,8 +26,8 @@ export class EpubTextFormatService extends TextControlService {
   ): string {
     const { beginString, midString, replaceMidFor } = options;
     //Remove starting comment and Head
-    originalString = this.removeFromTo(originalString, '', '<?', '?>');
-    originalString = this.removeFromTo(originalString, '', '<head>', '</head>');
+    originalString = this.removeAllButTheBody(originalString);
+    //Remove all the text in the given options
     originalString = this.removeAllOptions(originalString, options);
 
     //Replace the <a></a> link html to Button
@@ -28,7 +37,6 @@ export class EpubTextFormatService extends TextControlService {
       '<button  type="button" id ="'
     );
     originalString = this.replaceText(originalString, '</a>', '</button>');
-
     //Check if it needs to Format text
     let index = originalString.indexOf(beginString);
 
@@ -59,6 +67,27 @@ export class EpubTextFormatService extends TextControlService {
     } else {
       console.log('no replace');
     }
+    return originalString;
+  }
+
+  replaceImgSrcToId(originalString: string): string {
+    let imgPrefix = 'src=';
+    let start = originalString.indexOf(imgPrefix);
+    while (start != -1) {
+      //Get next " that should be the end of the src
+      let endOfSrc = originalString.indexOf('"', start + imgPrefix.length + 1);
+      //Get the original full text
+      let originalSrc = originalString.substring(start, endOfSrc + 1);
+
+      let path = originalSrc.substring(5, originalSrc.length - 1);
+      originalString = this.replaceText(
+        originalString,
+        originalSrc,
+        `id="${path}"`
+      );
+      start = originalString.indexOf(imgPrefix);
+    }
+
     return originalString;
   }
 }

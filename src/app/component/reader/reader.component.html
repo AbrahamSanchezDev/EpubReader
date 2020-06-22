@@ -1,16 +1,19 @@
 <div class="render-parent">
   <input type="file" (change)="fileChanged($event)" />
 
+  <!-- <img src="{{ getImg('test') }}" alt="" /> -->
   <div class="book">
     <h1 class="book-title">{{ getBookName() }}</h1>
     <div class="book-index">
       <!-- Episodes -->
       <div #indexMenu [innerHTML]="getIndexContent()" class="index-html"></div>
     </div>
-    <div class="book-content">
-      <p [innerHTML]="curData"></p>
-      <!-- <pre [innerHTML]="curData"></pre> -->
-      <!-- <pre>{{ curData }}</pre> -->
+    <div #content>
+      <div
+        *ngFor="let obj of getContent()"
+        [innerHTML]="obj.content"
+        class="book-content"
+      ></div>
     </div>
   </div>
 </div>

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SafeHtml } from '@angular/platform-browser';
 
 @NgModule({
   declarations: [],
@@ -8,5 +9,5 @@ import { CommonModule } from '@angular/common';
 export class PageModule {
   name: string;
   fullName: string;
-  content: string;
+  content: SafeHtml;
 }

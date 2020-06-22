@@ -100,4 +100,17 @@ export class TextControlService {
     var newText = text.split(original).join(newText);
     return newText;
   }
+  keepAllTextInBetween(
+    originalString: string,
+    startText: string,
+    endText: string
+  ): string {
+    let start = originalString.indexOf(startText);
+    let end = originalString.indexOf(endText);
+
+    if (start != -1 && end != -1) {
+      return originalString.substring(start, end + endText.length);
+    }
+    return originalString;
+  }
 }
