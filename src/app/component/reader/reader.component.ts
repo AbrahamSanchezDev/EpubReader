@@ -1,6 +1,5 @@
 import {
   Component,
-  OnInit,
   ViewChild,
   ElementRef,
   AfterViewChecked,
@@ -233,18 +232,11 @@ export class ReaderComponent implements AfterViewChecked {
   }
   //Skip to the given id
   skipTo(id: string) {
-    console.log('skip to -' + id);
-    console.log(this.content.nativeElement);
-
     let element = document.getElementById(`${id}`) as HTMLElement;
     if (element) {
-      console.log('found it!');
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // this.content.nativeElement.scrollTo(element);
-      //  element.scrollTo()
-      // element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.scrollIntoView({ behavior: 'auto', block: 'start' });
     } else {
-      console.log('didnt find ' + id);
+      console.log("didn't find " + id);
     }
   }
   //#endregion
