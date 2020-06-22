@@ -10,12 +10,10 @@ declare const zip: any;
   providedIn: 'root',
 })
 export class ZipService {
-  constructor() {
-    zip.workerScriptsPath = 'assets/js/';
-    // console.log(zip);
-  }
+  constructor() {}
   //Gets the zip files and return them as entry data
   getEntries(file): Observable<Array<ZipEntry>> {
+    zip.workerScriptsPath = 'assets/js/';
     return new Observable((subscriber) => {
       const reader = new zip.BlobReader(file);
       zip.createReader(
