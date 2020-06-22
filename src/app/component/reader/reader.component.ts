@@ -4,6 +4,7 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
+  ViewContainerRef,
 } from '@angular/core';
 import { ZipService } from 'src/app/service/zip/zip.service';
 import { ZipEntry } from 'src/app/service/zip/ZipEntry';
@@ -39,6 +40,8 @@ export class ReaderComponent implements AfterViewChecked {
   @ViewChild('bookArea') bookArea;
   @ViewChild('indexMenu') elementRef: ElementRef;
   @ViewChild('content') content: ElementRef;
+  @ViewChild('content', { read: ViewContainerRef })
+  private mainContainer: ViewContainerRef;
 
   filePath = 'assets/TheDefeatedDragon.epub';
 
@@ -60,6 +63,7 @@ export class ReaderComponent implements AfterViewChecked {
   ngAfterViewChecked(): void {
     this.addEvents();
   }
+  public ngAfterViewInit(): void {}
   //Add the events to the menu index
   addEvents() {
     if (this.addedImages == false) {
@@ -75,14 +79,16 @@ export class ReaderComponent implements AfterViewChecked {
       'button'
     ) as HTMLButtonElement[];
     buttons.forEach((anchor: HTMLButtonElement) => {
+      let id = anchor.id;
       anchor.addEventListener(
         'click',
         (e) => {
           //call to skip to the same id as the element
-          this.skipTo(anchor.id);
+          this.skipTo(id);
         },
         false
       );
+      anchor.id = '';
       this.added = true;
     });
   }
@@ -99,7 +105,7 @@ export class ReaderComponent implements AfterViewChecked {
       for (let i = 0; i < data.length; i++) {
         const name = data[i].filename;
         //img = .png
-        if (name.includes('.png')) {
+        if (this.isAnImg(name)) {
           this.loadImg(data[i]);
         }
         this.currentFiles++;
@@ -133,6 +139,16 @@ export class ReaderComponent implements AfterViewChecked {
   //Check if its an index file
   isAnIndexer(name: string): boolean {
     if (name.includes('nav.xhtml')) {
+      return true;
+    }
+    return false;
+  }
+  isAnImg(name: string) {
+    let toLowers = name.toLocaleLowerCase();
+    if (toLowers.includes('.png')) {
+      return true;
+    }
+    if (toLowers.includes('.jpg')) {
       return true;
     }
     return false;
@@ -177,6 +193,11 @@ export class ReaderComponent implements AfterViewChecked {
   }
   //Returns the img url that was created for the book
   getImg(id: string): string {
+    if (id.includes('http')) {
+      return id;
+    }
+    console.log(id);
+
     if (this.book) {
       for (let i = 0; i < this.book.images.length; i++) {
         if (this.book.images[i].name.includes(id)) {
@@ -213,6 +234,18 @@ export class ReaderComponent implements AfterViewChecked {
   //Skip to the given id
   skipTo(id: string) {
     console.log('skip to -' + id);
+    console.log(this.content.nativeElement);
+
+    let element = document.getElementById(`${id}`) as HTMLElement;
+    if (element) {
+      console.log('found it!');
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // this.content.nativeElement.scrollTo(element);
+      //  element.scrollTo()
+      // element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      console.log('didnt find ' + id);
+    }
   }
   //#endregion
   //#region Html callback

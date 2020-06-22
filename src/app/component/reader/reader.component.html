@@ -8,7 +8,7 @@
       <!-- Episodes -->
       <div #indexMenu [innerHTML]="getIndexContent()" class="index-html"></div>
     </div>
-    <div #content>
+    <div #content class="pages-parent">
       <div
         *ngFor="let obj of getContent()"
         [innerHTML]="obj.content"
