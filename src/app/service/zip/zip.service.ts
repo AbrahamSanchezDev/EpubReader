@@ -28,7 +28,6 @@ export class ZipService {
         },
         (message) => {
           console.log('Fail to load');
-
           subscriber.error({ message });
         }
       );

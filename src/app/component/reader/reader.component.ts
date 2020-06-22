@@ -43,7 +43,6 @@ export class ReaderComponent implements AfterViewChecked {
   @ViewChild('content', { read: ViewContainerRef })
   filePath = 'assets/TheDefeatedDragon.epub';
 
-  myHtml: SafeHtml;
   added: boolean;
   addedImages: boolean = false;
   book: BookObjModule;
@@ -80,9 +79,9 @@ export class ReaderComponent implements AfterViewChecked {
     let buttons = this.elementRef.nativeElement.querySelectorAll(
       'button'
     ) as HTMLButtonElement[];
-    buttons.forEach((anchor: HTMLButtonElement) => {
-      let id = anchor.id;
-      anchor.addEventListener(
+    buttons.forEach((button: HTMLButtonElement) => {
+      let id = button.id;
+      button.addEventListener(
         'click',
         (e) => {
           //call to skip to the same id as the element
@@ -90,7 +89,7 @@ export class ReaderComponent implements AfterViewChecked {
         },
         false
       );
-      anchor.id = '';
+      button.id = '';
       this.added = true;
     });
   }
@@ -100,17 +99,16 @@ export class ReaderComponent implements AfterViewChecked {
   loadTestingFile() {
     let filePath = 'assets/epub/';
     let dragons = 'The Defeated Dragon 1 - 100.epub';
-    let fileName = dragons;
+    let alchemist = 'The Alchemist God.epub';
+    let devils = 'Devils Son in Law.epub';
+    let fileName = alchemist;
     this.http
       .get(filePath + fileName, { responseType: 'blob' })
       .subscribe((data) => {
-        console.log(data);
         this.fileChanged(data);
       });
   }
   onFileSelected(event) {
-    console.log(event);
-
     this.fileChanged(event.target.files[0]);
   }
   //Called when adding a new file from selector
@@ -146,17 +144,18 @@ export class ReaderComponent implements AfterViewChecked {
         }
       }
       if (this.book.index == null) {
-        console.log('no Index');
+        this.book.usePagesAsMenu = true;
       }
     });
   }
-  loadAndZip(file) {}
+
   //Reset the values to default
   resetData(): void {
     this.currentFiles = 0;
     this.currentMaxFiles = 0;
     this.book = new BookObjModule();
     this.addedImages = false;
+    this.added = false;
   }
   //#endregion Index content
   //Check if its an index file
@@ -177,8 +176,6 @@ export class ReaderComponent implements AfterViewChecked {
     return false;
   }
   loadIndex(obj: ZipEntry) {
-    console.warn('Loading ' + obj.filename);
-
     let data = this.zip.getData(obj);
     data.data.subscribe((o) => {
       let reader = new FileReader();
@@ -194,11 +191,17 @@ export class ReaderComponent implements AfterViewChecked {
           console.log('No special Settings for ' + obj.filename);
           formattedText = reader.result.toString();
         }
-        this.myHtml = this.sanitizer.bypassSecurityTrustHtml(formattedText);
-        this.book.index = this.myHtml;
+        this.book.index = this.sanitizer.bypassSecurityTrustHtml(formattedText);
       };
       reader.readAsText(o);
     });
+  }
+
+  useContentAsMenu(): boolean {
+    if (this.book == null) {
+      return false;
+    }
+    return this.book.usePagesAsMenu;
   }
   //#endregion
   //#region  Images
@@ -235,12 +238,21 @@ export class ReaderComponent implements AfterViewChecked {
     data.data.subscribe((o) => {
       let reader = new FileReader();
       reader.onload = () => {
+        let content = reader.result.toString();
+        //Look for the content title
+        let theName = this.textControl.getTitleName(content);
+        //If there is no title then set it to be the file name
+        if (theName == null) {
+          theName = this.textControl.parseBetween('/', '.', obj.filename);
+        }
+
         let formattedText: string = this.textControl.cleanUpContent(
-          reader.result.toString()
+          reader.result.toString(),
+          theName
         );
 
         this.book.pages.push({
-          name: obj.filename,
+          name: theName,
           fullName: obj.filename,
           content: this.sanitizer.bypassSecurityTrustHtml(formattedText),
         });
@@ -282,6 +294,7 @@ export class ReaderComponent implements AfterViewChecked {
   getContentData(obj: PageModule) {
     return obj.content;
   }
+
   getContentName(page: PageModule) {
     if (this.book == null) {
       return '';
@@ -293,7 +306,7 @@ export class ReaderComponent implements AfterViewChecked {
     if (this.book == null) {
       return '';
     }
-    return this.myHtml;
+    return this.book.index;
   }
   //#endregion
 }

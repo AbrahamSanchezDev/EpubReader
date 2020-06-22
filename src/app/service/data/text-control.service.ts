@@ -119,6 +119,7 @@ export class TextControlService {
     var newText = text.split(original).join(newText);
     return newText;
   }
+  //Remove everything but the text between the given start and end text together with the start and end text
   keepAllTextInBetween(
     originalString: string,
     startText: string,
@@ -131,5 +132,22 @@ export class TextControlService {
       return originalString.substring(start, end + endText.length);
     }
     return originalString;
+  }
+  //Insert text after finding the given text
+  insertAfter(
+    originalText: string,
+    insertAfter: string,
+    textToAdd: string
+  ): string {
+    let index = originalText.indexOf(insertAfter);
+    let finalPart = originalText.substr(
+      insertAfter.length,
+      originalText.length
+    );
+    if (index >= 0) {
+      originalText =
+        originalText.substr(0, insertAfter.length) + textToAdd + finalPart;
+    }
+    return originalText;
   }
 }

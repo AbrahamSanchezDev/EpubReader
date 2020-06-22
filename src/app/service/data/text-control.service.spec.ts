@@ -10,7 +10,9 @@ describe('TextControlService', () => {
     service = TestBed.inject(TextControlService);
   });
 
+  //TODO Add unit text to the functions
   it('should be created', () => {
     expect(service).toBeTruthy();
+    expect(true).toBe(false);
   });
 });

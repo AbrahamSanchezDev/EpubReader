@@ -10,11 +10,25 @@ export class EpubTextFormatService extends TextControlService {
     super();
   }
 
-  cleanUpContent(originalString: string): string {
+  index = 0;
+  cleanUpContent(originalString: string, name: string): string {
     originalString = this.removeAllButTheBody(originalString);
     originalString = this.replaceImgSrcToId(originalString);
     originalString = this.removeNonDynamicDisplays(originalString);
+
+    originalString = this.insertAfter(
+      originalString,
+      '<body>',
+      `<div id="${name}"></div>`
+    );
     return originalString;
+  }
+  //Gets the title of the object
+  getTitleName(originalString: string) {
+    const index = originalString.indexOf('<title>');
+    return index >= 0
+      ? this.parseBetween('<title>', '</title>', originalString)
+      : null;
   }
   //Remove starting comment and Head
   removeAllButTheBody(originalString: string): string {

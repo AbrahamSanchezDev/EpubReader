@@ -7,6 +7,14 @@
     <div class="book-index">
       <!-- Episodes -->
       <div #indexMenu [innerHTML]="getIndexContent()" class="index-html"></div>
+      <div *ngIf="useContentAsMenu()">
+        <button
+          *ngFor="let obj of getContent()"
+          (click)="skipTo(getContentName(obj))"
+        >
+          {{ getContentName(obj) }}
+        </button>
+      </div>
     </div>
     <div #content class="pages-parent">
       <div

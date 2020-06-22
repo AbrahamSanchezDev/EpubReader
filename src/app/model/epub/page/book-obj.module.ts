@@ -13,8 +13,11 @@ export class BookObjModule {
   pages: PageModule[];
   index: SafeHtml;
   images: ImgUrlData[];
+
+  usePagesAsMenu: boolean;
   constructor() {
     this.pages = [];
     this.images = [];
+    this.usePagesAsMenu = false;
   }
 }
