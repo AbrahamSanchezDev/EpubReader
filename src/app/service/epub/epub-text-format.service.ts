@@ -13,11 +13,21 @@ export class EpubTextFormatService extends TextControlService {
   cleanUpContent(originalString: string): string {
     originalString = this.removeAllButTheBody(originalString);
     originalString = this.replaceImgSrcToId(originalString);
+    originalString = this.removeNonDynamicDisplays(originalString);
     return originalString;
   }
   //Remove starting comment and Head
   removeAllButTheBody(originalString: string): string {
     return this.keepAllTextInBetween(originalString, '<body', '</body>');
+  }
+  removeNonDynamicDisplays(originalString: string): string {
+    let options = [
+      { replaceFor: '', original: 'display: inline', originalEnd: 'block;' },
+      { replaceFor: '', original: 'height:', originalEnd: ';' },
+    ];
+
+    originalString = this.removeReplaceStrings(originalString, options);
+    return originalString;
   }
   //Formats the given text
   replaceAllTextBetween(
@@ -72,10 +82,47 @@ export class EpubTextFormatService extends TextControlService {
 
   replaceImgSrcToId(originalString: string): string {
     let imgPrefix = 'src=';
+    let ending = '"';
+
+    // let start = originalString.indexOf(imgPrefix);
+    // while (start != -1) {
+    //   //Get next " that should be the end of the src
+    //   let endOfSrc = originalString.indexOf(
+    //     ending,
+    //     start + imgPrefix.length + 1
+    //   );
+    //   //Get the original full text
+    //   let originalSrc = originalString.substring(start, endOfSrc + 1);
+
+    //   let path = originalSrc.substring(5, originalSrc.length - 1);
+    //   originalString = this.replaceText(
+    //     originalString,
+    //     originalSrc,
+    //     `class = "content-img" id="${path}"`
+    //   );
+    //   start = originalString.indexOf(imgPrefix);
+    // }
+
+    return this.replaceTextTo(originalString, imgPrefix, ending, (text) => {
+      return `class = "content-img" id="${text}"`;
+    });
+
+    return originalString;
+  }
+  replaceTextTo(
+    originalString: string,
+    firstText: string,
+    secondText: string,
+    formattedText: Function
+  ) {
+    let imgPrefix = firstText;
     let start = originalString.indexOf(imgPrefix);
     while (start != -1) {
       //Get next " that should be the end of the src
-      let endOfSrc = originalString.indexOf('"', start + imgPrefix.length + 1);
+      let endOfSrc = originalString.indexOf(
+        secondText,
+        start + imgPrefix.length + 1
+      );
       //Get the original full text
       let originalSrc = originalString.substring(start, endOfSrc + 1);
 
@@ -83,7 +130,7 @@ export class EpubTextFormatService extends TextControlService {
       originalString = this.replaceText(
         originalString,
         originalSrc,
-        `id="${path}"`
+        formattedText(path)
       );
       start = originalString.indexOf(imgPrefix);
     }

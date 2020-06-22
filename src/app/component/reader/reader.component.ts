@@ -13,6 +13,7 @@ import { SafeHtml } from '@angular/platform-browser';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TextReplaceData } from 'src/app/interface/text-replace-data';
 import { EpubTextFormatService } from 'src/app/service/epub/epub-text-format.service';
+import { HttpClient } from '@angular/common/http';
 
 const navOptions: TextReplaceData = {
   beginString: 'href="',
@@ -24,7 +25,7 @@ const navOptions: TextReplaceData = {
   ],
   replaceText: [
     {
-      original: '</nav>',
+      original: '</display:>',
       replaceFor: '</div>',
     },
   ],
@@ -40,8 +41,6 @@ export class ReaderComponent implements AfterViewChecked {
   @ViewChild('indexMenu') elementRef: ElementRef;
   @ViewChild('content') content: ElementRef;
   @ViewChild('content', { read: ViewContainerRef })
-  private mainContainer: ViewContainerRef;
-
   filePath = 'assets/TheDefeatedDragon.epub';
 
   myHtml: SafeHtml;
@@ -55,8 +54,11 @@ export class ReaderComponent implements AfterViewChecked {
   constructor(
     private zip: ZipService,
     private textControl: EpubTextFormatService,
-    private sanitizer: DomSanitizer
-  ) {}
+    private sanitizer: DomSanitizer,
+    private http: HttpClient
+  ) {
+    this.loadTestingFile();
+  }
 
   //Add the events to the menu index after the inner html is updated
   ngAfterViewChecked(): void {
@@ -71,6 +73,7 @@ export class ReaderComponent implements AfterViewChecked {
       images.forEach((img) => {
         img.src = this.getImg(img.id);
         this.addedImages = true;
+        // img.style = '';
       });
     }
     if (this.added) return;
@@ -93,11 +96,28 @@ export class ReaderComponent implements AfterViewChecked {
   }
 
   ngOnInit(): void {}
+
+  loadTestingFile() {
+    let filePath = 'assets/epub/';
+    let dragons = 'The Defeated Dragon 1 - 100.epub';
+    let fileName = dragons;
+    this.http
+      .get(filePath + fileName, { responseType: 'blob' })
+      .subscribe((data) => {
+        console.log(data);
+        this.fileChanged(data);
+      });
+  }
+  onFileSelected(event) {
+    console.log(event);
+
+    this.fileChanged(event.target.files[0]);
+  }
   //Called when adding a new file from selector
-  fileChanged(event) {
-    const file = event.target.files[0];
+  fileChanged(file) {
     this.resetData();
     this.book.name = file.name;
+
     this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
       this.currentMaxFiles = data.length;
       // console.log(data);
@@ -125,8 +145,12 @@ export class ReaderComponent implements AfterViewChecked {
           }
         }
       }
+      if (this.book.index == null) {
+        console.log('no Index');
+      }
     });
   }
+  loadAndZip(file) {}
   //Reset the values to default
   resetData(): void {
     this.currentFiles = 0;
@@ -177,7 +201,7 @@ export class ReaderComponent implements AfterViewChecked {
     });
   }
   //#endregion
-
+  //#region  Images
   loadImg(obj: ZipEntry) {
     let data = this.zip.getData(obj);
     data.data.subscribe((o) => {
@@ -195,8 +219,6 @@ export class ReaderComponent implements AfterViewChecked {
     if (id.includes('http')) {
       return id;
     }
-    console.log(id);
-
     if (this.book) {
       for (let i = 0; i < this.book.images.length; i++) {
         if (this.book.images[i].name.includes(id)) {
@@ -206,6 +228,7 @@ export class ReaderComponent implements AfterViewChecked {
     }
     return this.notFoundImg;
   }
+  //#endregion
   //#endregion Content
   loadContent(obj: ZipEntry) {
     let data = this.zip.getData(obj);

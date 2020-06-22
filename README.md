@@ -1,3 +1,5 @@
 # EpubReader
 
-Using https://github.com/futurepress/epub.js to open the epub files
+## (Work In Progress)
+
+Read epub files that you give it

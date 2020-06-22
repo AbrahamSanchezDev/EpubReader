@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TextReplaceData } from 'src/app/interface/text-replace-data';
+import { ReplaceStrings } from 'src/app/interface/replace-strings';
 
 @Injectable({
   providedIn: 'root',
@@ -10,14 +11,7 @@ export class TextControlService {
   removeAllOptions(originalString: string, options: TextReplaceData): string {
     const { removeFromTo, replaceText, removeAllTags } = options;
     if (removeFromTo) {
-      for (let i = 0; i < removeFromTo.length; i++) {
-        originalString = this.removeFromTo(
-          originalString,
-          removeFromTo[i].replaceFor,
-          removeFromTo[i].original,
-          removeFromTo[i].originalEnd
-        );
-      }
+      originalString = this.removeReplaceStrings(originalString, removeFromTo);
     }
     if (replaceText) {
       for (let i = 0; i < replaceText.length; i++) {
@@ -35,13 +29,37 @@ export class TextControlService {
     }
     return originalString;
   }
+  removeReplaceStrings(
+    originalString: string,
+    replaceStrings: ReplaceStrings[]
+  ): string {
+    for (let i = 0; i < replaceStrings.length; i++) {
+      originalString = this.removeTextFromTo(
+        originalString,
+        replaceStrings[i].replaceFor,
+        replaceStrings[i].original,
+        replaceStrings[i].originalEnd
+      );
+    }
+    return originalString;
+  }
   removedTotal = 0;
   //Remove all the given tag
   removeAllTags(originalString: string, tag: string): string {
     this.removedTotal = 0;
     while (originalString.indexOf(`<${tag}`) != -1) {
-      originalString = this.removeFromTo(originalString, '', `<${tag}`, '>');
-      originalString = this.removeFromTo(originalString, '', `</${tag}`, '>');
+      originalString = this.removeTextFromTo(
+        originalString,
+        '',
+        `<${tag}`,
+        '>'
+      );
+      originalString = this.removeTextFromTo(
+        originalString,
+        '',
+        `</${tag}`,
+        '>'
+      );
     }
     if (this.removedTotal == 0) {
       console.log("Didn't remove any " + tag + 'tag');
@@ -49,7 +67,7 @@ export class TextControlService {
     return originalString;
   }
   //Replace all the text from with in
-  removeFromTo(
+  removeTextFromTo(
     originalString: string,
     replaceFor: string,
     start: string,
@@ -73,6 +91,7 @@ export class TextControlService {
     this.removedTotal++;
     return originalString;
   }
+
   //Get the text between the given start and the end
   parseBetween(
     beginString: string,

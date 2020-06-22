@@ -2,12 +2,14 @@
   background-color: rgb(196, 196, 196);
   height: 98vh;
   width: 100%;
+  position: relative;
 }
 .book {
   background-color: rgb(155, 141, 13);
   height: 100%;
-  width: 100%;
+  width: 80%;
   position: relative;
+  margin-left: 20%;
 }
 .book-title {
   background-color: rgb(26, 107, 15);
@@ -26,14 +28,20 @@
   font-weight: bold;
 }
 .pages-parent {
-  margin-left: 20%;
   display: flex;
   flex-direction: column;
 }
 .book-content {
-  background-color: aqua;
+  background-color: rgb(193, 212, 248);
+  margin-left: 1%;
   width: 100%;
 }
 
 .index-html {
+}
+.file-selector {
+  position: fixed;
+  top: 0;
+  height: 30px;
+  z-index: 2;
 }

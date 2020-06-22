@@ -1,1 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+.content-img {
+  max-width: 98%;
+  padding-left: 1%;
+}
+.book-content p {
+  padding-left: 10px;
+  padding-right: 5px;
+}
+
+.book-content h1 {
+  padding-left: 10px;
+  padding-right: 5px;
+}
