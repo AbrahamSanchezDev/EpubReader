@@ -88,15 +88,14 @@ export class TextControlService {
 
     let original = originalString.substring(startIndex, endIndex + end.length);
     originalString = this.replaceText(originalString, original, replaceFor);
-    this.removedTotal++;
     return originalString;
   }
 
   //Get the text between the given start and the end
-  parseBetween(
+  getTextBetween(
+    originalString: string,
     beginString: string,
-    endString: string,
-    originalString: string
+    endString: string
   ): string {
     var beginIndex = originalString.indexOf(beginString);
     if (beginIndex === -1) {
@@ -113,12 +112,17 @@ export class TextControlService {
     }
     return originalString.substring(substringBeginIndex, substringEndIndex);
   }
+
   //Replace the text for a new one
-  replaceText(text: string, original: string, newText: string): string {
+  replaceText(
+    originalString: string,
+    textToRemove: string,
+    newText: string
+  ): string {
     // The general pattern is = text.split(search).join(replacement)
-    var newText = text.split(original).join(newText);
-    return newText;
+    return originalString.split(textToRemove).join(newText);
   }
+
   //Remove everything but the text between the given start and end text together with the start and end text
   keepAllTextInBetween(
     originalString: string,
@@ -133,6 +137,7 @@ export class TextControlService {
     }
     return originalString;
   }
+
   //Insert text after finding the given text
   insertAfter(
     originalText: string,
@@ -141,12 +146,14 @@ export class TextControlService {
   ): string {
     let index = originalText.indexOf(insertAfter);
     let finalPart = originalText.substr(
-      insertAfter.length,
+      index + insertAfter.length,
       originalText.length
     );
     if (index >= 0) {
       originalText =
-        originalText.substr(0, insertAfter.length) + textToAdd + finalPart;
+        originalText.substr(0, index + insertAfter.length) +
+        textToAdd +
+        finalPart;
     }
     return originalText;
   }

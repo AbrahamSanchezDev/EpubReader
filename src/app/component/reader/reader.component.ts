@@ -243,7 +243,7 @@ export class ReaderComponent implements AfterViewChecked {
         let theName = this.textControl.getTitleName(content);
         //If there is no title then set it to be the file name
         if (theName == null) {
-          theName = this.textControl.parseBetween('/', '.', obj.filename);
+          theName = this.textControl.getTextBetween(obj.filename, '/', '.');
         }
 
         let formattedText: string = this.textControl.cleanUpContent(

@@ -105,7 +105,7 @@ export abstract class BaseDataService<T> extends TextControlService {
       return theText;
     }
     //Look for the text inside of the code tags
-    var foundText = this.parseBetween('[code]', '[/code]', theText);
+    var foundText = this.getTextBetween(theText, '[code]', '[/code]');
     var newHtml = foundText;
     //Look if it has html tag
     var divIndex = newHtml.indexOf('</div>');

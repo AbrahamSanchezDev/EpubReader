@@ -27,7 +27,7 @@ export class EpubTextFormatService extends TextControlService {
   getTitleName(originalString: string) {
     const index = originalString.indexOf('<title>');
     return index >= 0
-      ? this.parseBetween('<title>', '</title>', originalString)
+      ? this.getTextBetween(originalString, '<title>', '</title>')
       : null;
   }
   //Remove starting comment and Head
