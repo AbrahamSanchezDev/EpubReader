@@ -31,7 +31,6 @@ export class PageModule {
       let parent = document.getElementById(this.name);
       if (parent) {
         this.paragraphs = parent.querySelectorAll('p');
-        console.log(this.paragraphs.length);
       } else {
         console.log('no match for ' + this.name);
       }

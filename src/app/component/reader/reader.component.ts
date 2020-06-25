@@ -31,7 +31,7 @@ const navOptions: TextReplaceData = {
     {
       //Replace the <a></a> link html to Button
       original: '<a ',
-      replaceFor: '<button  type="button" id ="',
+      replaceFor: '<button class ="index-obj" type="button" id ="',
     },
     {
       //Replace the <a></a> link html to Button
@@ -112,7 +112,7 @@ export class ReaderComponent implements AfterViewChecked {
     let dragons = 'The Defeated Dragon 1 - 100.epub';
     let alchemist = 'The Alchemist God.epub';
     let devils = 'Devils Son in Law.epub';
-    let fileName = devils;
+    let fileName = dragons;
     this.http
       .get(filePath + fileName, { responseType: 'blob' })
       .subscribe((data) => {
@@ -142,7 +142,6 @@ export class ReaderComponent implements AfterViewChecked {
         if (name.includes('.xhtml')) {
           //directory = nav.xhtml
           if (this.isAnIndexer(name)) {
-            console.log('Is Index : ' + name);
             this.loadIndex(data[i]);
           }
           //Content

@@ -1,47 +1,54 @@
 .render-parent {
-  background-color: rgb(196, 196, 196);
   height: 98vh;
   width: 100%;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .book {
-  background-color: rgb(155, 141, 13);
   height: 100%;
   width: 80%;
-  position: relative;
   margin-left: 20%;
+  position: relative;
+  display: flex;
 }
 .book-title {
   background-color: rgb(26, 107, 15);
 }
-.book-index {
-  position: fixed;
-  background-color: rgb(156, 20, 20);
-  border: 2px solid rgb(65, 65, 65);
 
-  width: 20%;
-  left: 0;
-  top: 30px;
-  height: 100vh;
-  cursor: pointer;
-  color: black;
-  font-weight: bold;
-}
 .pages-parent {
   display: flex;
   flex-direction: column;
 }
 .book-content {
-  background-color: rgb(193, 212, 248);
   margin-left: 1%;
   width: 100%;
 }
 
-.index-html {
+.menu-content {
+  position: fixed;
+  width: 20%;
+  top: 0px;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
 }
 .file-selector {
-  position: fixed;
-  top: 0;
-  height: 30px;
+  width: 100%;
   z-index: 2;
+  height: 30px;
+}
+.book-index {
+  border: 1px solid black;
+  position: absolute;
+  top: 35px;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  border: 2px solid rgb(65, 65, 65);
+  padding-bottom: 50px;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
 }

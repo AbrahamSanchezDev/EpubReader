@@ -1,21 +1,37 @@
 <div class="render-parent">
-  <input type="file" (change)="onFileSelected($event)" class="file-selector" />
-
-  <!-- <img src="{{ getImg('test') }}" alt="" /> -->
-  <div class="book">
-    <h1 class="book-title">{{ getBookName() }}</h1>
+  <div class="menu-content">
+    <button type="button" (click)="fileInput.click()" class="file-selector">
+      <span>Upload</span>
+      <input
+        #fileInput
+        type="file"
+        (change)="onFileSelected($event)"
+        class="file-selector"
+        style="display: none;"
+      />
+    </button>
+    <!-- Index -->
     <div class="book-index">
       <!-- Episodes -->
-      <div #indexMenu [innerHTML]="getIndexContent()" class="index-html"></div>
+      <div #indexMenu [innerHTML]="getIndexContent()" class="index-obj"></div>
       <div *ngIf="useContentAsMenu()">
         <button
           *ngFor="let obj of getContent()"
           (click)="skipTo(getContentName(obj))"
+          class="index-obj"
         >
           {{ getContentName(obj) }}
         </button>
       </div>
     </div>
+
+    .
+  </div>
+  <!-- <img src="{{ getImg('test') }}" alt="" /> -->
+  <div class="book">
+    <h1 class="book-title">{{ getBookName() }}</h1>
+
+    <!-- Main content -->
     <div #content class="pages-parent">
       <div
         *ngFor="let obj of getContent()"
