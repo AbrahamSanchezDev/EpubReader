@@ -20,4 +20,9 @@ export class BookObjModule {
     this.images = [];
     this.usePagesAsMenu = false;
   }
+  Init(): void {
+    for (let i = 0; i < this.pages.length; i++) {
+      this.pages[i].getContentData();
+    }
+  }
 }

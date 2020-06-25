@@ -85,6 +85,18 @@ describe('TextToolService', () => {
     expect(theText).toContain(link);
     expect(theText).toContain(addedText);
   });
+  //Test insertText function
+  it('should insert Some Text before the given text', () => {
+    const addedText = `
+      LinkedIn 
+      Some other text added
+      `;
+    // let theText = service.insertAfter(fullText, link, addedText);
+    expect(false).toBeTrue();
+    // expect(theText).toContain(endText);
+    // expect(theText).toContain(link);
+    // expect(theText).toContain(addedText);
+  });
   //Test keepAllTextInBetween function
   it('should remove all but the text outside start and end range', () => {
     const start = '<start>';

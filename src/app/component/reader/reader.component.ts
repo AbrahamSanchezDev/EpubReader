@@ -28,6 +28,16 @@ const navOptions: TextReplaceData = {
       original: '</display:>',
       replaceFor: '</div>',
     },
+    {
+      //Replace the <a></a> link html to Button
+      original: '<a ',
+      replaceFor: '<button  type="button" id ="',
+    },
+    {
+      //Replace the <a></a> link html to Button
+      original: '</a>',
+      replaceFor: '</button>',
+    },
   ],
   removeAllTags: ['ol', 'li'],
 };
@@ -45,6 +55,7 @@ export class ReaderComponent implements AfterViewChecked {
 
   added: boolean;
   addedImages: boolean = false;
+
   book: BookObjModule;
   currentFiles: number;
   currentMaxFiles: number;
@@ -101,9 +112,7 @@ export class ReaderComponent implements AfterViewChecked {
     let dragons = 'The Defeated Dragon 1 - 100.epub';
     let alchemist = 'The Alchemist God.epub';
     let devils = 'Devils Son in Law.epub';
-    let fileName = dragons;
-    console.log('loading');
-
+    let fileName = devils;
     this.http
       .get(filePath + fileName, { responseType: 'blob' })
       .subscribe((data) => {
@@ -119,7 +128,6 @@ export class ReaderComponent implements AfterViewChecked {
     this.book.name = file.name;
 
     this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
-      this.currentMaxFiles = data.length;
       // console.log(data);
       for (let i = 0; i < data.length; i++) {
         const name = data[i].filename;
@@ -127,7 +135,6 @@ export class ReaderComponent implements AfterViewChecked {
         if (this.isAnImg(name)) {
           this.loadImg(data[i]);
         }
-        this.currentFiles++;
       }
       for (let i = 0; i < data.length; i++) {
         const name = data[i].filename;
@@ -140,6 +147,7 @@ export class ReaderComponent implements AfterViewChecked {
           }
           //Content
           else {
+            this.currentMaxFiles++;
             // console.log('Is Content : ' + name);
             this.loadContent(data[i]);
           }
@@ -178,8 +186,6 @@ export class ReaderComponent implements AfterViewChecked {
     return false;
   }
   loadIndex(obj: ZipEntry) {
-    console.log('index Loaded');
-
     let data = this.zip.getData(obj);
     data.data.subscribe((o) => {
       let reader = new FileReader();
@@ -255,11 +261,16 @@ export class ReaderComponent implements AfterViewChecked {
           theName
         );
 
-        this.book.pages.push({
-          name: theName,
-          fullName: obj.filename,
-          content: this.sanitizer.bypassSecurityTrustHtml(formattedText),
-        });
+        let contentToAdd = new PageModule(
+          theName,
+          obj.filename,
+          this.sanitizer.bypassSecurityTrustHtml(formattedText)
+        );
+        this.book.pages.push(contentToAdd);
+        this.currentFiles++;
+        if (this.currentFiles == this.currentMaxFiles) {
+          this.book.Init();
+        }
       };
       reader.readAsText(o);
     });

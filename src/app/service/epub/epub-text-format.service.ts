@@ -3,7 +3,23 @@ import { Injectable } from '@angular/core';
 import { TextReplaceData } from 'src/app/interface/text-replace-data';
 import { RemoveReplaceOptionService } from '../tool/remove-replace-option/remove-replace-option.service';
 import { HtmlTextToolService } from '../tool/html-tool/html-text-tool.service';
+import { RemoveReplaceOptions } from '../tool/remove-replace-option/interface/remove-replace-options';
 
+const titleTag = '<title>';
+const titleTagEnd = '</title>';
+const bodyTag = '<body>';
+const bodyTagEnd = '</body>';
+const displayRemoveOptions = [
+  { replaceFor: '', original: 'display: inline', originalEnd: 'block;' },
+  { replaceFor: '', original: 'style="', originalEnd: '"' },
+];
+const optionsTo: RemoveReplaceOptions = {
+  removeFromTo: [
+    { replaceFor: '', original: 'display: inline', originalEnd: 'block;' },
+    { replaceFor: '', original: 'style="', originalEnd: '"' },
+  ],
+  replaceText: [],
+};
 @Injectable({
   providedIn: 'root',
 })
@@ -11,40 +27,37 @@ export class EpubTextFormatService extends HtmlTextToolService {
   constructor() {
     super();
   }
-
-  index = 0;
   cleanUpContent(originalString: string, name: string): string {
     originalString = this.removeAllButTheBody(originalString);
     originalString = this.replaceImgSrcToId(originalString);
     originalString = this.removeNonDynamicDisplays(originalString);
 
-    originalString = this.insertAfter(
-      originalString,
-      '<body>',
-      `<div id="${name}"></div>`
-    );
+    originalString = this.insertIdToBody(originalString, name);
     return originalString;
   }
   //Gets the title of the object
   getTitleName(originalString: string) {
-    const index = originalString.indexOf('<title>');
-    return index >= 0
-      ? this.getTextBetween(originalString, '<title>', '</title>')
-      : null;
+    return this.getTextBetween(originalString, titleTag, titleTagEnd);
   }
   //Remove starting comment and Head
   removeAllButTheBody(originalString: string): string {
-    return this.keepAllTextInBetween(originalString, '<body', '</body>');
+    return this.keepAllTextInBetween(originalString, bodyTag, bodyTagEnd);
   }
-  removeNonDynamicDisplays(originalString: string): string {
-    let options = [
-      { replaceFor: '', original: 'display: inline', originalEnd: 'block;' },
-      { replaceFor: '', original: 'style="', originalEnd: '"' },
-    ];
-    originalString = this.removeFromToOptions(originalString, options);
-
+  //Insert id to the body
+  insertIdToBody(originalString: string, id: string): string {
+    originalString = this.insertAfter(
+      originalString,
+      bodyTag,
+      `<div id="${id}">`
+    );
+    originalString = this.insertBefore(originalString, bodyTagEnd, '</div>');
     return originalString;
   }
+  //Remove all none dynamic values from the text
+  removeNonDynamicDisplays(originalString: string): string {
+    return this.removeFromToOptions(originalString, displayRemoveOptions);
+  }
+
   //Formats the given text
   replaceAllTextBetween(
     originalString: string,
@@ -58,17 +71,10 @@ export class EpubTextFormatService extends HtmlTextToolService {
     //Remove all the tags
     originalString = this.removeAllTags(originalString, options.removeAllTags);
 
-    //Replace the <a></a> link html to Button
-    originalString = this.replaceText(
-      originalString,
-      '<a ',
-      '<button  type="button" id ="'
-    );
-    originalString = this.replaceText(originalString, '</a>', '</button>');
     //Check if it needs to Format text
     let index = originalString.indexOf(beginString);
 
-    if (index != -1) {
+    if (originalString.indexOf('xhtml#') != -1) {
       while (index != -1) {
         //Get Start Index for the starting string
         let startIndex = originalString.indexOf(options.beginString);
@@ -84,13 +90,12 @@ export class EpubTextFormatService extends HtmlTextToolService {
           startIndex,
           middleIndex + midString.length
         );
+        //Replace the original string to the replaceMidFor
         originalString = this.replaceText(
           originalString,
           startToMidText,
           replaceMidFor
         );
-        //Check if it should replace is finished
-        index = originalString.indexOf('xhtml#');
       }
     } else {
       console.log('no replace');
@@ -101,31 +106,9 @@ export class EpubTextFormatService extends HtmlTextToolService {
   replaceImgSrcToId(originalString: string): string {
     let imgPrefix = 'src=';
     let ending = '"';
-
-    // let start = originalString.indexOf(imgPrefix);
-    // while (start != -1) {
-    //   //Get next " that should be the end of the src
-    //   let endOfSrc = originalString.indexOf(
-    //     ending,
-    //     start + imgPrefix.length + 1
-    //   );
-    //   //Get the original full text
-    //   let originalSrc = originalString.substring(start, endOfSrc + 1);
-
-    //   let path = originalSrc.substring(5, originalSrc.length - 1);
-    //   originalString = this.replaceText(
-    //     originalString,
-    //     originalSrc,
-    //     `class = "content-img" id="${path}"`
-    //   );
-    //   start = originalString.indexOf(imgPrefix);
-    // }
-
     return this.replaceTextTo(originalString, imgPrefix, ending, (text) => {
       return `class = "content-img" id="${text}"`;
     });
-
-    return originalString;
   }
   replaceTextTo(
     originalString: string,

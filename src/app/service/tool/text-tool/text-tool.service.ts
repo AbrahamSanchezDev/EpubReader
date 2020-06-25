@@ -76,6 +76,21 @@ export class TextToolService {
     }
     return originalText;
   }
+  //Insert text after finding the given text
+  insertBefore(
+    originalText: string,
+    insertBefore: string,
+    textToAdd: string
+  ): string {
+    let index = originalText.indexOf(insertBefore);
+
+    if (index >= 0) {
+      let firstPart = originalText.substr(0, index);
+      let finalPart = originalText.substr(index, originalText.length - index);
+      originalText = firstPart + textToAdd + finalPart;
+    }
+    return originalText;
+  }
   //#endregion
 
   //#region Getters
