@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { TextControlService } from '../data/text-control.service';
+
 import { TextReplaceData } from 'src/app/interface/text-replace-data';
+import { RemoveReplaceOptionService } from '../tool/remove-replace-option/remove-replace-option.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class EpubTextFormatService extends TextControlService {
+export class EpubTextFormatService extends RemoveReplaceOptionService {
   constructor() {
     super();
   }
@@ -40,7 +41,7 @@ export class EpubTextFormatService extends TextControlService {
       { replaceFor: '', original: 'height:', originalEnd: ';' },
     ];
 
-    originalString = this.removeReplaceStrings(originalString, options);
+    originalString = this.removeFromToOptions(originalString, options);
     return originalString;
   }
   //Formats the given text

@@ -1,4 +1,4 @@
-import { ReplaceStrings } from './replace-strings';
+import { ReplaceStrings } from '../service/tool/remove-replace-option/interface/replace-strings';
 
 export interface TextReplaceData {
   beginString: string;

@@ -32,7 +32,7 @@
       {
         "name": "Start Testing",
         "singleInstance": true,
-        "color": "#fff",
+        "color": "#32CD32",
         "command": "ng test"
       },
       {
@@ -43,8 +43,5 @@
       }
     ]
   },
-  "cSpell.words": [
-    "epub",
-    "htmls"
-  ]
+  "cSpell.words": ["epub", "htmls"]
 }
