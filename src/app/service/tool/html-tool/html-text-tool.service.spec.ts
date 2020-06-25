@@ -5,7 +5,7 @@ import { ElementRef } from '@angular/core';
 import { MockElementRef } from '../text-tool/text-tool.service.spec';
 import { ReplaceStrings } from 'src/app/service/tool/remove-replace-option/interface/replace-strings';
 
-describe('HtmlToolService', () => {
+fdescribe('HtmlToolService', () => {
   let service: HtmlTextToolService;
   let input: ElementRef<HTMLInputElement>;
   const firstText = 'This is some previews text';
@@ -294,6 +294,45 @@ end of the description`;
     expect(theNewText).toContain(endText);
     expect(theNewText).toContain('<img src=');
     expect(theNewText).toContain(otherLink);
+  });
+  //Testing setToTag function
+  it('should remove all the given tags from the text ', () => {
+    let originalText = `
+    <div>
+      ${firstText}
+      <p>
+      ${link}
+      </p>
+      </div>
+      <li>
+      ${endText}
+      </li>
+      <div>
+      <p>
+      ${link}
+      </p>
+      <li>
+      ${endText}
+      </li>
+      </div>
+      <li>
+      ${endText}
+      </li>
+      <p>
+      ${link}
+      </p>
+      `;
+    //This can be any tag
+    let tags = ['p', 'div', 'li'];
+    setTextInInput(originalText, link);
+    let theNewText = service.removeAllTags(originalText, tags);
+    expect(theNewText).toContain(firstText);
+    expect(theNewText).toContain(link);
+    expect(theNewText).toContain(endText);
+    for (let i = 0; i < tags.length; i++) {
+      expect(theNewText).not.toContain(`<${tags[i]}>`);
+      expect(theNewText).not.toContain(`</${tags[i]}>`);
+    }
   });
   //Testing setToTag function
   it('should put the text in between two tags', () => {

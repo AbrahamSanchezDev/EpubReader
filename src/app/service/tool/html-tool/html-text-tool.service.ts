@@ -213,13 +213,23 @@ ${textToReplace}
   //#endregion
 
   //#region Remove
-  //Remove all the given tag
-  removeAllTags(originalString: string, tag: string): string {
+  //Remove all the given tags
+  removeAllTags(originalString: string, tags: string[]): string {
     this.removedTotal = 0;
-    originalString = this.removeAllTextFromTo(originalString, `<${tag}`, '>');
-    originalString = this.removeAllTextFromTo(originalString, `</${tag}`, '>');
+    for (let i = 0; i < tags.length; i++) {
+      originalString = this.removeAllTextFromTo(
+        originalString,
+        `<${tags[i]}`,
+        '>'
+      );
+      originalString = this.removeAllTextFromTo(
+        originalString,
+        `</${tags[i]}`,
+        '>'
+      );
+    }
     if (this.removedTotal == 0) {
-      console.log("Didn't remove any " + tag + 'tag');
+      console.log("Didn't remove any tag from " + tags);
     }
     return originalString;
   }

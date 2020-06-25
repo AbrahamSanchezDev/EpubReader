@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 
 import { TextReplaceData } from 'src/app/interface/text-replace-data';
 import { RemoveReplaceOptionService } from '../tool/remove-replace-option/remove-replace-option.service';
+import { HtmlTextToolService } from '../tool/html-tool/html-text-tool.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class EpubTextFormatService extends RemoveReplaceOptionService {
+export class EpubTextFormatService extends HtmlTextToolService {
   constructor() {
     super();
   }
@@ -38,10 +39,10 @@ export class EpubTextFormatService extends RemoveReplaceOptionService {
   removeNonDynamicDisplays(originalString: string): string {
     let options = [
       { replaceFor: '', original: 'display: inline', originalEnd: 'block;' },
-      { replaceFor: '', original: 'height:', originalEnd: ';' },
+      { replaceFor: '', original: 'style="', originalEnd: '"' },
     ];
-
     originalString = this.removeFromToOptions(originalString, options);
+
     return originalString;
   }
   //Formats the given text
@@ -54,6 +55,8 @@ export class EpubTextFormatService extends RemoveReplaceOptionService {
     originalString = this.removeAllButTheBody(originalString);
     //Remove all the text in the given options
     originalString = this.removeAllOptions(originalString, options);
+    //Remove all the tags
+    originalString = this.removeAllTags(originalString, options.removeAllTags);
 
     //Replace the <a></a> link html to Button
     originalString = this.replaceText(

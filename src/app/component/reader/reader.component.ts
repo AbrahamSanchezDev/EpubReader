@@ -101,7 +101,9 @@ export class ReaderComponent implements AfterViewChecked {
     let dragons = 'The Defeated Dragon 1 - 100.epub';
     let alchemist = 'The Alchemist God.epub';
     let devils = 'Devils Son in Law.epub';
-    let fileName = alchemist;
+    let fileName = dragons;
+    console.log('loading');
+
     this.http
       .get(filePath + fileName, { responseType: 'blob' })
       .subscribe((data) => {
@@ -176,6 +178,8 @@ export class ReaderComponent implements AfterViewChecked {
     return false;
   }
   loadIndex(obj: ZipEntry) {
+    console.log('index Loaded');
+
     let data = this.zip.getData(obj);
     data.data.subscribe((o) => {
       let reader = new FileReader();

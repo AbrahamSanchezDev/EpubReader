@@ -52,7 +52,9 @@ export class RemoveReplaceOptionService extends TextToolService {
     originalString: string,
     removeFromTo: ReplaceStrings[]
   ): string {
+    let counter = 0;
     for (let i = 0; i < removeFromTo.length; i++) {
+      counter = 0;
       while (originalString.includes(removeFromTo[i].original)) {
         originalString = this.removeTextFromTo(
           originalString,
@@ -60,6 +62,11 @@ export class RemoveReplaceOptionService extends TextToolService {
           removeFromTo[i].original,
           removeFromTo[i].originalEnd
         );
+        counter++;
+        if (counter > 100) {
+          console.log('Infinite loop detected for ' + removeFromTo[i].original);
+          break;
+        }
       }
     }
     return originalString;
