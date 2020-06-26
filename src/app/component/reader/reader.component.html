@@ -1,4 +1,5 @@
 <div class="render-parent">
+  <app-epub-options class="epub-options"></app-epub-options>
   <div class="menu-content">
     <button type="button" (click)="fileInput.click()" class="file-selector">
       <span>Upload</span>
@@ -11,9 +12,9 @@
       />
     </button>
     <!-- Index -->
-    <div class="book-index">
+    <div #indexMenu class="book-index">
       <!-- Episodes -->
-      <div #indexMenu [innerHTML]="getIndexContent()" class="index-obj"></div>
+      <div [innerHTML]="getIndexContent()" class="index-obj"></div>
       <div *ngIf="useContentAsMenu()">
         <button
           *ngFor="let obj of getContent()"

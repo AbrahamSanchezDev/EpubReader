@@ -29,10 +29,10 @@ export class EpubTextFormatService extends HtmlTextToolService {
   }
   cleanUpContent(originalString: string, name: string): string {
     originalString = this.removeAllButTheBody(originalString);
+    originalString = this.insertIdToBody(originalString, name);
     originalString = this.replaceImgSrcToId(originalString);
     originalString = this.removeNonDynamicDisplays(originalString);
 
-    originalString = this.insertIdToBody(originalString, name);
     return originalString;
   }
   //Gets the title of the object
@@ -45,12 +45,20 @@ export class EpubTextFormatService extends HtmlTextToolService {
   }
   //Insert id to the body
   insertIdToBody(originalString: string, id: string): string {
+    if (!originalString.includes(bodyTag)) {
+      let start = originalString.indexOf('<body');
+      let end = originalString.indexOf('>', start);
+      let original = originalString.substring(start, end + 1);
+      originalString = this.replaceText(originalString, original, bodyTag);
+    }
+
     originalString = this.insertAfter(
       originalString,
       bodyTag,
       `<div id="${id}">`
     );
     originalString = this.insertBefore(originalString, bodyTagEnd, '</div>');
+
     return originalString;
   }
   //Remove all none dynamic values from the text

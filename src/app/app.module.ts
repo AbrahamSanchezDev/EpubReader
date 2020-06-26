@@ -7,9 +7,10 @@ import { ReaderComponent } from './component/reader/reader.component';
 
 import { HttpClientModule } from '@angular/common/http';
 import { EpubDisplayComponent } from './component/epub/epub-display/epub-display.component';
+import { EpubOptionsComponent } from './component/epub/epub-options/epub-options.component';
 
 @NgModule({
-  declarations: [AppComponent, ReaderComponent, EpubDisplayComponent],
+  declarations: [AppComponent, ReaderComponent, EpubDisplayComponent, EpubOptionsComponent],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule],
   providers: [],
   bootstrap: [AppComponent],

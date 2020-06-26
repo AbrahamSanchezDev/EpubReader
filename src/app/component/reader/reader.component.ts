@@ -55,7 +55,6 @@ export class ReaderComponent implements AfterViewChecked {
   @ViewChild('contentDisplay') contentDisplay: ElementRef<HTMLDivElement>;
   filePath = 'assets/TheDefeatedDragon.epub';
 
-  added: boolean;
   addedImages: boolean = false;
 
   book: BookObjModule;
@@ -76,30 +75,8 @@ export class ReaderComponent implements AfterViewChecked {
   }
 
   //Add the events to the menu index after the inner html is updated
-  ngAfterViewChecked(): void {
-    this.addEvents();
-  }
+  ngAfterViewChecked(): void {}
   public ngAfterViewInit(): void {}
-  //Add the events to the menu index
-  addEvents() {
-    if (this.added) return;
-    let buttons = this.elementRef.nativeElement.querySelectorAll(
-      'button'
-    ) as HTMLButtonElement[];
-    buttons.forEach((button: HTMLButtonElement) => {
-      let id = button.id;
-      button.addEventListener(
-        'click',
-        (e) => {
-          //call to skip to the same id as the element
-          this.skipTo(id);
-        },
-        false
-      );
-      button.id = '';
-      this.added = true;
-    });
-  }
 
   ngOnInit(): void {}
 
@@ -166,6 +143,7 @@ export class ReaderComponent implements AfterViewChecked {
     this.currentMaxFiles = 0;
     this.book = new BookObjModule();
     this.addedImages = false;
+    this.epubService.clearIds();
     this.added = false;
   }
   //#endregion Index content
@@ -279,6 +257,8 @@ export class ReaderComponent implements AfterViewChecked {
           obj.filename,
           this.sanitizer.bypassSecurityTrustHtml(formattedText)
         );
+        let curAmount = this.book.pages.length;
+        contentToAdd.index = curAmount;
         this.book.pages.push(contentToAdd);
         this.currentFiles++;
         if (this.currentFiles == this.currentMaxFiles) {
@@ -287,23 +267,51 @@ export class ReaderComponent implements AfterViewChecked {
           if (this.book.index == null) {
             this.book.usePagesAsMenu = true;
           }
+          this.setupButtonsIds();
         }
       };
       reader.readAsText(o);
     });
   }
-  loadBook() {
-    this.zip.getEntries(this.filePath).subscribe((data) => {
-      console.log(data);
-    });
+
+  added = false;
+  setupButtonsIds(): void {
+    if (this.added) {
+      return;
+    }
+    if (this.elementRef) {
+      setTimeout(() => {
+        let buttons = this.elementRef.nativeElement.querySelectorAll(
+          'button'
+        ) as HTMLButtonElement[];
+
+        buttons.forEach((button: HTMLButtonElement) => {
+          let id = '';
+          if (this.book.usePagesAsMenu) {
+            id = button.innerText;
+          } else {
+            id = button.id;
+            button.addEventListener(
+              'click',
+              (e) => {
+                //call to skip to the same id as the element
+                this.skipTo(id);
+              },
+              false
+            );
+            button.id = '';
+          }
+          this.epubService.addContentId(id);
+        }, 50);
+      });
+    }
   }
+
   //Skip to the given id
   skipTo(id: string) {
     let element = document.getElementById(`${id}`) as HTMLElement;
     if (element) {
       element.scrollIntoView({ behavior: 'auto', block: 'start' });
-    } else {
-      console.log("didn't find " + id);
     }
   }
   //#endregion

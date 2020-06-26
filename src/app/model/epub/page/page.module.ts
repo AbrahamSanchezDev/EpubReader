@@ -11,7 +11,9 @@ export class PageModule {
   name: string;
   fullName: string;
   content: SafeHtml;
+  index: number;
 
+  private parent: HTMLElement;
   private paragraphs: NodeListOf<HTMLParagraphElement>;
 
   constructor(
@@ -28,10 +30,36 @@ export class PageModule {
       return;
     }
     setTimeout(() => {
-      let parent = document.getElementById(this.name);
-      if (parent) {
-        this.paragraphs = parent.querySelectorAll('p');
+      this.parent = document.getElementById(this.name);
+      if (this.parent) {
+        this.paragraphs = this.parent.querySelectorAll('p');
+      } else {
+        console.log('null parent');
       }
     }, 5);
+  }
+  checkIfInView(index: number): void {
+    if (this.paragraphs == null) {
+      console.log('null paragraphs');
+
+      return;
+    }
+    if (index >= this.paragraphs.length) {
+      console.log(
+        'Out of index paragraphs only goes up to ' + this.paragraphs.length
+      );
+
+      return;
+    }
+    var position = this.paragraphs[index].getBoundingClientRect();
+    // checking whether fully visible
+    if (position.top >= 0 && position.bottom <= window.innerHeight) {
+      console.log('Element is fully visible in screen');
+    }
+
+    // checking for partial visibility
+    if (position.top < window.innerHeight && position.bottom >= 0) {
+      console.log('Element is partially visible in screen');
+    }
   }
 }

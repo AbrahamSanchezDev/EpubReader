@@ -1,0 +1,16 @@
+.epub-options-parent {
+  display: flex;
+}
+.epub-options-parent button {
+  height: 30px;
+  width: 100px;
+
+  border-radius: 8px;
+  cursor: pointer;
+
+  color: #fff;
+  font-weight: 600;
+  margin-left: 5px;
+  width: max-content;
+  background-image: linear-gradient(to right, #868f96 0%, #596164 100%);
+}
