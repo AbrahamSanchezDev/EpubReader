@@ -33,6 +33,6 @@
   flex-direction: column;
   overflow: auto;
 }
-.left {
+.menu-open {
   margin-left: 20%;
 }

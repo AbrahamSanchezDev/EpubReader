@@ -25,8 +25,7 @@
       </div>
     </div>
   </div>
-  <app-epub-display
-    [book]="getBook()"
-    [class]="contentClass"
-  ></app-epub-display>
+  <div #contentDisplay>
+    <app-epub-display [book]="getBook()"></app-epub-display>
+  </div>
 </div>

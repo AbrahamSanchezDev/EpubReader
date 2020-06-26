@@ -4,6 +4,7 @@ import {
   ElementRef,
   AfterViewChecked,
   ViewContainerRef,
+  Renderer2,
 } from '@angular/core';
 import { ZipService } from 'src/app/service/zip/zip.service';
 import { ZipEntry } from 'src/app/service/zip/ZipEntry';
@@ -15,6 +16,7 @@ import { TextReplaceData } from 'src/app/interface/text-replace-data';
 import { EpubTextFormatService } from 'src/app/service/epub/epub-text-format.service';
 import { HttpClient } from '@angular/common/http';
 import { EpubService } from 'src/app/service/epub/epub.service';
+import { EpubDisplayComponent } from '../epub/epub-display/epub-display.component';
 
 const navOptions: TextReplaceData = {
   beginString: 'href="',
@@ -50,7 +52,7 @@ const navOptions: TextReplaceData = {
 export class ReaderComponent implements AfterViewChecked {
   @ViewChild('bookArea') bookArea;
   @ViewChild('indexMenu') elementRef: ElementRef;
-  @ViewChild('content', { read: ViewContainerRef })
+  @ViewChild('contentDisplay') contentDisplay: ElementRef<HTMLDivElement>;
   filePath = 'assets/TheDefeatedDragon.epub';
 
   added: boolean;
@@ -59,14 +61,16 @@ export class ReaderComponent implements AfterViewChecked {
   book: BookObjModule;
   currentFiles: number;
   currentMaxFiles: number;
-  contentClass: string = '';
+
+  showingMenu: boolean = true;
 
   constructor(
     private zip: ZipService,
     private textControl: EpubTextFormatService,
     private sanitizer: DomSanitizer,
     private http: HttpClient,
-    private epubService: EpubService
+    private epubService: EpubService,
+    private renderer: Renderer2
   ) {
     this.loadTestingFile();
   }
@@ -118,7 +122,7 @@ export class ReaderComponent implements AfterViewChecked {
   }
   //Called when adding a new file from selector
   fileChanged(file) {
-    this.contentClass = 'left';
+    this.updateContentClasses();
     this.resetData();
 
     this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
@@ -340,8 +344,24 @@ export class ReaderComponent implements AfterViewChecked {
     return this.book.index;
   }
 
-  getContentClass(): string {
-    return 'left';
+  updateContentClasses(): void {
+    if (this.contentDisplay == null) {
+      console.log('Null display');
+      return;
+    }
+    if (this.showingMenu) {
+      this.renderer.setAttribute(
+        this.contentDisplay.nativeElement,
+        'class',
+        'menu-open'
+      );
+    } else {
+      this.renderer.setAttribute(
+        this.contentDisplay.nativeElement,
+        'class',
+        ''
+      );
+    }
   }
   //#endregion
 }
