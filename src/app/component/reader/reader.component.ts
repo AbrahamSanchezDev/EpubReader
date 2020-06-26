@@ -59,6 +59,7 @@ export class ReaderComponent implements AfterViewChecked {
   book: BookObjModule;
   currentFiles: number;
   currentMaxFiles: number;
+  contentClass: string = '';
 
   constructor(
     private zip: ZipService,
@@ -117,6 +118,7 @@ export class ReaderComponent implements AfterViewChecked {
   }
   //Called when adding a new file from selector
   fileChanged(file) {
+    this.contentClass = 'left';
     this.resetData();
 
     this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
@@ -336,6 +338,10 @@ export class ReaderComponent implements AfterViewChecked {
       return '';
     }
     return this.book.index;
+  }
+
+  getContentClass(): string {
+    return 'left';
   }
   //#endregion
 }

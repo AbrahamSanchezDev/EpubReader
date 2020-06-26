@@ -33,3 +33,6 @@
   flex-direction: column;
   overflow: auto;
 }
+.left {
+  margin-left: 20%;
+}

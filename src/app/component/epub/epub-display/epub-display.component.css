@@ -1,11 +1,7 @@
 .book {
-  height: 99%;
-  width: 80%;
-  margin-left: 20%;
   position: relative;
   display: flex;
   flex-direction: column;
-  background-color: rgb(65, 127, 228);
 }
 
 .book-title {

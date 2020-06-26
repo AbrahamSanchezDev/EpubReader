@@ -12,7 +12,6 @@ export class EpubDisplayComponent implements OnInit {
   @Input() book: BookObjModule;
   @ViewChild('content') content: ElementRef;
 
-  bookName: string;
   addedImages: boolean = false;
   notFoundImg: string =
     'https://c.wallhere.com/photos/b0/78/nozomu_itoshiki_Sayonara_Zetsubou_Sensei_Kafuka_Fuura_anime-231302.jpg!d';
@@ -26,9 +25,6 @@ export class EpubDisplayComponent implements OnInit {
   ngOnInit(): void {}
 
   onOpenEpub(epub: BookObjModule) {
-    this.bookName = epub.name;
-    console.log('loaded ' + this.bookName);
-
     setTimeout(() => {
       this.addEvents();
     }, 5);
@@ -60,7 +56,7 @@ export class EpubDisplayComponent implements OnInit {
     return this.notFoundImg;
   }
   getBookName(): string {
-    return this.book ? this.book.name : '';
+    return this.book ? (this.book.name ? this.book.name : '') : '';
   }
   getContent(): PageModule[] {
     if (this.book == null) {
