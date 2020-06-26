@@ -31,8 +31,6 @@ export class PageModule {
       let parent = document.getElementById(this.name);
       if (parent) {
         this.paragraphs = parent.querySelectorAll('p');
-      } else {
-        console.log('no match for ' + this.name);
       }
     }, 5);
   }

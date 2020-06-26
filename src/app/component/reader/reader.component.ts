@@ -14,6 +14,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { TextReplaceData } from 'src/app/interface/text-replace-data';
 import { EpubTextFormatService } from 'src/app/service/epub/epub-text-format.service';
 import { HttpClient } from '@angular/common/http';
+import { EpubService } from 'src/app/service/epub/epub.service';
 
 const navOptions: TextReplaceData = {
   beginString: 'href="',
@@ -49,7 +50,6 @@ const navOptions: TextReplaceData = {
 export class ReaderComponent implements AfterViewChecked {
   @ViewChild('bookArea') bookArea;
   @ViewChild('indexMenu') elementRef: ElementRef;
-  @ViewChild('content') content: ElementRef;
   @ViewChild('content', { read: ViewContainerRef })
   filePath = 'assets/TheDefeatedDragon.epub';
 
@@ -59,13 +59,13 @@ export class ReaderComponent implements AfterViewChecked {
   book: BookObjModule;
   currentFiles: number;
   currentMaxFiles: number;
-  notFoundImg: string =
-    'https://c.wallhere.com/photos/b0/78/nozomu_itoshiki_Sayonara_Zetsubou_Sensei_Kafuka_Fuura_anime-231302.jpg!d';
+
   constructor(
     private zip: ZipService,
     private textControl: EpubTextFormatService,
     private sanitizer: DomSanitizer,
-    private http: HttpClient
+    private http: HttpClient,
+    private epubService: EpubService
   ) {
     this.loadTestingFile();
   }
@@ -77,15 +77,6 @@ export class ReaderComponent implements AfterViewChecked {
   public ngAfterViewInit(): void {}
   //Add the events to the menu index
   addEvents() {
-    if (this.addedImages == false) {
-      let images = this.content.nativeElement.querySelectorAll('img');
-
-      images.forEach((img) => {
-        img.src = this.getImg(img.id);
-        this.addedImages = true;
-        // img.style = '';
-      });
-    }
     if (this.added) return;
     let buttons = this.elementRef.nativeElement.querySelectorAll(
       'button'
@@ -116,7 +107,9 @@ export class ReaderComponent implements AfterViewChecked {
     this.http
       .get(filePath + fileName, { responseType: 'blob' })
       .subscribe((data) => {
-        this.fileChanged(data);
+        if (data != null) {
+          this.fileChanged(data);
+        }
       });
   }
   onFileSelected(event) {
@@ -125,9 +118,15 @@ export class ReaderComponent implements AfterViewChecked {
   //Called when adding a new file from selector
   fileChanged(file) {
     this.resetData();
-    this.book.name = file.name;
 
     this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
+      for (let i = 0; i < data.length; i++) {
+        const name = data[i].filename;
+        if (name.includes('book.opf')) {
+          this.loadFileName(data[i]);
+          break;
+        }
+      }
       // console.log(data);
       for (let i = 0; i < data.length; i++) {
         const name = data[i].filename;
@@ -151,9 +150,6 @@ export class ReaderComponent implements AfterViewChecked {
             this.loadContent(data[i]);
           }
         }
-      }
-      if (this.book.index == null) {
-        this.book.usePagesAsMenu = true;
       }
     });
   }
@@ -184,6 +180,25 @@ export class ReaderComponent implements AfterViewChecked {
     }
     return false;
   }
+  loadFileName(obj: ZipEntry) {
+    if (this.book.name != null) {
+      console.log('Already has name');
+
+      return;
+    }
+    let data = this.zip.getData(obj);
+    data.data.subscribe((o) => {
+      let reader = new FileReader();
+      reader.onload = () => {
+        this.book.name = this.textControl.getTextBetween(
+          reader.result.toString(),
+          '<dc:title>',
+          '</dc:title>'
+        );
+      };
+      reader.readAsText(o);
+    });
+  }
   loadIndex(obj: ZipEntry) {
     let data = this.zip.getData(obj);
     data.data.subscribe((o) => {
@@ -192,6 +207,12 @@ export class ReaderComponent implements AfterViewChecked {
         let formattedText: string = '';
         //Loaded a nav indexer
         if (obj.filename.includes('nav.xhtml')) {
+          //Get name from original text
+          this.book.name = this.textControl.getFileNameFromIndex(
+            reader.result.toString(),
+            navOptions
+          );
+
           formattedText = this.textControl.replaceAllTextBetween(
             reader.result.toString(),
             navOptions
@@ -226,20 +247,7 @@ export class ReaderComponent implements AfterViewChecked {
       reader.readAsDataURL(o);
     });
   }
-  //Returns the img url that was created for the book
-  getImg(id: string): string {
-    if (id.includes('http')) {
-      return id;
-    }
-    if (this.book) {
-      for (let i = 0; i < this.book.images.length; i++) {
-        if (this.book.images[i].name.includes(id)) {
-          return this.book.images[i].url;
-        }
-      }
-    }
-    return this.notFoundImg;
-  }
+
   //#endregion
   //#endregion Content
   loadContent(obj: ZipEntry) {
@@ -269,6 +277,10 @@ export class ReaderComponent implements AfterViewChecked {
         this.currentFiles++;
         if (this.currentFiles == this.currentMaxFiles) {
           this.book.Init();
+          this.epubService.callOnOpenEpub(this.book);
+          if (this.book.index == null) {
+            this.book.usePagesAsMenu = true;
+          }
         }
       };
       reader.readAsText(o);
@@ -292,6 +304,9 @@ export class ReaderComponent implements AfterViewChecked {
   //#region Html callback
   hasBook(): boolean {
     return this.book != null;
+  }
+  getBook(): BookObjModule {
+    return this.book;
   }
   getBookName(): string {
     if (this.book == null) {

@@ -5,25 +5,6 @@
   display: flex;
   flex-direction: column;
 }
-.book {
-  height: 100%;
-  width: 80%;
-  margin-left: 20%;
-  position: relative;
-  display: flex;
-}
-.book-title {
-  background-color: rgb(26, 107, 15);
-}
-
-.pages-parent {
-  display: flex;
-  flex-direction: column;
-}
-.book-content {
-  margin-left: 1%;
-  width: 100%;
-}
 
 .menu-content {
   position: fixed;

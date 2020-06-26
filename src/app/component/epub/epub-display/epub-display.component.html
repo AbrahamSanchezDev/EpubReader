@@ -1,0 +1,12 @@
+<div class="book">
+  <h1 class="book-title">{{ getBookName() }}</h1>
+
+  <!-- Main content -->
+  <div #content class="pages-parent">
+    <div
+      *ngFor="let obj of getContent()"
+      [innerHTML]="obj.content"
+      class="book-content"
+    ></div>
+  </div>
+</div>

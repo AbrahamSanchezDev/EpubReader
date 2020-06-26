@@ -66,16 +66,16 @@ export class EpubTextFormatService extends HtmlTextToolService {
     const { beginString, midString, replaceMidFor } = options;
     //Remove starting comment and Head
     originalString = this.removeAllButTheBody(originalString);
+
     //Remove all the text in the given options
     originalString = this.removeAllOptions(originalString, options);
     //Remove all the tags
     originalString = this.removeAllTags(originalString, options.removeAllTags);
 
-    //Check if it needs to Format text
-    let index = originalString.indexOf(beginString);
-
+    //Remove the middle text
     if (originalString.indexOf('xhtml#') != -1) {
-      while (index != -1) {
+      //Check if it needs to Format text
+      while (originalString.indexOf(beginString) != -1) {
         //Get Start Index for the starting string
         let startIndex = originalString.indexOf(options.beginString);
         if (startIndex == -1) {
@@ -103,6 +103,27 @@ export class EpubTextFormatService extends HtmlTextToolService {
     return originalString;
   }
 
+  getFileNameFromIndex(
+    originalString: string,
+    options: TextReplaceData
+  ): string {
+    //Remove starting comment and Head
+    originalString = this.removeAllButTheBody(originalString);
+    let textFrom = this.getTextBetween(originalString, '<a', '</a>');
+    if (textFrom) {
+      if (!textFrom.includes(options.midString)) {
+        let endText = '</a>';
+        let firstLink = originalString.indexOf('<a');
+        let firstLinkEnd = originalString.indexOf(endText);
+        let fullText = originalString.substring(
+          firstLink,
+          firstLinkEnd + endText.length
+        );
+        return this.getTextBetween(fullText, '>', '<');
+      }
+    }
+    return '';
+  }
   replaceImgSrcToId(originalString: string): string {
     let imgPrefix = 'src=';
     let ending = '"';
