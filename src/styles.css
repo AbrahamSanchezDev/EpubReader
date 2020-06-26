@@ -19,3 +19,6 @@
   margin-left: 1%;
   cursor: pointer;
 }
+.selected {
+  background-color: coral;
+}

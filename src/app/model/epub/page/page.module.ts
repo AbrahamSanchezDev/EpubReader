@@ -15,6 +15,7 @@ export class PageModule {
 
   private parent: HTMLElement;
   private paragraphs: NodeListOf<HTMLParagraphElement>;
+  private spans: NodeListOf<HTMLSpanElement>;
 
   constructor(
     @Inject(String) name: string,
@@ -33,6 +34,7 @@ export class PageModule {
       this.parent = document.getElementById(this.name);
       if (this.parent) {
         this.paragraphs = this.parent.querySelectorAll('p');
+        this.spans = this.parent.querySelectorAll('span');
       } else {
         console.log('null parent');
       }
@@ -61,5 +63,58 @@ export class PageModule {
     if (position.top < window.innerHeight && position.bottom >= 0) {
       console.log('Element is partially visible in screen');
     }
+  }
+  isInFullView(element: HTMLElement): boolean {
+    var position = element.getBoundingClientRect();
+    // checking whether fully visible
+    if (position.top >= 0 && position.bottom <= window.innerHeight) {
+      console.log('Element is fully visible in screen');
+      return true;
+    }
+    return false;
+  }
+  isView(element: HTMLElement): boolean {
+    var position = element.getBoundingClientRect();
+    // checking whether fully visible
+    // checking for partial visibility
+    if (position.top < window.innerHeight && position.bottom >= 0) {
+      console.log('Element is partially visible in screen');
+      return true;
+    }
+    return false;
+  }
+
+  pageIsInView(): boolean {
+    if (this.isView(this.parent)) {
+      return true;
+    }
+    return false;
+  }
+  getFirstInView(): HTMLElement {
+    // if (this.spans) {
+    //   for (let i = 0; i < this.spans.length; i++) {
+    //     if (this.isInFullView(this.spans[i])) {
+    //       return this.spans[i];
+    //     }
+    //   }
+    // }
+    for (let i = 0; i < this.paragraphs.length; i++) {
+      if (this.isInFullView(this.paragraphs[i])) {
+        return this.paragraphs[i];
+      }
+    }
+    console.log('none is in full view');
+
+    return null;
+  }
+  getInView(index: number): HTMLElement {
+    if (index >= this.paragraphs.length) {
+      console.log('Out of index only up to ' + this.paragraphs.length);
+      return;
+    }
+    if (this.isInFullView(this.paragraphs[index])) {
+      return this.paragraphs[index];
+    }
+    return null;
   }
 }

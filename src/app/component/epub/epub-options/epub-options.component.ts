@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
 
@@ -9,7 +9,7 @@ import { EpubService } from 'src/app/service/epub/epub.service';
 })
 export class EpubOptionsComponent implements OnInit {
   book: BookObjModule;
-  constructor(private epubService: EpubService) {
+  constructor(private epubService: EpubService, private render: Renderer2) {
     epubService.onOpenEpub.subscribe((epub) => {
       this.onOpenEpub(epub);
     });
@@ -33,7 +33,7 @@ export class EpubOptionsComponent implements OnInit {
       console.log('no pages');
       return;
     }
-    this.selectedId = ids[3];
+    this.selectedId = ids[0];
     this.checkIfInView(this.selectedId);
   }
   focusOn(): void {
@@ -47,10 +47,12 @@ export class EpubOptionsComponent implements OnInit {
     }
     let element = document.getElementById(`${id}`) as HTMLElement;
     if (element) {
-      element.scrollIntoView({ behavior: 'auto', block: 'start' });
+      this.skipToElement(element);
     }
   }
-
+  skipToElement(element: HTMLElement) {
+    element.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }
   checkIfInView(elementId: string): void {
     let parent = document.getElementById(elementId);
     if (parent == null) {
@@ -68,5 +70,26 @@ export class EpubOptionsComponent implements OnInit {
     } else {
       console.log('Not in display');
     }
+  }
+  getFirstInView(): void {
+    const pages = this.book.pages;
+    for (let i = 0; i < pages.length; i++) {
+      if (pages[i].pageIsInView()) {
+        let obj = pages[i].getFirstInView();
+        if (obj) {
+          this.render.setAttribute(obj, 'class', 'selected');
+          this.skipToElement(obj);
+          setTimeout(() => {
+            this.render.setAttribute(obj, 'class', '');
+          }, 1000);
+          console.log('Got obj');
+        } else {
+          console.log('nothing in full view');
+        }
+
+        return;
+      }
+    }
+    console.log('No PAge  is in full view');
   }
 }

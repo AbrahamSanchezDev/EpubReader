@@ -1,4 +1,11 @@
-import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  ElementRef,
+  ViewChild,
+  Renderer2,
+} from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule } from 'src/app/model/epub/page/page.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
@@ -16,7 +23,7 @@ export class EpubDisplayComponent implements OnInit {
   notFoundImg: string =
     'https://c.wallhere.com/photos/b0/78/nozomu_itoshiki_Sayonara_Zetsubou_Sensei_Kafuka_Fuura_anime-231302.jpg!d';
 
-  constructor(private epubService: EpubService) {
+  constructor(private epubService: EpubService, private render: Renderer2) {
     epubService.onOpenEpub.subscribe((epub) => {
       this.onOpenEpub(epub);
     });
