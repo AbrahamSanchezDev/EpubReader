@@ -9,22 +9,15 @@ export class ArraysToolService {
   moveElementInArray(array: any[], element: any, newPos: number): void {
     var index = array.indexOf(element);
     // Item non-existent?
-    if (index == -1) {
+    if (index == -1 || newPos >= array.length) {
+      console.log('Out of index or element is not in the array');
       return;
     }
-    if (index >= array.length) {
-      return;
-    }
-    // If there is a previous element in sections
-    if (array[newPos]) {
-      // Swap elements
-      if (newPos < index) {
-        array.splice(newPos, 2, array[index], array[newPos]);
-      } else {
-        array.splice(index, 2, array[newPos], array[index]);
-      }
+    // Swap elements
+    if (newPos < index) {
+      array.splice(newPos, 2, array[index], array[newPos]);
     } else {
-      console.log('Do Nothing');
+      array.splice(index, 2, array[newPos], array[index]);
     }
   }
   //Move element at the given index to the left

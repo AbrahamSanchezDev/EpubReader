@@ -10,11 +10,7 @@ describe('TextToolService', () => {
   const link = 'www.google.com'; //16
   const link2 = 'www.youtube.com';
   const endText = 'Other Text';
-  const fullText = `
-  ${firstText}
-  ${link}
-  ${endText}
-  `;
+  const fullText = `${firstText}${link}${endText}`;
   const setTextInInput = (fullText, lookingForText) => {
     input.nativeElement.innerText = fullText;
     let textPos = fullText.indexOf(lookingForText);
@@ -46,6 +42,7 @@ describe('TextToolService', () => {
   it('should replace google link to youtube', () => {
     setTextInInput(fullText, link);
     let theText = service.replaceTextAt(fullText, input, link2, link);
+
     expect(theText).toContain(firstText);
     expect(theText).toContain(endText);
     expect(theText).toContain(link2);
@@ -71,8 +68,9 @@ describe('TextToolService', () => {
     expect(theText).toContain(endText);
     expect(theText).toContain(link);
     expect(theText).toContain(addedText);
+    theText = service.insertText(fullText, null, null);
+    expect(theText).toBe(fullText);
   });
-
   //Test insertText function
   it('should insert Some Text after the given text', () => {
     const addedText = `
@@ -84,18 +82,19 @@ describe('TextToolService', () => {
     expect(theText).toContain(endText);
     expect(theText).toContain(link);
     expect(theText).toContain(addedText);
+    theText = service.insertAfter('fullText', 'link', 'addedText');
+    expect(theText).toEqual('fullText');
   });
-  //Test insertText function
+  //Test insertBefore function
   it('should insert Some Text before the given text', () => {
-    const addedText = `
-      LinkedIn 
-      Some other text added
-      `;
-    // let theText = service.insertAfter(fullText, link, addedText);
-    expect(false).toBeTrue();
-    // expect(theText).toContain(endText);
-    // expect(theText).toContain(link);
-    // expect(theText).toContain(addedText);
+    const injectedTo = `${firstText}${link2}${link}${endText}`;
+    let theText = service.insertBefore(fullText, link, link2);
+    expect(theText).toContain(link);
+    expect(theText).toContain(link2);
+    expect(theText).toBe(injectedTo);
+
+    theText = service.insertBefore('fullText', 'link', 'link2');
+    expect(theText).toEqual('fullText');
   });
   //Test keepAllTextInBetween function
   it('should remove all but the text outside start and end range', () => {
@@ -120,6 +119,9 @@ describe('TextToolService', () => {
     expect(theText).toContain(end);
     expect(theText).not.toContain(startTextToRemove);
     expect(theText).not.toContain(textShouldBeGone);
+    theText = service.keepAllTextInBetween('biggerText', '123', '456');
+    expect(theText).toEqual('biggerText');
+    expect(service.removedTotal).toEqual(0);
   });
 
   //Test getTextBetween function
@@ -130,6 +132,8 @@ describe('TextToolService', () => {
     expect(theText).not.toContain(endText);
     expect(theText).toContain(link2);
     expect(theText).toContain(link);
+    theText = service.getTextBetween(continuesText, 'no', 'someOtherNo');
+    expect(theText).toEqual('');
   });
 
   //Test removeAllTextFromTo function
@@ -162,5 +166,7 @@ describe('TextToolService', () => {
     expect(theText).toContain(link2);
     expect(theText).toContain('...');
     expect(theText).not.toContain(link);
+    theText = service.removeTextFromTo(continuesText, '', '<end>', '</end>');
+    expect(theText).toBe(continuesText);
   });
 });

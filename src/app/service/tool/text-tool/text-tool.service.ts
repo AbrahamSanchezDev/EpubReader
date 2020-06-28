@@ -15,20 +15,20 @@ export class TextToolService {
     originalText: string,
     element: ElementRef<any>,
     textToReplace: string,
-    originalReplace: string = ''
+    originalReplace?: string
   ): string {
     //Get the starting position
     let index = element.nativeElement.selectionStart;
     //Extra inf in case you changed something
-    if (originalReplace == '') {
-      originalReplace = textToReplace;
-    }
+    let originalLength = originalReplace
+      ? originalReplace.length
+      : textToReplace.length;
+
     //The Text to return
-    var finalText = `${originalText.substr(
+    return `${originalText.substr(
       0,
       index
-    )}${textToReplace}${originalText.substr(index + originalReplace.length)}`;
-    return finalText;
+    )}${textToReplace}${originalText.substr(index + originalLength)}`;
   }
   //Replace the first matching text for a new one
   replaceText(
@@ -44,9 +44,13 @@ export class TextToolService {
   //#region Insert
 
   //Insert text at the given element in it last selected position
-  insertText(originalText: String, textToAdd: string, element: ElementRef) {
-    if (originalText == null) {
-      return textToAdd;
+  insertText(
+    originalText: string,
+    textToAdd: string,
+    element: ElementRef
+  ): string {
+    if (textToAdd == null || element == null) {
+      return originalText;
     }
     //Get the last selected position
     let startPos = element.nativeElement.selectionStart;
@@ -63,33 +67,25 @@ export class TextToolService {
     insertAfter: string,
     textToAdd: string
   ): string {
-    let index = originalText.indexOf(insertAfter);
-    let finalPart = originalText.substr(
-      index + insertAfter.length,
-      originalText.length
-    );
-    if (index >= 0) {
-      originalText =
-        originalText.substr(0, index + insertAfter.length) +
-        textToAdd +
-        finalPart;
-    }
-    return originalText;
+    const index = originalText.indexOf(insertAfter);
+    return index < 0
+      ? originalText
+      : originalText.substr(0, index + insertAfter.length) +
+          textToAdd +
+          originalText.substr(index + insertAfter.length, originalText.length);
   }
-  //Insert text after finding the given text
+  //Insert text before finding the given text
   insertBefore(
     originalText: string,
     insertBefore: string,
     textToAdd: string
   ): string {
-    let index = originalText.indexOf(insertBefore);
-
-    if (index >= 0) {
-      let firstPart = originalText.substr(0, index);
-      let finalPart = originalText.substr(index, originalText.length - index);
-      originalText = firstPart + textToAdd + finalPart;
-    }
-    return originalText;
+    const index = originalText.indexOf(insertBefore);
+    return index < 0
+      ? originalText
+      : originalText.substr(0, index) +
+          textToAdd +
+          originalText.substr(index, originalText.length - index);
   }
   //#endregion
 
@@ -101,22 +97,17 @@ export class TextToolService {
     beginString: string,
     endString: string
   ): string {
-    var beginIndex = originalString.indexOf(beginString);
-    if (beginIndex === -1) {
-      return null;
-    }
-    var beginStringLength = beginString.length;
-    var substringBeginIndex = beginIndex + beginStringLength;
-    var substringEndIndex = originalString.indexOf(
+    const beginIndex = originalString.indexOf(beginString);
+    const substringBeginIndex = beginIndex + beginString.length;
+    const substringEndIndex = originalString.indexOf(
       endString,
       substringBeginIndex
     );
-    if (substringEndIndex === -1) {
-      return null;
+    if (substringEndIndex == -1 || beginIndex == -1) {
+      return '';
     }
     return originalString.substring(substringBeginIndex, substringEndIndex);
   }
-
   //#endregion
 
   //#region Removes
@@ -127,13 +118,11 @@ export class TextToolService {
     startText: string,
     endText: string
   ): string {
-    let start = originalString.indexOf(startText);
-    let end = originalString.indexOf(endText);
-
-    if (start != -1 && end != -1) {
-      return originalString.substring(start, end + endText.length);
-    }
-    return originalString;
+    const start = originalString.indexOf(startText);
+    const end = originalString.indexOf(endText);
+    return start != -1 && end != -1
+      ? originalString.substring(start, end + endText.length)
+      : originalString;
   }
   //Remove all the text that has the same start and the end and the start and end as well
   //example <div  class = "something"> start= '<div' end= '">' it will remove everything 'class = "something' included
@@ -146,9 +135,6 @@ export class TextToolService {
     while (originalString.indexOf(start) != -1) {
       originalString = this.removeTextFromTo(originalString, '', start, end);
     }
-    if (this.removedTotal == 0) {
-      console.log("Didn't remove any " + start + ' and ' + end);
-    }
     return originalString;
   }
   //Replace all the text from with in start and end for the given text
@@ -159,15 +145,9 @@ export class TextToolService {
     end: string,
     startLookingAt?: number
   ): string {
-    if (startLookingAt == null) {
-      startLookingAt = 0;
-    }
     let startIndex = originalString.indexOf(start, startLookingAt);
-    if (startIndex == -1) {
-      return originalString;
-    }
     let endIndex = originalString.indexOf(end, startIndex);
-    if (endIndex == -1) {
+    if (startIndex == -1 || endIndex == -1) {
       return originalString;
     }
     let original = originalString.substring(startIndex, endIndex + end.length);

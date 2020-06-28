@@ -16,12 +16,11 @@ export class RemoveReplaceOptionService extends TextToolService {
     options: RemoveReplaceOptions
   ): string {
     const { removeFromTo, replaceText } = options;
-    if (removeFromTo) {
-      originalString = this.removeFromToOptions(originalString, removeFromTo);
-    }
-    if (replaceText) {
-      originalString = this.replaceTextOptions(originalString, replaceText);
-    }
+
+    originalString = this.removeFromToOptions(originalString, removeFromTo);
+
+    originalString = this.replaceTextOptions(originalString, replaceText);
+
     return originalString;
   }
   //Replace a list of text that match the original for something else
@@ -41,7 +40,7 @@ export class RemoveReplaceOptionService extends TextToolService {
         counter++;
         if (counter > 50) {
           console.log('Search maxed out');
-          break;
+          return originalString;
         }
       }
     }

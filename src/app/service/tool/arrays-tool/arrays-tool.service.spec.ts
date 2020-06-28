@@ -10,12 +10,16 @@ describe('ArraysToolService', () => {
     TestBed.configureTestingModule({});
     service = TestBed.inject(ArraysToolService);
     numbers = [1, 2, 3, 4, 5];
+    spyOn(console, 'log');
   });
 
   it('should move element from its current position to a new index', () => {
     //move from index 2 (3) to index 1 so it should be [1,3,2,4,5]
     service.moveElementInArray(numbers, numbers[2], 1);
     expect(numbers[1]).toBe(3);
+
+    service.moveElementInArray(numbers, 100, 1);
+    expect(console.log).toHaveBeenCalled();
   });
 
   it('should move element left', () => {

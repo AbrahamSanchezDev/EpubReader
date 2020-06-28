@@ -5,7 +5,7 @@ import { ElementRef } from '@angular/core';
 import { MockElementRef } from '../text-tool/text-tool.service.spec';
 import { ReplaceStrings } from 'src/app/service/tool/remove-replace-option/interface/replace-strings';
 
-fdescribe('HtmlToolService', () => {
+describe('HtmlToolService', () => {
   let service: HtmlTextToolService;
   let input: ElementRef<HTMLInputElement>;
   const firstText = 'This is some previews text';
@@ -30,6 +30,7 @@ fdescribe('HtmlToolService', () => {
     TestBed.configureTestingModule({});
     service = TestBed.inject(HtmlTextToolService);
     input = new MockElementRef(HTMLInputElement);
+    spyOn(console, 'log');
   });
   afterAll(() => {
     input = null;
@@ -142,6 +143,26 @@ fdescribe('HtmlToolService', () => {
   ];
   const iframePart = '<iframe width="560" height="315"';
   //#endregion
+  const allText = `${imgText}${codeText}${textWithVideo}`;
+  const checkOnLog = (action: Function) => {
+    let text = action(null);
+    expect(console.log).toHaveBeenCalled();
+    expect(text).toBe('');
+  };
+  //Testing formatAllText function
+  it('should change the text to code format ', () => {
+    spyOn(service, 'formatTextToImg');
+    spyOn(service, 'formatCommentsAndComponents');
+    spyOn(service, 'formatTextToCode');
+    spyOn(service, 'formatTextToVideo');
+    service.formatAllText(allText);
+    expect(service.formatTextToImg).toHaveBeenCalled();
+    expect(service.formatCommentsAndComponents).toHaveBeenCalled();
+    expect(service.formatTextToImg).toHaveBeenCalled();
+    expect(service.formatTextToVideo).toHaveBeenCalled();
+
+    checkOnLog(service.formatAllText);
+  });
 
   //Testing formatTextToCode function
   it('should change the text to code format ', () => {
@@ -152,6 +173,25 @@ fdescribe('HtmlToolService', () => {
     expect(text).toContain(graterThan);
     expect(text).not.toContain(codeTagStart);
     expect(text).not.toContain(codeTagEnd);
+
+    checkOnLog(service.formatTextToCode);
+
+    const codeBrokeText = `
+    ${firstText}
+     ${codeTagStart}
+     ${commentAndComponentText}
+     ${codeTagEnd}
+     ${link}
+     ${codeTagStart}
+     ${commentAndComponentText}
+     ${endText}
+     ${codeTagStart}
+     ${commentAndComponentText}
+     ${codeTagEnd}
+     End
+     `;
+    service.formatTextToCode(codeBrokeText);
+    expect(console.log).toHaveBeenCalled();
   });
   //Testing formatAnyTagContainer function
   it('should change any < , > tags to &lt and &gt so they can be displayed as text', () => {
@@ -248,6 +288,8 @@ end of the description`;
     expect(theNewText).toContain(link);
     expect(theNewText).toContain(endText);
     expect(theNewText).toContain('<a href');
+    theNewText = service.replaceSelectedToLink(null, '', null);
+    expect(theNewText).toEqual('');
   });
 
   //Testing insertLink function
@@ -333,6 +375,10 @@ end of the description`;
       expect(theNewText).not.toContain(`<${tags[i]}>`);
       expect(theNewText).not.toContain(`</${tags[i]}>`);
     }
+
+    theNewText = service.removeAllTags(originalText, ['span', 'ul']);
+    expect(theNewText).toEqual(originalText);
+    expect(console.log).toHaveBeenCalled();
   });
   //Testing setToTag function
   it('should put the text in between two tags', () => {

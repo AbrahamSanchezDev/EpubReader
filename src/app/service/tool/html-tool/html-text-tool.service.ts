@@ -78,7 +78,7 @@ export class HtmlTextToolService extends RemoveReplaceOptionService {
   formatAllText(originalString: string): string {
     if (originalString == null) {
       console.log('Null originalString');
-      return originalString;
+      return '';
     }
     //Img
     originalString = this.formatTextToImg(originalString);
@@ -86,6 +86,7 @@ export class HtmlTextToolService extends RemoveReplaceOptionService {
     originalString = this.formatCommentsAndComponents(originalString);
     //Code
     originalString = this.formatTextToCode(originalString);
+    //Video
     originalString = this.formatTextToVideo(originalString);
     return originalString;
   }
@@ -93,12 +94,16 @@ export class HtmlTextToolService extends RemoveReplaceOptionService {
   formatTextToCode(originalString: string): string {
     if (originalString == null) {
       console.log('Null originalString');
-      return originalString;
+      return '';
     }
     let counter = 0;
     while (originalString.indexOf(codeTagStart) != -1) {
       let startIndex = originalString.indexOf(codeTagStart);
       let endIndex = originalString.indexOf(codeTagEnd);
+      if (endIndex < 0 || startIndex < 0 || counter > 50) {
+        console.log('Code not formatead correctly');
+        return originalString;
+      }
       let originalInnerText = this.getTextBetween(
         originalString,
         codeTagStart,
@@ -112,10 +117,6 @@ export class HtmlTextToolService extends RemoveReplaceOptionService {
 
       originalString = `${before}${codeFormateadStart}${formateadText}${codeFormateadEnd}${after}`;
       counter++;
-      if (counter > 50) {
-        console.log('Max searches');
-        break;
-      }
     }
     return originalString;
   }
@@ -181,10 +182,10 @@ ${textToReplace}
     linkText: string,
     element: ElementRef<any>
   ): string {
-    var newText = `<a href="${linkText}" target= "_blank">Link</a>`;
-    if (originalText == null) {
-      return newText;
+    if (originalText == null || element == null) {
+      return '';
     }
+    const newText = `<a href="${linkText}" target= "_blank">Link</a>`;
     return this.replaceTextAt(originalText, element, newText, linkText);
   }
   //#endregion

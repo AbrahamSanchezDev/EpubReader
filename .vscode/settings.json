@@ -11,12 +11,6 @@
         "color": "#fff",
         "command": "ng serve -o"
       },
-      //   {
-      //     "name": "Buid Div",
-      //     "singleInstance": true,
-      //     "color": "#fff",
-      //     "command": "ng build --prod --base-href https://holykiller.github.io/Resume/"
-      //   },
       {
         "name": "Deploy",
         "singleInstance": true,
