@@ -20,6 +20,7 @@
     "@angular/platform-browser-dynamic": "~9.1.6",
     "@angular/router": "~9.1.6",
     "@treinetic/treinetic-epub-reader": "^1.3.2",
+    "@worldsdev/tools": "0.0.2",
     "angular-epub-viewer": "^0.1.4",
     "angular-localforage": "^1.3.8",
     "epubjs": "^0.4.2",
@@ -45,6 +46,7 @@
     "protractor": "^7.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
-    "typescript": "~3.8.3"
+    "typescript": "~3.8.3",
+    "worldsDev-tools": "file:../../../Librarys/Utility/dist/tools"
   }
 }

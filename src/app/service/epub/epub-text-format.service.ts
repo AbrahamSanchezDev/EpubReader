@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 
 import { TextReplaceData } from 'src/app/interface/text-replace-data';
+
 import { RemoveReplaceOptionService } from '../tool/remove-replace-option/remove-replace-option.service';
-import { HtmlTextToolService } from '../tool/html-tool/html-text-tool.service';
+// import { HtmlTextToolService } from '../tool/html-tool/html-text-tool.service';
+import { HtmlTextTool } from '@worldsdev/tools';
 import { RemoveReplaceOptions } from '../tool/remove-replace-option/interface/remove-replace-options';
 
 const titleTag = '<title>';
@@ -23,7 +25,7 @@ const optionsTo: RemoveReplaceOptions = {
 @Injectable({
   providedIn: 'root',
 })
-export class EpubTextFormatService extends HtmlTextToolService {
+export class EpubTextFormatService extends HtmlTextTool {
   constructor() {
     super();
   }
