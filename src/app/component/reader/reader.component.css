@@ -43,3 +43,8 @@
   width: max-content;
   z-index: 3;
 }
+.voices {
+  margin-top: 80px;
+  width: 50%;
+  color: black;
+}

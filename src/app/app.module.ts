@@ -9,6 +9,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { EpubDisplayComponent } from './component/epub/epub-display/epub-display.component';
 import { EpubOptionsComponent } from './component/epub/epub-options/epub-options.component';
 import { ToolsModule } from '@worldsdev/tools';
+import { InUseMaterialModule } from './material-module';
+import { MatSelectModule } from '@angular/material/select';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -17,7 +20,15 @@ import { ToolsModule } from '@worldsdev/tools';
     EpubDisplayComponent,
     EpubOptionsComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, HttpClientModule, ToolsModule],
+
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    ToolsModule,
+    NoopAnimationsModule,
+    InUseMaterialModule,
+  ],
   providers: [],
   bootstrap: [AppComponent],
 })
