@@ -3,6 +3,17 @@ import { CommonModule } from '@angular/common';
 import { SafeHtml } from '@angular/platform-browser';
 import { Inject } from '@angular/core';
 
+export class FormateadParagraph {
+  paragraph: HTMLParagraphElement;
+  text: string[];
+  constructor(para: HTMLParagraphElement) {
+    this.paragraph = para;
+    this.createText();
+  }
+  createText(): void {
+    this.text = this.paragraph.innerText.split('.');
+  }
+}
 @NgModule({
   declarations: [],
   imports: [CommonModule],
@@ -15,8 +26,7 @@ export class PageModule {
 
   private parent: HTMLElement;
   private paragraphs: NodeListOf<HTMLParagraphElement>;
-  private spans: NodeListOf<HTMLSpanElement>;
-
+  formateadParagraphs: FormateadParagraph[] = [];
   constructor(
     @Inject(String) name: string,
     @Inject(String) fullName: string,
@@ -34,7 +44,11 @@ export class PageModule {
       this.parent = document.getElementById(this.name);
       if (this.parent) {
         this.paragraphs = this.parent.querySelectorAll('p');
-        this.spans = this.parent.querySelectorAll('span');
+        for (let i = 0; i < this.paragraphs.length; i++) {
+          this.formateadParagraphs.push(
+            new FormateadParagraph(this.paragraphs[i])
+          );
+        }
       } else {
         console.log('null parent');
       }
@@ -91,13 +105,6 @@ export class PageModule {
     return false;
   }
   getFirstInView(): HTMLElement {
-    // if (this.spans) {
-    //   for (let i = 0; i < this.spans.length; i++) {
-    //     if (this.isInFullView(this.spans[i])) {
-    //       return this.spans[i];
-    //     }
-    //   }
-    // }
     for (let i = 0; i < this.paragraphs.length; i++) {
       if (this.isInFullView(this.paragraphs[i])) {
         return this.paragraphs[i];

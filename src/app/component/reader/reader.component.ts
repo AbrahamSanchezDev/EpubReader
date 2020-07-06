@@ -60,11 +60,7 @@ export class ReaderComponent implements AfterViewChecked {
   currentMaxFiles: number;
 
   showingMenu: boolean = true;
-  selectedValue: string;
-  voices: string[] = [];
-  allVoices: SpeechSynthesisVoice[] = [];
-  SpeechSynthesis: SpeechSynthesisUtterance;
-  speech: SpeechSynthesis;
+
   constructor(
     private zip: ZipService,
     private textControl: EpubTextFormatService,
@@ -80,20 +76,7 @@ export class ReaderComponent implements AfterViewChecked {
   ngAfterViewChecked(): void {}
   public ngAfterViewInit(): void {}
 
-  ngOnInit(): void {
-    this.speech = window.speechSynthesis;
-    this.speech.addEventListener('voiceschanged', () => {
-      this.allVoices = speechSynthesis.getVoices();
-      for (let i = 0; i < this.allVoices.length; i++) {
-        this.voices.push(this.allVoices[i].name.toString());
-      }
-      console.log('Now: ' + this.voices.length);
-
-      console.log('got::');
-      this.selectedValue = this.voices[1];
-    });
-    this.SpeechSynthesis = new SpeechSynthesisUtterance();
-  }
+  ngOnInit(): void {}
 
   loadTestingFile() {
     let filePath = 'assets/epub/';
@@ -123,23 +106,6 @@ export class ReaderComponent implements AfterViewChecked {
     this.fileChanged(event.target.files[0]);
   }
 
-  getVoices(): string[] {
-    return this.voices;
-  }
-  testVoice(): void {
-    this.SpeechSynthesis.text =
-      'While spending a week to recover from the poison of a wild fruit';
-    for (let i = 0; i < this.allVoices.length; i++) {
-      if (this.allVoices[i].name.toString() == this.selectedValue) {
-        this.SpeechSynthesis.voice = this.allVoices[i];
-        break;
-      }
-    }
-    this.SpeechSynthesis.pitch = 1.7;
-    this.SpeechSynthesis.rate = 1.2;
-    this.SpeechSynthesis.volume = 1;
-    this.speech.speak(this.SpeechSynthesis);
-  }
   //Called when adding a new file from selector
   fileChanged(file) {
     this.updateContentClasses();

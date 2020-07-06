@@ -12,6 +12,7 @@ import { ToolsModule } from '@worldsdev/tools';
 import { InUseMaterialModule } from './material-module';
 import { MatSelectModule } from '@angular/material/select';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { EpubReaderComponent } from './component/epub/text-to-speach/epub-reader/epub-reader.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
     ReaderComponent,
     EpubDisplayComponent,
     EpubOptionsComponent,
+    EpubReaderComponent,
   ],
 
   imports: [
