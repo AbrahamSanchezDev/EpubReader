@@ -91,16 +91,6 @@ export class ReaderComponent implements AfterViewChecked {
           this.fileChanged(data);
         }
       });
-
-    //   let sp = window.speechSynthesis;
-    if (!('speechSynthesis' in window)) {
-      console.log("You don't have speechSynthesis");
-    } else {
-      console.log('there is voice');
-    }
-    if (window.speechSynthesis) {
-      console.log('has voices should work');
-    }
   }
   onFileSelected(event) {
     this.fileChanged(event.target.files[0]);

@@ -26,9 +26,12 @@ export class EpubReaderComponent implements OnInit {
     this.epubService.onOpenEpub.subscribe((book) => this.onLoadedBook(book));
   }
   onLoadedBook(epub: BookObjModule): void {
-    console.log('Loaded book ' + epub.name);
+    // console.log('Loaded book ' + epub.name);
   }
   getAllVoices(): void {
+    if (!('speechSynthesis' in window)) {
+      console.log("You don't have speechSynthesis");
+    }
     this.speech = window.speechSynthesis;
     this.speech.addEventListener('voiceschanged', () => {
       this.allVoices = speechSynthesis.getVoices();
