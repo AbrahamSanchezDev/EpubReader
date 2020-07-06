@@ -23,8 +23,21 @@ export class EpubReaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.getAllVoices();
+    window.onbeforeunload = () => {
+      if (this.reading) {
+        this.speech.cancel();
+        console.log('Was reading');
+      }
+    };
   }
-
+  ngOnDestroy() {
+    if (this.reading) {
+      this.reading = false;
+      this.speech.cancel();
+      console.log('Was reading');
+    }
+    window.onbeforeunload = null;
+  }
   registerToEvents(): void {
     this.epubService.onOpenEpub.subscribe((book) => {
       this.onLoadedBook(book);
@@ -45,6 +58,7 @@ export class EpubReaderComponent implements OnInit {
       this.focusParent(false);
     }
   }
+
   onLoadedBook(epubOpened: BookObjModule): void {
     console.log('Loaded book ' + epubOpened.name);
     this.epub = epubOpened;
