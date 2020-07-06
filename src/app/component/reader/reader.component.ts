@@ -83,7 +83,7 @@ export class ReaderComponent implements AfterViewChecked {
     let dragons = 'The Defeated Dragon 1 - 100.epub';
     let alchemist = 'The Alchemist God.epub';
     let devils = 'Devils Son in Law.epub';
-    let fileName = dragons;
+    let fileName = alchemist;
     this.http
       .get(filePath + fileName, { responseType: 'blob' })
       .subscribe((data) => {

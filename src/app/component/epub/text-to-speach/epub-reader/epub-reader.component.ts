@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
+import { PageModule } from 'src/app/model/epub/page/page.module';
 
 @Component({
   selector: 'app-epub-reader',
@@ -11,10 +12,12 @@ export class EpubReaderComponent implements OnInit {
   selectedValue: string;
   voices: string[] = [];
   allVoices: SpeechSynthesisVoice[] = [];
-  SpeechSynthesis: SpeechSynthesisUtterance;
+  speechOptions: SpeechSynthesisUtterance;
   speech: SpeechSynthesis;
 
-  constructor(private epubService: EpubService) {
+  epub: BookObjModule;
+
+  constructor(private epubService: EpubService, private render: Renderer2) {
     this.registerToEvents();
   }
 
@@ -23,10 +26,28 @@ export class EpubReaderComponent implements OnInit {
   }
 
   registerToEvents(): void {
-    this.epubService.onOpenEpub.subscribe((book) => this.onLoadedBook(book));
+    this.epubService.onOpenEpub.subscribe((book) => {
+      this.onLoadedBook(book);
+    });
+    this.epubService.OnRead.subscribe((read) => {
+      this.Read(read);
+    });
   }
-  onLoadedBook(epub: BookObjModule): void {
-    // console.log('Loaded book ' + epub.name);
+  reading: boolean;
+  Read(read: boolean): void {
+    this.reading = read;
+    console.log('Start Reading ' + read);
+    if (read) {
+      this.startReading();
+    } else {
+      this.speech.cancel();
+      this.focusCurrentParagraph(false);
+      this.focusParent(false);
+    }
+  }
+  onLoadedBook(epubOpened: BookObjModule): void {
+    console.log('Loaded book ' + epubOpened.name);
+    this.epub = epubOpened;
   }
   getAllVoices(): void {
     if (!('speechSynthesis' in window)) {
@@ -38,27 +59,131 @@ export class EpubReaderComponent implements OnInit {
       for (let i = 0; i < this.allVoices.length; i++) {
         this.voices.push(this.allVoices[i].name.toString());
       }
-      this.selectedValue = this.voices[1];
+      this.selectedValue = this.voices[2];
     });
-    this.SpeechSynthesis = new SpeechSynthesisUtterance();
+    this.speechOptions = new SpeechSynthesisUtterance();
   }
 
   getVoices(): string[] {
     return this.voices;
   }
 
-  testVoice(): void {
-    this.SpeechSynthesis.text =
-      'While spending a week to recover from the poison of a wild fruit';
+  curContentIndex = 0;
+  curContent: PageModule;
+  curParagraph = 0;
+  curMaxContent = 0;
+  curMaxParagraph = 0;
+  readTitle: boolean = false;
+  titleRead: boolean = false;
+
+  startReading() {
+    if (!this.curParagraphIsFocus()) {
+      this.getFirstInView();
+    }
+    this.updateCurrentContent();
+    //Check if there is a title in full display if so make it so it reads the title first
+    if (this.titleRead == false) {
+      this.readTitle = this.curContent.pageIsInFullView();
+    }
+
+    this.readCurrent();
+    this.speechOptions.onend = () => this.readNext();
+  }
+
+  getFirstInView() {
+    const pages = this.epub.pages;
+    for (let i = 0; i < pages.length; i++) {
+      if (pages[i].pageIsInView()) {
+        this.curContentIndex = i;
+        this.curParagraph = pages[i].getFirstInViewIndex();
+        return;
+      }
+    }
+    console.log('No PAge  is in full view');
+  }
+  readNext() {
+    if (!this.reading) return;
+    this.focusCurrentParagraph(false);
+    this.curParagraph++;
+    if (this.readTitle) {
+      this.readTitle = false;
+      this.curParagraph--;
+      this.focusParent(false);
+      this.titleRead = true;
+    }
+    if (this.curParagraph >= this.curMaxParagraph) {
+      this.curContentIndex++;
+      //Check if there is more content to read
+      if (this.curContentIndex >= this.curMaxContent) {
+        console.log('Finish reading');
+        return;
+      }
+      this.updateCurrentContent();
+      this.curParagraph = 0;
+      this.readTitle = true;
+      this.titleRead = false;
+    }
+
+    this.readCurrent();
+  }
+  updateCurrentContent(): void {
+    this.curMaxContent = this.epub.pages.length;
+    this.curContent = this.epub.pages[this.curContentIndex];
+    this.curMaxParagraph = this.curContent.getTotalParagraphs();
+  }
+  readCurrent(): void {
+    if (this.readTitle) {
+      this.focusParent(true);
+      this.read(this.curContent.name);
+      this.curContent.focusOnParent();
+    } else {
+      this.setFocusOnCurrentParagraph();
+      this.focusCurrentParagraph(true);
+      this.read(this.curContent.getTextFor(this.curParagraph));
+    }
+  }
+  focusParent(focus: boolean): void {
+    this.setElementToSelected(this.curContent.getParent(), focus);
+  }
+  focusCurrentParagraph(focus: boolean) {
+    this.setElementToSelected(
+      this.curContent.getParagraphElement(this.curParagraph),
+      focus
+    );
+  }
+  setFocusOnCurrentParagraph(): void {
+    const index = this.curParagraph;
+    const content = this.curContent;
+    if (!content.isValidIndex(index)) {
+      return;
+    }
+    if (!content.isParagraphInFullView(index)) {
+      const element = content.getParagraphElement(index);
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+  curParagraphIsFocus(): boolean {
+    const index = this.curParagraph;
+    const content = this.epub.pages[this.curContentIndex];
+    return content.isParagraphInFullView(index);
+  }
+  setElementToSelected(element: HTMLElement, selected: boolean): void {
+    if (element == null) {
+      return;
+    }
+    this.render.setAttribute(element, 'class', selected ? 'selected' : '');
+  }
+  read(text: string) {
+    this.speechOptions.text = text;
     for (let i = 0; i < this.allVoices.length; i++) {
       if (this.allVoices[i].name.toString() == this.selectedValue) {
-        this.SpeechSynthesis.voice = this.allVoices[i];
+        this.speechOptions.voice = this.allVoices[i];
         break;
       }
     }
-    this.SpeechSynthesis.pitch = 1.7;
-    this.SpeechSynthesis.rate = 1.2;
-    this.SpeechSynthesis.volume = 1;
-    this.speech.speak(this.SpeechSynthesis);
+    this.speechOptions.pitch = 1.5;
+    this.speechOptions.rate = 1.5;
+    this.speechOptions.volume = 1;
+    this.speech.speak(this.speechOptions);
   }
 }

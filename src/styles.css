@@ -20,8 +20,14 @@
   cursor: pointer;
 }
 .selected {
-  background-color: coral;
+  background-color: rgba(243, 228, 15, 0.822);
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

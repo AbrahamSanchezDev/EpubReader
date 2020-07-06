@@ -92,4 +92,9 @@ export class EpubOptionsComponent implements OnInit {
     }
     console.log('No PAge  is in full view');
   }
+  read: boolean = false;
+  toggleRead(): void {
+    this.read = !this.read;
+    this.epubService.OnRead.emit(this.read);
+  }
 }

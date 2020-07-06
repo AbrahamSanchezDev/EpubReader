@@ -11,7 +11,7 @@ export class FormateadParagraph {
     this.createText();
   }
   createText(): void {
-    this.text = this.paragraph.innerText.split('.');
+    this.text = this.paragraph.textContent.split('. ');
   }
 }
 @NgModule({
@@ -44,65 +44,43 @@ export class PageModule {
       this.parent = document.getElementById(this.name);
       if (this.parent) {
         this.paragraphs = this.parent.querySelectorAll('p');
-        for (let i = 0; i < this.paragraphs.length; i++) {
-          this.formateadParagraphs.push(
-            new FormateadParagraph(this.paragraphs[i])
-          );
-        }
       } else {
         console.log('null parent');
       }
     }, 5);
   }
-  checkIfInView(index: number): void {
-    if (this.paragraphs == null) {
-      console.log('null paragraphs');
 
-      return;
-    }
-    if (index >= this.paragraphs.length) {
-      console.log(
-        'Out of index paragraphs only goes up to ' + this.paragraphs.length
-      );
-
-      return;
-    }
-    var position = this.paragraphs[index].getBoundingClientRect();
-    // checking whether fully visible
-    if (position.top >= 0 && position.bottom <= window.innerHeight) {
-      console.log('Element is fully visible in screen');
-    }
-
-    // checking for partial visibility
-    if (position.top < window.innerHeight && position.bottom >= 0) {
-      console.log('Element is partially visible in screen');
-    }
-  }
   isInFullView(element: HTMLElement): boolean {
+    if (element == null) {
+      console.log('Null Element');
+      return false;
+    }
     var position = element.getBoundingClientRect();
     // checking whether fully visible
-    if (position.top >= 0 && position.bottom <= window.innerHeight) {
-      console.log('Element is fully visible in screen');
-      return true;
-    }
-    return false;
+    return position.top >= 0 && position.bottom <= window.innerHeight;
   }
   isView(element: HTMLElement): boolean {
     var position = element.getBoundingClientRect();
-    // checking whether fully visible
     // checking for partial visibility
-    if (position.top < window.innerHeight && position.bottom >= 0) {
-      console.log('Element is partially visible in screen');
-      return true;
-    }
-    return false;
+    return position.top < window.innerHeight && position.bottom >= 0;
   }
 
   pageIsInView(): boolean {
-    if (this.isView(this.parent)) {
-      return true;
+    return this.isView(this.parent);
+  }
+  pageIsInFullView(): boolean {
+    return this.isInFullView(this.parent);
+  }
+  focusOnParent(): void {
+    if (this.pageIsInFullView() == false) {
+      this.focusElement(this.parent);
     }
-    return false;
+  }
+  getParent(): HTMLElement {
+    return this.parent;
+  }
+  protected focusElement(element: HTMLElement) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   getFirstInView(): HTMLElement {
     for (let i = 0; i < this.paragraphs.length; i++) {
@@ -111,17 +89,44 @@ export class PageModule {
       }
     }
     console.log('none is in full view');
-
     return null;
   }
-  getInView(index: number): HTMLElement {
+  getFirstInViewIndex(): number {
+    for (let i = 0; i < this.paragraphs.length; i++) {
+      if (this.isInFullView(this.paragraphs[i])) {
+        return i;
+      }
+    }
+    return 0;
+  }
+  isValidIndex(index: number) {
+    return index < this.paragraphs.length;
+  }
+  isParagraphInFullView(index: number): boolean {
+    return this.isInFullView(this.paragraphs[index]);
+  }
+  getParagraphElement(index: number): HTMLElement {
+    return this.paragraphs[index];
+  }
+  // getParagraphElement(index: number): HTMLElement {
+  //   if (index >= this.paragraphs.length) {
+  //     console.log('Out of index only up to ' + this.paragraphs.length);
+  //     return;
+  //   }
+  //   if (this.isInFullView(this.paragraphs[index])) {
+  //     return this.paragraphs[index];
+  //   }
+  //   return null;
+  // }
+  getTextFor(index: number): string {
     if (index >= this.paragraphs.length) {
-      console.log('Out of index only up to ' + this.paragraphs.length);
-      return;
+      console.log('Out of index');
+
+      return '';
     }
-    if (this.isInFullView(this.paragraphs[index])) {
-      return this.paragraphs[index];
-    }
-    return null;
+    return this.paragraphs[index].innerText;
+  }
+  getTotalParagraphs(): number {
+    return this.paragraphs.length;
   }
 }

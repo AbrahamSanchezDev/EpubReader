@@ -8,6 +8,7 @@ export class EpubService {
   public onOpenEpub: EventEmitter<BookObjModule> = new EventEmitter<
     BookObjModule
   >();
+  public OnRead: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   private ids: string[] = [];
 
