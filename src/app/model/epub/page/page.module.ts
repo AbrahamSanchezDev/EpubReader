@@ -4,14 +4,37 @@ import { SafeHtml } from '@angular/platform-browser';
 import { Inject } from '@angular/core';
 
 export class FormateadParagraph {
-  paragraph: HTMLParagraphElement;
+  element: HTMLElement;
   text: string[];
-  constructor(para: HTMLParagraphElement) {
-    this.paragraph = para;
-    this.createText();
+  index: number = 0;
+  finished: boolean = false;
+
+  originalText: string;
+  constructor(para: HTMLElement) {
+    this.element = para;
   }
-  createText(): void {
-    this.text = this.paragraph.textContent.split('. ');
+  createText(text): void {
+    this.originalText = text;
+    this.text = text.split('. ');
+    if (this.text.length == 0) {
+      this.finished = true;
+    }
+  }
+  getTextToRead(): string {
+    return this.text[this.index];
+  }
+  resetValues(): void {
+    this.index = 0;
+    this.finished = this.text.length == 0;
+  }
+  onFinishRead(): void {
+    if (this.finished) {
+      return;
+    }
+    this.index++;
+    if (this.index >= this.text.length) {
+      this.finished = true;
+    }
   }
 }
 @NgModule({
@@ -25,8 +48,8 @@ export class PageModule {
   index: number;
 
   private parent: HTMLElement;
-  private paragraphs: NodeListOf<HTMLParagraphElement>;
-  formateadParagraphs: FormateadParagraph[] = [];
+  // private paragraphs: HTMLElement[];
+  formateadParagraphs: FormateadParagraph[];
   constructor(
     @Inject(String) name: string,
     @Inject(String) fullName: string,
@@ -37,13 +60,35 @@ export class PageModule {
     this.content = content;
   }
   getContentData(): void {
-    if (this.paragraphs) {
+    if (this.formateadParagraphs) {
       return;
     }
+    this.formateadParagraphs = [];
     setTimeout(() => {
       this.parent = document.getElementById(this.name);
       if (this.parent) {
-        this.paragraphs = this.parent.querySelectorAll('p');
+        let all = this.parent.querySelectorAll('.text-obj');
+
+        // let strong = this.parent.querySelectorAll('strong');
+        let text = this.parent.innerText;
+        var letters = /((^[0-9]+[a-z]+)|(^[a-z]+[0-9]+))+[0-9a-z]+$/;
+        let textsLetter = /^[a-z0-9]+$/i;
+        let lettersText = /[a-z]/i;
+        for (let i = 0; i < all.length; i++) {
+          if (
+            !all[i].textContent.match(lettersText) ||
+            all[i].textContent == '' ||
+            all[i].textContent == '&nbsp;' ||
+            all[i].textContent === ' '
+          ) {
+            continue;
+          }
+
+          let elementToAdd = new FormateadParagraph(all[i] as HTMLElement);
+          elementToAdd.createText(all[i].textContent);
+          this.formateadParagraphs.push(elementToAdd);
+        }
+        // console.log(this.formateadParagraphs);
       } else {
         console.log('null parent');
       }
@@ -52,7 +97,6 @@ export class PageModule {
 
   isInFullView(element: HTMLElement): boolean {
     if (element == null) {
-      console.log('Null Element');
       return false;
     }
     var position = element.getBoundingClientRect();
@@ -83,30 +127,36 @@ export class PageModule {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   getFirstInView(): HTMLElement {
-    for (let i = 0; i < this.paragraphs.length; i++) {
-      if (this.isInFullView(this.paragraphs[i])) {
-        return this.paragraphs[i];
+    for (let i = 0; i < this.formateadParagraphs.length; i++) {
+      if (this.isInFullView(this.formateadParagraphs[i].element)) {
+        return this.formateadParagraphs[i].element;
       }
     }
     console.log('none is in full view');
     return null;
   }
   getFirstInViewIndex(): number {
-    for (let i = 0; i < this.paragraphs.length; i++) {
-      if (this.isInFullView(this.paragraphs[i])) {
+    for (let i = 0; i < this.formateadParagraphs.length; i++) {
+      if (this.isInFullView(this.formateadParagraphs[i].element)) {
         return i;
       }
     }
     return 0;
   }
   isValidIndex(index: number) {
-    return index < this.paragraphs.length;
+    return index < this.formateadParagraphs.length;
   }
   isParagraphInFullView(index: number): boolean {
-    return this.isInFullView(this.paragraphs[index]);
+    if (index >= this.formateadParagraphs.length) {
+      return false;
+    }
+    return this.isInFullView(this.formateadParagraphs[index].element);
   }
   getParagraphElement(index: number): HTMLElement {
-    return this.paragraphs[index];
+    if (index >= this.formateadParagraphs.length) {
+      return null;
+    }
+    return this.formateadParagraphs[index].element;
   }
   // getParagraphElement(index: number): HTMLElement {
   //   if (index >= this.paragraphs.length) {
@@ -118,15 +168,14 @@ export class PageModule {
   //   }
   //   return null;
   // }
-  getTextFor(index: number): string {
-    if (index >= this.paragraphs.length) {
-      console.log('Out of index');
 
-      return '';
-    }
-    return this.paragraphs[index].innerText;
-  }
   getTotalParagraphs(): number {
-    return this.paragraphs.length;
+    return this.formateadParagraphs.length;
+  }
+  getTextFor(index: number): FormateadParagraph {
+    if (index >= this.formateadParagraphs.length) {
+      return null;
+    }
+    return this.formateadParagraphs[index];
   }
 }

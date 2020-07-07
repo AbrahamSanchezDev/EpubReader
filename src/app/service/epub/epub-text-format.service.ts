@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { TextReplaceData } from 'src/app/interface/text-replace-data';
-import { HtmlTextTool, RemoveReplaceOptions } from '@worldsdev/tools';
+import {
+  HtmlTextTool,
+  RemoveReplaceOptions,
+  ReplaceStrings,
+} from '@worldsdev/tools';
 
 const titleTag = '<title>';
 const titleTagEnd = '</title>';
@@ -9,6 +13,14 @@ const bodyTagEnd = '</body>';
 const displayRemoveOptions = [
   { replaceFor: '', original: 'display: inline', originalEnd: 'block;' },
   { replaceFor: '', original: 'style="', originalEnd: '"' },
+  { replaceFor: '<p>', original: '<p ', originalEnd: '>' },
+];
+const wrapTo: ReplaceStrings[] = [
+  //Wrap H1s
+  { replaceFor: '<h1 class="text-obj">', original: '<h1>' },
+  { replaceFor: '<p class="text-obj">', original: '<p>' },
+  // { replaceFor: '<strong class="text-obj">', original: '<strong>' },
+  { replaceFor: '<a class="text-obj" href=', original: '<a href=' },
 ];
 const optionsTo: RemoveReplaceOptions = {
   removeFromTo: [
@@ -29,7 +41,7 @@ export class EpubTextFormatService extends HtmlTextTool {
     originalString = this.insertIdToBody(originalString, name);
     originalString = this.replaceImgSrcToId(originalString);
     originalString = this.removeNonDynamicDisplays(originalString);
-
+    originalString = this.wrapOtherTextIn(originalString);
     return originalString;
   }
   //Gets the title of the object
@@ -63,6 +75,10 @@ export class EpubTextFormatService extends HtmlTextTool {
     return this.removeFromToOptions(originalString, displayRemoveOptions);
   }
 
+  wrapOtherTextIn(originalString: string) {
+    originalString = this.replaceTextOptions(originalString, wrapTo);
+    return originalString;
+  }
   //Formats the given text
   replaceAllTextBetween(
     originalString: string,

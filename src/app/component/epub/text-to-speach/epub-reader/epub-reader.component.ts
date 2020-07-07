@@ -1,7 +1,10 @@
 import { Component, OnInit, Renderer2 } from '@angular/core';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
-import { PageModule } from 'src/app/model/epub/page/page.module';
+import {
+  PageModule,
+  FormateadParagraph,
+} from 'src/app/model/epub/page/page.module';
 
 @Component({
   selector: 'app-epub-reader',
@@ -16,6 +19,7 @@ export class EpubReaderComponent implements OnInit {
   speech: SpeechSynthesis;
 
   epub: BookObjModule;
+  textToRead: FormateadParagraph;
 
   constructor(private epubService: EpubService, private render: Renderer2) {
     this.registerToEvents();
@@ -95,8 +99,6 @@ export class EpubReaderComponent implements OnInit {
   curParagraph = 0;
   curMaxContent = 0;
   curMaxParagraph = 0;
-  readTitle: boolean = false;
-  titleRead: boolean = false;
 
   startReading() {
     if (!this.curParagraphIsFocus()) {
@@ -104,9 +106,6 @@ export class EpubReaderComponent implements OnInit {
     }
     this.updateCurrentContent();
     //Check if there is a title in full display if so make it so it reads the title first
-    if (this.titleRead == false) {
-      this.readTitle = this.curContent.pageIsInFullView();
-    }
 
     this.readCurrent();
     this.speechOptions.onend = () => this.readNext();
@@ -125,25 +124,22 @@ export class EpubReaderComponent implements OnInit {
   }
   readNext() {
     if (!this.reading) return;
-    this.focusCurrentParagraph(false);
-    this.curParagraph++;
-    if (this.readTitle) {
-      this.readTitle = false;
-      this.curParagraph--;
-      this.focusParent(false);
-      this.titleRead = true;
-    }
-    if (this.curParagraph >= this.curMaxParagraph) {
-      this.curContentIndex++;
-      //Check if there is more content to read
-      if (this.curContentIndex >= this.curMaxContent) {
-        console.log('Finish reading');
-        return;
+
+    this.textToRead.onFinishRead();
+    if (this.textToRead.finished) {
+      this.focusCurrentParagraph(false);
+      this.textToRead.resetValues();
+      this.curParagraph++;
+      if (this.curParagraph >= this.curMaxParagraph) {
+        this.curContentIndex++;
+        //Check if there is more content to read
+        if (this.curContentIndex >= this.curMaxContent) {
+          console.log('Finish reading');
+          return;
+        }
+        this.updateCurrentContent();
+        this.curParagraph = 0;
       }
-      this.updateCurrentContent();
-      this.curParagraph = 0;
-      this.readTitle = true;
-      this.titleRead = false;
     }
 
     this.readCurrent();
@@ -152,18 +148,29 @@ export class EpubReaderComponent implements OnInit {
     this.curMaxContent = this.epub.pages.length;
     this.curContent = this.epub.pages[this.curContentIndex];
     this.curMaxParagraph = this.curContent.getTotalParagraphs();
+    console.log(this.curContent);
   }
+
   readCurrent(): void {
-    if (this.readTitle) {
-      this.focusParent(true);
-      this.read(this.curContent.name);
-      this.curContent.focusOnParent();
-    } else {
-      this.setFocusOnCurrentParagraph();
-      this.focusCurrentParagraph(true);
-      this.read(this.curContent.getTextFor(this.curParagraph));
+    // console.log(
+    //   'Reading Content = ' +
+    //     this.curContentIndex +
+    //     '  on paragraph : ' +
+    //     this.curParagraph
+    // );
+    this.setFocusOnCurrentParagraph();
+    this.focusCurrentParagraph(true);
+
+    this.textToRead = this.curContent.getTextFor(this.curParagraph);
+    if (this.textToRead == null) {
+      this.skipToNext();
+
+      return;
     }
+
+    this.read(this.textToRead.getTextToRead());
   }
+
   focusParent(focus: boolean): void {
     this.setElementToSelected(this.curContent.getParent(), focus);
   }
@@ -172,6 +179,9 @@ export class EpubReaderComponent implements OnInit {
       this.curContent.getParagraphElement(this.curParagraph),
       focus
     );
+    if (!focus && this.textToRead) {
+      this.textToRead.resetValues();
+    }
   }
   setFocusOnCurrentParagraph(): void {
     const index = this.curParagraph;
@@ -181,7 +191,8 @@ export class EpubReaderComponent implements OnInit {
     }
     if (!content.isParagraphInFullView(index)) {
       const element = content.getParagraphElement(index);
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (element)
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
   curParagraphIsFocus(): boolean {
@@ -211,20 +222,39 @@ export class EpubReaderComponent implements OnInit {
   readNextParagraph(next: boolean): void {
     this.cancelRead();
     this.reading = true;
-    if (next) {
-      this.readNext();
-    } else {
-      this.curParagraph -= 2;
-      if (this.curParagraph < 0) {
-        if (this.curContentIndex == 0) {
-          this.reading = false;
-          return;
-        }
-        this.curContentIndex--;
-        this.updateCurrentContent();
-        this.curContentIndex = this.curMaxParagraph;
-      }
-      this.readNext();
+    if (this.textToRead) {
+      this.textToRead.resetValues();
     }
+    if (next) {
+      this.curParagraph++;
+      this.readCurrent();
+    } else {
+      this.goToPreviewsParagraph();
+      this.readCurrent();
+    }
+  }
+
+  goToPreviewsParagraph(): void {
+    this.curParagraph -= 1;
+    if (this.curParagraph < 0) {
+      if (this.curContentIndex == 0) {
+        this.reading = false;
+        return;
+      }
+      this.curContentIndex--;
+      this.updateCurrentContent();
+      this.curContentIndex = this.curMaxParagraph;
+    }
+  }
+  skipToNext(): void {
+    this.curContentIndex++;
+    this.updateCurrentContent();
+    this.readCurrent();
+  }
+
+  skipToPreviews(): void {
+    this.curContentIndex++;
+    this.updateCurrentContent();
+    this.readCurrent();
   }
 }
