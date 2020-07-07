@@ -30,12 +30,9 @@ export class EpubReaderComponent implements OnInit {
       }
     };
   }
+
   ngOnDestroy() {
-    if (this.reading) {
-      this.reading = false;
-      this.speech.cancel();
-      console.log('Was reading');
-    }
+    this.cancelRead();
     window.onbeforeunload = null;
   }
   registerToEvents(): void {
@@ -45,6 +42,17 @@ export class EpubReaderComponent implements OnInit {
     this.epubService.OnRead.subscribe((read) => {
       this.Read(read);
     });
+    this.epubService.OnReadNext.subscribe((next) => {
+      this.readNextParagraph(next);
+    });
+  }
+  cancelRead(): void {
+    if (this.reading) {
+      this.reading = false;
+      this.speech.cancel();
+      this.focusCurrentParagraph(false);
+      this.focusParent(false);
+    }
   }
   reading: boolean;
   Read(read: boolean): void {
@@ -199,5 +207,24 @@ export class EpubReaderComponent implements OnInit {
     this.speechOptions.rate = 1.5;
     this.speechOptions.volume = 1;
     this.speech.speak(this.speechOptions);
+  }
+  readNextParagraph(next: boolean): void {
+    this.cancelRead();
+    this.reading = true;
+    if (next) {
+      this.readNext();
+    } else {
+      this.curParagraph -= 2;
+      if (this.curParagraph < 0) {
+        if (this.curContentIndex == 0) {
+          this.reading = false;
+          return;
+        }
+        this.curContentIndex--;
+        this.updateCurrentContent();
+        this.curContentIndex = this.curMaxParagraph;
+      }
+      this.readNext();
+    }
   }
 }

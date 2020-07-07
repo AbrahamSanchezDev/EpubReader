@@ -9,6 +9,7 @@ import { EpubService } from 'src/app/service/epub/epub.service';
 })
 export class EpubOptionsComponent implements OnInit {
   book: BookObjModule;
+
   constructor(private epubService: EpubService, private render: Renderer2) {
     epubService.onOpenEpub.subscribe((epub) => {
       this.onOpenEpub(epub);
@@ -96,5 +97,18 @@ export class EpubOptionsComponent implements OnInit {
   toggleRead(): void {
     this.read = !this.read;
     this.epubService.OnRead.emit(this.read);
+  }
+  readNext(): void {
+    this.epubService.OnReadNext.emit(true);
+  }
+  readPreviews(): void {
+    this.epubService.OnReadNext.emit(false);
+  }
+
+  getReadText(): string {
+    if (this.read) {
+      return 'Stop Reading';
+    }
+    return 'Read';
   }
 }

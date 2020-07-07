@@ -102,14 +102,15 @@ export class ReaderComponent implements AfterViewChecked {
     this.resetData();
 
     this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
-      for (let i = 0; i < data.length; i++) {
-        const name = data[i].filename;
-        if (name.includes('book.opf')) {
-          this.loadFileName(data[i]);
-          break;
-        }
-      }
-      // console.log(data);
+      //Load Menu
+      // for (let i = 0; i < data.length; i++) {
+      //   const name = data[i].filename;
+      //   if (name.includes('book.opf')) {
+      //     this.loadFileName(data[i]);
+      //     break;
+      //   }
+      // }
+      //Load Images
       for (let i = 0; i < data.length; i++) {
         const name = data[i].filename;
         //img = .png
@@ -117,13 +118,14 @@ export class ReaderComponent implements AfterViewChecked {
           this.loadImg(data[i]);
         }
       }
+      //Load Content
       for (let i = 0; i < data.length; i++) {
         const name = data[i].filename;
         //htmls = ".xhtml"
         if (name.includes('.xhtml')) {
           //directory = nav.xhtml
           if (this.isAnIndexer(name)) {
-            this.loadIndex(data[i]);
+            // this.loadIndex(data[i]);
           }
           //Content
           else {

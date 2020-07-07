@@ -1,16 +1,7 @@
 <div class="epub-options-parent">
   <div *ngIf="hasBook()">
-    <!-- <button (click)="onTest()">Do Testing</button>
-
-    <button (click)="focusOn()">Focus</button>
-    <button (click)="getFirstInView()">Get First In view</button> -->
-    <button (click)="toggleRead()">Read</button>
-    <!-- 
-    <button>Stop</button>
-
-    <button>Previews Chapter</button>
-    <button>Previews Text</button>
-    <button>Next Text</button>
-    <button>Next Chapter</button> -->
+    <button (click)="readPreviews()">Read Previews</button>
+    <button (click)="toggleRead()">{{ getReadText() }}</button>
+    <button (click)="readNext()">Read Next</button>
   </div>
 </div>
