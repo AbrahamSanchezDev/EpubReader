@@ -18,6 +18,7 @@ const displayRemoveOptions = [
 const wrapTo: ReplaceStrings[] = [
   //Wrap H1s
   { replaceFor: '<h1 class="text-obj">', original: '<h1>' },
+  { replaceFor: '<h2 class="text-obj">', original: '<h2>' },
   { replaceFor: '<p class="text-obj">', original: '<p>' },
   // { replaceFor: '<strong class="text-obj">', original: '<strong>' },
   { replaceFor: '<a class="text-obj" href=', original: '<a href=' },

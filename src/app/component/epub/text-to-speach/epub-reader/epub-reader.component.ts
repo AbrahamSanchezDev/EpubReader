@@ -61,7 +61,7 @@ export class EpubReaderComponent implements OnInit {
   reading: boolean;
   Read(read: boolean): void {
     this.reading = read;
-    console.log('Start Reading ' + read);
+    // console.log('Start Reading ' + read);
     if (read) {
       this.startReading();
     } else {
@@ -72,7 +72,7 @@ export class EpubReaderComponent implements OnInit {
   }
 
   onLoadedBook(epubOpened: BookObjModule): void {
-    console.log('Loaded book ' + epubOpened.name);
+    // console.log('Loaded book ' + epubOpened.name);
     this.epub = epubOpened;
   }
   getAllVoices(): void {
@@ -102,6 +102,7 @@ export class EpubReaderComponent implements OnInit {
 
   startReading() {
     if (!this.curParagraphIsFocus()) {
+      this.resetCurrent();
       this.getFirstInView();
     }
     this.updateCurrentContent();
@@ -145,10 +146,11 @@ export class EpubReaderComponent implements OnInit {
     this.readCurrent();
   }
   updateCurrentContent(): void {
+    this.resetCurrent();
     this.curMaxContent = this.epub.pages.length;
     this.curContent = this.epub.pages[this.curContentIndex];
     this.curMaxParagraph = this.curContent.getTotalParagraphs();
-    console.log(this.curContent);
+    // console.log(this.curContent);
   }
 
   readCurrent(): void {
@@ -164,7 +166,7 @@ export class EpubReaderComponent implements OnInit {
     this.textToRead = this.curContent.getTextFor(this.curParagraph);
     if (this.textToRead == null) {
       this.skipToNext();
-
+      // console.log('Skip current ' + this.curContentIndex);
       return;
     }
 
@@ -226,14 +228,30 @@ export class EpubReaderComponent implements OnInit {
       this.textToRead.resetValues();
     }
     if (next) {
-      this.curParagraph++;
-      this.readCurrent();
+      this.gotToNextParagraph();
     } else {
       this.goToPreviewsParagraph();
-      this.readCurrent();
     }
   }
 
+  resetCurrent(): void {
+    if (this.textToRead) {
+      this.textToRead.resetValues();
+    }
+  }
+  gotToNextParagraph(): void {
+    this.curParagraph++;
+    if (this.curParagraph >= this.curMaxParagraph) {
+      this.curParagraph = 0;
+      this.curContentIndex++;
+      if (this.curContentIndex >= this.curMaxContent) {
+        this.reading = false;
+        return;
+      }
+      this.updateCurrentContent();
+    }
+    this.readCurrent();
+  }
   goToPreviewsParagraph(): void {
     this.curParagraph -= 1;
     if (this.curParagraph < 0) {
@@ -241,10 +259,13 @@ export class EpubReaderComponent implements OnInit {
         this.reading = false;
         return;
       }
-      this.curContentIndex--;
+      this.curContentIndex -= 1;
+
       this.updateCurrentContent();
-      this.curContentIndex = this.curMaxParagraph;
+
+      this.curParagraph = this.curMaxParagraph - 1;
     }
+    this.readCurrent();
   }
   skipToNext(): void {
     this.curContentIndex++;
