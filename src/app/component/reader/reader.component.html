@@ -2,15 +2,8 @@
   <mat-sidenav-container class="example-container">
     <mat-sidenav #sidenav mode="side" [(opened)]="opened" class="menu-content">
       <div>
-        <button type="button" (click)="fileInput.click()" class="file-selector">
-          <span>Upload</span>
-          <input
-            #fileInput
-            type="file"
-            (change)="onFileSelected($event)"
-            class="file-selector"
-            style="display: none;"
-          />
+        <button mat-icon-button (click)="toggleIndex()" class="file-selector">
+          Close
         </button>
         <!-- Index -->
         <div #indexMenu class="book-index">
@@ -29,6 +22,33 @@
       </div>
     </mat-sidenav>
     <mat-sidenav-content #contentDisplay>
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="menu"
+        aria-label="Example icon-button with a menu"
+      >
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button
+          mat-menu-item
+          type="button"
+          (click)="fileInput.click()"
+          class="file-selector"
+        >
+          <span>Upload</span>
+          <input
+            #fileInput
+            type="file"
+            (change)="onFileSelected($event)"
+            class="file-selector"
+            style="display: none;"
+          />
+        </button>
+        <button mat-menu-item>
+          <span>Read aloud</span>
+        </button>
+      </mat-menu>
       <button mat-button (click)="toggleIndex()">Toggle</button>
       <app-epub-options class="epub-options"></app-epub-options>
       <app-epub-reader></app-epub-reader>

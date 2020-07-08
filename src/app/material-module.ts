@@ -6,6 +6,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
 @NgModule({
   exports: [
     FormsModule,
@@ -29,10 +31,10 @@ import { MatSidenavModule } from '@angular/material/sidenav';
     //   MatDividerModule,
     //   MatExpansionModule,
     //   MatGridListModule,
-    //   MatIconModule,
+    MatIconModule,
     MatInputModule,
     //   MatListModule,
-    //   MatMenuModule,
+    MatMenuModule,
     //   MatNativeDateModule,
     //   MatPaginatorModule,
     //   MatProgressBarModule,
