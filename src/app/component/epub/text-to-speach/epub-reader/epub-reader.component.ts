@@ -154,22 +154,14 @@ export class EpubReaderComponent implements OnInit {
   }
 
   readCurrent(): void {
-    // console.log(
-    //   'Reading Content = ' +
-    //     this.curContentIndex +
-    //     '  on paragraph : ' +
-    //     this.curParagraph
-    // );
     this.setFocusOnCurrentParagraph();
     this.focusCurrentParagraph(true);
 
     this.textToRead = this.curContent.getTextFor(this.curParagraph);
     if (this.textToRead == null) {
       this.skipToNext();
-      // console.log('Skip current ' + this.curContentIndex);
       return;
     }
-
     this.read(this.textToRead.getTextToRead());
   }
 
@@ -221,6 +213,7 @@ export class EpubReaderComponent implements OnInit {
     this.speechOptions.volume = 1;
     this.speech.speak(this.speechOptions);
   }
+
   readNextParagraph(next: boolean): void {
     this.cancelRead();
     this.reading = true;
@@ -267,12 +260,12 @@ export class EpubReaderComponent implements OnInit {
     }
     this.readCurrent();
   }
+
   skipToNext(): void {
     this.curContentIndex++;
     this.updateCurrentContent();
     this.readCurrent();
   }
-
   skipToPreviews(): void {
     this.curContentIndex++;
     this.updateCurrentContent();

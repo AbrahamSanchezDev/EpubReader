@@ -15,6 +15,7 @@ import { TextReplaceData } from 'src/app/interface/text-replace-data';
 import { EpubTextFormatService } from 'src/app/service/epub/epub-text-format.service';
 import { HttpClient } from '@angular/common/http';
 import { EpubService } from 'src/app/service/epub/epub.service';
+import { MatSidenav } from '@angular/material/sidenav';
 
 const navOptions: TextReplaceData = {
   beginString: 'href="',
@@ -50,7 +51,7 @@ const navOptions: TextReplaceData = {
 export class ReaderComponent implements AfterViewChecked {
   @ViewChild('bookArea') bookArea;
   @ViewChild('indexMenu') elementRef: ElementRef;
-  @ViewChild('contentDisplay') contentDisplay: ElementRef<HTMLDivElement>;
+
   filePath = 'assets/TheDefeatedDragon.epub';
 
   addedImages: boolean = false;
@@ -59,7 +60,7 @@ export class ReaderComponent implements AfterViewChecked {
   currentFiles: number;
   currentMaxFiles: number;
 
-  showingMenu: boolean = true;
+  opened: boolean = false;
 
   constructor(
     private zip: ZipService,
@@ -98,7 +99,6 @@ export class ReaderComponent implements AfterViewChecked {
 
   //Called when adding a new file from selector
   fileChanged(file) {
-    this.updateContentClasses();
     this.resetData();
 
     this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
@@ -353,24 +353,9 @@ export class ReaderComponent implements AfterViewChecked {
     return this.book.index;
   }
 
-  updateContentClasses(): void {
-    if (this.contentDisplay == null) {
-      console.log('Null display');
-      return;
-    }
-    if (this.showingMenu) {
-      this.renderer.setAttribute(
-        this.contentDisplay.nativeElement,
-        'class',
-        'menu-open'
-      );
-    } else {
-      this.renderer.setAttribute(
-        this.contentDisplay.nativeElement,
-        'class',
-        ''
-      );
-    }
-  }
   //#endregion
+
+  toggleIndex(): void {
+    this.opened = !this.opened;
+  }
 }

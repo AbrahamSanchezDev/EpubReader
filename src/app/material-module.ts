@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
+import { MatSidenavModule } from '@angular/material/sidenav';
 @NgModule({
   exports: [
     FormsModule,
@@ -39,7 +40,7 @@ import { FormsModule } from '@angular/forms';
     //   MatRadioModule,
     //   MatRippleModule,
     MatSelectModule,
-    //   MatSidenavModule,
+    MatSidenavModule,
     //   MatSliderModule,
     //   MatSlideToggleModule,
     //   MatSnackBarModule,
