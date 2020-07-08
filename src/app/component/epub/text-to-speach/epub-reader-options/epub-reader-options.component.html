@@ -1,0 +1,7 @@
+<div>
+  <div *ngIf="reading()" class="lowerMenu">
+    <button (click)="readPreviews()"><</button>
+    <button (click)="toggleRead()">{{ getReadText() }}</button>
+    <button (click)="readNext()">></button>
+  </div>
+</div>

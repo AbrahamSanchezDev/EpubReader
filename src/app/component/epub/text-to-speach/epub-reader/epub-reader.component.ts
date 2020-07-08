@@ -5,6 +5,7 @@ import {
   PageModule,
   FormateadParagraph,
 } from 'src/app/model/epub/page/page.module';
+import { TextToSpeechService } from 'src/app/service/text-to-speech/text-to-speech.service';
 
 @Component({
   selector: 'app-epub-reader',
@@ -12,28 +13,23 @@ import {
   styleUrls: ['./epub-reader.component.css'],
 })
 export class EpubReaderComponent implements OnInit {
-  selectedValue: string;
-  voices: string[] = [];
-  allVoices: SpeechSynthesisVoice[] = [];
-  speechOptions: SpeechSynthesisUtterance;
-  speech: SpeechSynthesis;
-
   epub: BookObjModule;
   textToRead: FormateadParagraph;
+  curContentIndex = 0;
+  curContent: PageModule;
+  curParagraph = 0;
+  curMaxContent = 0;
+  curMaxParagraph = 0;
 
-  constructor(private epubService: EpubService, private render: Renderer2) {
+  constructor(
+    private epubService: EpubService,
+    private textToSpeech: TextToSpeechService,
+    private render: Renderer2
+  ) {
     this.registerToEvents();
   }
 
-  ngOnInit(): void {
-    this.getAllVoices();
-    window.onbeforeunload = () => {
-      if (this.reading) {
-        this.speech.cancel();
-        console.log('Was reading');
-      }
-    };
-  }
+  ngOnInit(): void {}
 
   ngOnDestroy() {
     this.cancelRead();
@@ -53,7 +49,7 @@ export class EpubReaderComponent implements OnInit {
   cancelRead(): void {
     if (this.reading) {
       this.reading = false;
-      this.speech.cancel();
+      this.cancelSpeech();
       this.focusCurrentParagraph(false);
       this.focusParent(false);
     }
@@ -65,40 +61,23 @@ export class EpubReaderComponent implements OnInit {
     if (read) {
       this.startReading();
     } else {
-      this.speech.cancel();
+      this.cancelSpeech();
       this.focusCurrentParagraph(false);
       this.focusParent(false);
     }
   }
 
+  cancelSpeech(): void {
+    this.textToSpeech.cancelSpeech();
+  }
   onLoadedBook(epubOpened: BookObjModule): void {
     // console.log('Loaded book ' + epubOpened.name);
     this.epub = epubOpened;
   }
-  getAllVoices(): void {
-    if (!('speechSynthesis' in window)) {
-      console.log("You don't have speechSynthesis");
-    }
-    this.speech = window.speechSynthesis;
-    this.speech.addEventListener('voiceschanged', () => {
-      this.allVoices = speechSynthesis.getVoices();
-      for (let i = 0; i < this.allVoices.length; i++) {
-        this.voices.push(this.allVoices[i].name.toString());
-      }
-      this.selectedValue = this.voices[2];
-    });
-    this.speechOptions = new SpeechSynthesisUtterance();
-  }
 
   getVoices(): string[] {
-    return this.voices;
+    return this.textToSpeech.voices;
   }
-
-  curContentIndex = 0;
-  curContent: PageModule;
-  curParagraph = 0;
-  curMaxContent = 0;
-  curMaxParagraph = 0;
 
   startReading() {
     if (!this.curParagraphIsFocus()) {
@@ -109,7 +88,7 @@ export class EpubReaderComponent implements OnInit {
     //Check if there is a title in full display if so make it so it reads the title first
 
     this.readCurrent();
-    this.speechOptions.onend = () => this.readNext();
+    this.textToSpeech.speechOptions.onend = () => this.readNext();
   }
 
   getFirstInView() {
@@ -201,17 +180,7 @@ export class EpubReaderComponent implements OnInit {
     this.render.setAttribute(element, 'class', selected ? 'selected' : '');
   }
   read(text: string) {
-    this.speechOptions.text = text;
-    for (let i = 0; i < this.allVoices.length; i++) {
-      if (this.allVoices[i].name.toString() == this.selectedValue) {
-        this.speechOptions.voice = this.allVoices[i];
-        break;
-      }
-    }
-    this.speechOptions.pitch = 1.5;
-    this.speechOptions.rate = 1.5;
-    this.speechOptions.volume = 1;
-    this.speech.speak(this.speechOptions);
+    this.textToSpeech.read(text);
   }
 
   readNextParagraph(next: boolean): void {

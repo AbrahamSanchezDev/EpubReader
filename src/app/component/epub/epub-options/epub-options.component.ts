@@ -1,4 +1,10 @@
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Renderer2,
+  EventEmitter,
+  Output,
+} from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
 
@@ -9,10 +15,14 @@ import { EpubService } from 'src/app/service/epub/epub.service';
 })
 export class EpubOptionsComponent implements OnInit {
   book: BookObjModule;
+  @Output() toggleChapters: EventEmitter<void> = new EventEmitter<void>();
 
   constructor(private epubService: EpubService, private render: Renderer2) {
     epubService.onOpenEpub.subscribe((epub) => {
       this.onOpenEpub(epub);
+    });
+    epubService.OnRead.subscribe((read) => {
+      this.onRead(read);
     });
   }
   ngOnInit(): void {}
@@ -93,10 +103,16 @@ export class EpubOptionsComponent implements OnInit {
     }
     console.log('No PAge  is in full view');
   }
-  read: boolean = false;
+  readingAtm: boolean = false;
   toggleRead(): void {
-    this.read = !this.read;
-    this.epubService.OnRead.emit(this.read);
+    if (this.book == null) {
+      return;
+    }
+    this.readingAtm = !this.readingAtm;
+    this.epubService.OnRead.emit(this.readingAtm);
+  }
+  onRead(read: boolean) {
+    this.readingAtm = read;
   }
   readNext(): void {
     this.epubService.OnReadNext.emit(true);
@@ -105,10 +121,38 @@ export class EpubOptionsComponent implements OnInit {
     this.epubService.OnReadNext.emit(false);
   }
 
+  //#region Menu
+  onFileSelected(event) {
+    // this.fileChanged(event.target.files[0]);
+    this.epubService.OnFileSelected.emit(event.target.files[0]);
+  }
+
+  showChapters(): void {
+    this.toggleChapters.emit();
+  }
+  //#endregion
+
   getReadText(): string {
-    if (this.read) {
-      return 'Stop Reading';
+    if (this.book == null) {
+      return '';
     }
-    return 'Read';
+    if (this.readingAtm) {
+      return 'Stop Read aloud';
+    }
+    return 'Read aloud';
+  }
+  getIndexText(): string {
+    if (this.book == null) {
+      return '';
+    }
+    return 'Chapters';
+  }
+
+  formatLabel(value: number) {
+    if (value >= 1000) {
+      return Math.round(value / 1000) + 'k';
+    }
+
+    return value;
   }
 }

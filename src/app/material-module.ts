@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSliderModule } from '@angular/material/slider';
 @NgModule({
   exports: [
     FormsModule,
@@ -43,7 +44,7 @@ import { MatIconModule } from '@angular/material/icon';
     //   MatRippleModule,
     MatSelectModule,
     MatSidenavModule,
-    //   MatSliderModule,
+    MatSliderModule,
     //   MatSlideToggleModule,
     //   MatSnackBarModule,
     //   MatSortModule,

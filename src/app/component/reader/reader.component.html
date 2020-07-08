@@ -22,37 +22,15 @@
       </div>
     </mat-sidenav>
     <mat-sidenav-content #contentDisplay>
-      <button
-        mat-icon-button
-        [matMenuTriggerFor]="menu"
-        aria-label="Example icon-button with a menu"
-      >
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <mat-menu #menu="matMenu">
-        <button
-          mat-menu-item
-          type="button"
-          (click)="fileInput.click()"
-          class="file-selector"
-        >
-          <span>Upload</span>
-          <input
-            #fileInput
-            type="file"
-            (change)="onFileSelected($event)"
-            class="file-selector"
-            style="display: none;"
-          />
-        </button>
-        <button mat-menu-item>
-          <span>Read aloud</span>
-        </button>
-      </mat-menu>
-      <button mat-button (click)="toggleIndex()">Toggle</button>
-      <app-epub-options class="epub-options"></app-epub-options>
+      <app-text-to-speech-options></app-text-to-speech-options>
+      <app-epub-options
+        class="epub-options"
+        (toggleChapters)="toggleIndex()"
+      ></app-epub-options>
       <app-epub-reader></app-epub-reader>
       <app-epub-display [book]="getBook()"></app-epub-display>
+
+      <app-epub-reader-options></app-epub-reader-options>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>

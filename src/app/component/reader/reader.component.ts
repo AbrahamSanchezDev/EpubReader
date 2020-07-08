@@ -3,7 +3,6 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
-  Renderer2,
 } from '@angular/core';
 import { ZipService } from 'src/app/service/zip/zip.service';
 import { ZipEntry } from 'src/app/service/zip/ZipEntry';
@@ -15,7 +14,6 @@ import { TextReplaceData } from 'src/app/interface/text-replace-data';
 import { EpubTextFormatService } from 'src/app/service/epub/epub-text-format.service';
 import { HttpClient } from '@angular/common/http';
 import { EpubService } from 'src/app/service/epub/epub.service';
-import { MatSidenav } from '@angular/material/sidenav';
 
 const navOptions: TextReplaceData = {
   beginString: 'href="',
@@ -67,9 +65,11 @@ export class ReaderComponent implements AfterViewChecked {
     private textControl: EpubTextFormatService,
     private sanitizer: DomSanitizer,
     private http: HttpClient,
-    private epubService: EpubService,
-    private renderer: Renderer2
+    private epubService: EpubService
   ) {
+    epubService.OnFileSelected.subscribe((file) => {
+      this.fileChanged(file);
+    });
     this.loadTestingFile();
   }
 

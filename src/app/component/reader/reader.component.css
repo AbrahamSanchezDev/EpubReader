@@ -33,13 +33,13 @@
   flex-direction: column;
   overflow: auto;
 }
-.menu-open {
-  margin-left: 20%;
-}
+
 .epub-options {
   position: fixed;
   top: 5px;
   right: 5px;
   width: max-content;
   z-index: 3;
+}
+.epub-display {
 }

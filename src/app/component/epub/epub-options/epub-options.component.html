@@ -1,7 +1,44 @@
 <div class="epub-options-parent">
-  <div *ngIf="hasBook()">
-    <button (click)="readPreviews()">Read Previews</button>
-    <button (click)="toggleRead()">{{ getReadText() }}</button>
-    <button (click)="readNext()">Read Next</button>
+  <div class="menu">
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="menu"
+      aria-label="Example icon-button with a menu"
+    >
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="toggleRead()">
+        <span>{{ getReadText() }}</span>
+      </button>
+
+      <button mat-menu-item (click)="showChapters()">
+        <span>{{ getIndexText() }}</span>
+      </button>
+      <button
+        mat-menu-item
+        type="button"
+        (click)="fileInput.click()"
+        class="file-selector"
+      >
+        <span>Upload</span>
+        <input
+          #fileInput
+          type="file"
+          (change)="onFileSelected($event)"
+          class="file-selector"
+          style="display: none;"
+        />
+      </button>
+
+      <p>Voice Settings</p>
+      <mat-slider
+        thumbLabel
+        [displayWith]="formatLabel"
+        tickInterval="1000"
+        min="1"
+        max="100000"
+      ></mat-slider>
+    </mat-menu>
   </div>
 </div>

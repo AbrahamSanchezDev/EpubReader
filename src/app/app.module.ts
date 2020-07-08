@@ -13,6 +13,8 @@ import { InUseMaterialModule } from './material-module';
 import { MatSelectModule } from '@angular/material/select';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { EpubReaderComponent } from './component/epub/text-to-speach/epub-reader/epub-reader.component';
+import { EpubReaderOptionsComponent } from './component/epub/text-to-speach/epub-reader-options/epub-reader-options.component';
+import { TextToSpeechOptionsComponent } from './component/epub/text-to-speach/text-to-speech-options/text-to-speech-options.component';
 
 @NgModule({
   declarations: [
@@ -21,6 +23,8 @@ import { EpubReaderComponent } from './component/epub/text-to-speach/epub-reader
     EpubDisplayComponent,
     EpubOptionsComponent,
     EpubReaderComponent,
+    EpubReaderOptionsComponent,
+    TextToSpeechOptionsComponent,
   ],
 
   imports: [

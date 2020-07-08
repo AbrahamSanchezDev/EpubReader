@@ -10,6 +10,7 @@ export class EpubService {
   >();
   public OnRead: EventEmitter<boolean> = new EventEmitter<boolean>();
   public OnReadNext: EventEmitter<boolean> = new EventEmitter<boolean>();
+  public OnFileSelected: EventEmitter<File> = new EventEmitter<File>();
 
   private ids: string[] = [];
 
