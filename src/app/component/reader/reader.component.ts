@@ -105,22 +105,10 @@ export class ReaderComponent implements AfterViewChecked {
     this.resetData();
 
     this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
-      //Load Menu
-      // for (let i = 0; i < data.length; i++) {
-      //   const name = data[i].filename;
-      //   if (name.includes('book.opf')) {
-      //     this.loadFileName(data[i]);
-      //     break;
-      //   }
-      // }
+      //Load File Name
+      this.lookForFileName(data);
       //Load Images
-      for (let i = 0; i < data.length; i++) {
-        const name = data[i].filename;
-        //img = .png
-        if (this.isAnImg(name)) {
-          this.loadImg(data[i]);
-        }
-      }
+      this.loadImages(data);
       //Load Content
       for (let i = 0; i < data.length; i++) {
         const name = data[i].filename;
@@ -140,6 +128,91 @@ export class ReaderComponent implements AfterViewChecked {
       }
     });
   }
+  //#region File name
+  lookForFileName(data: ZipEntry[]): void {
+    for (let i = 0; i < data.length; i++) {
+      const name = data[i].filename;
+      if (name.includes('book.opf')) {
+        this.loadFileName(data[i]);
+        break;
+      }
+    }
+  }
+  loadFileName(obj: ZipEntry) {
+    if (this.book.name != null) {
+      console.log('Already has name');
+      return;
+    }
+    this.readZipEntryAsText(obj, (content) => {
+      this.setFileName(content);
+    });
+  }
+  setFileName(result: string) {
+    this.book.name = this.textControl.getTextBetween(
+      result,
+      '<dc:title>',
+      '</dc:title>'
+    );
+  }
+  //#endregion
+
+  //#region  Images
+  //Load the images using the datas
+  loadImages(datas: ZipEntry[]) {
+    for (let i = 0; i < datas.length; i++) {
+      this.loadImage(datas[i]);
+    }
+  }
+  //Load the given file
+  loadImage(obj: ZipEntry) {
+    if (!this.isImage(obj.filename)) {
+      return;
+    }
+    this.readZipEntryAsText(obj, (content) => {});
+    const data = this.zip.getData(obj);
+    data.data.subscribe((o) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const imgUrl = window.URL.createObjectURL(o);
+        this.book.images.push({ name: obj.filename, url: imgUrl });
+      };
+      reader.readAsDataURL(o);
+    });
+  }
+  //Check if the file has and image format
+  isImage(name: string) {
+    const toLowers = name.toLocaleLowerCase();
+    if (toLowers.includes('.png')) {
+      return true;
+    }
+    if (toLowers.includes('.jpg')) {
+      return true;
+    }
+    return false;
+  }
+  //#endregion
+  //#region Content
+  //Load files with .xhtml in there full name
+  getContentFromData(data: ZipEntry[]): void {
+    for (let i = 0; i < data.length; i++) {
+      const name = data[i].filename;
+      if (name.includes('.xhtml')) {
+        //If is not an indexer then is Content
+        if (!this.isAnIndexer(name)) {
+          this.currentMaxFiles++;
+          this.loadContent(data[i]);
+        }
+      }
+    }
+  }
+  //Check if its an index file
+  isAnIndexer(name: string): boolean {
+    if (name.includes('nav.xhtml')) {
+      return true;
+    }
+    return false;
+  }
+  //#endregion
 
   //Reset the values to default
   resetData(): void {
@@ -151,67 +224,26 @@ export class ReaderComponent implements AfterViewChecked {
     this.added = false;
   }
   //#endregion Index content
-  //Check if its an index file
-  isAnIndexer(name: string): boolean {
-    if (name.includes('nav.xhtml')) {
-      return true;
-    }
-    return false;
-  }
-  isAnImg(name: string) {
-    let toLowers = name.toLocaleLowerCase();
-    if (toLowers.includes('.png')) {
-      return true;
-    }
-    if (toLowers.includes('.jpg')) {
-      return true;
-    }
-    return false;
-  }
-  loadFileName(obj: ZipEntry) {
-    if (this.book.name != null) {
-      console.log('Already has name');
 
-      return;
-    }
-    let data = this.zip.getData(obj);
-    data.data.subscribe((o) => {
-      let reader = new FileReader();
-      reader.onload = () => {
-        this.book.name = this.textControl.getTextBetween(
-          reader.result.toString(),
-          '<dc:title>',
-          '</dc:title>'
-        );
-      };
-      reader.readAsText(o);
-    });
-  }
   loadIndex(obj: ZipEntry) {
-    let data = this.zip.getData(obj);
-    data.data.subscribe((o) => {
-      let reader = new FileReader();
-      reader.onload = () => {
-        let formattedText: string = '';
-        //Loaded a nav indexer
-        if (obj.filename.includes('nav.xhtml')) {
-          //Get name from original text
-          this.book.name = this.textControl.getFileNameFromIndex(
-            reader.result.toString(),
-            navOptions
-          );
-
-          formattedText = this.textControl.replaceAllTextBetween(
-            reader.result.toString(),
-            navOptions
-          );
-        } else {
-          console.log('No special Settings for ' + obj.filename);
-          formattedText = reader.result.toString();
-        }
-        this.book.index = this.sanitizer.bypassSecurityTrustHtml(formattedText);
-      };
-      reader.readAsText(o);
+    this.readZipEntryAsText(obj, (content) => {
+      let formattedText: string = '';
+      //Loaded a nav indexer
+      if (obj.filename.includes('nav.xhtml')) {
+        //Get name from original text
+        this.book.name = this.textControl.getFileNameFromIndex(
+          content,
+          navOptions
+        );
+        formattedText = this.textControl.replaceAllTextBetween(
+          content,
+          navOptions
+        );
+      } else {
+        console.log('No special Settings for ' + obj.filename);
+        formattedText = content;
+      }
+      this.book.index = this.sanitizer.bypassSecurityTrustHtml(formattedText);
     });
   }
 
@@ -222,59 +254,47 @@ export class ReaderComponent implements AfterViewChecked {
     return this.book.usePagesAsMenu;
   }
   //#endregion
-  //#region  Images
-  loadImg(obj: ZipEntry) {
-    let data = this.zip.getData(obj);
+
+  readZipEntryAsText(obj: ZipEntry, onLoad: Function) {
+    const data = this.zip.getData(obj);
     data.data.subscribe((o) => {
-      let reader = new FileReader();
+      const reader = new FileReader();
       reader.onload = () => {
-        let imgUrl = window.URL.createObjectURL(o);
-        this.book.images.push({ name: obj.filename, url: imgUrl });
-      };
-
-      reader.readAsDataURL(o);
-    });
-  }
-
-  //#endregion
-  //#endregion Content
-  loadContent(obj: ZipEntry) {
-    let data = this.zip.getData(obj);
-    data.data.subscribe((o) => {
-      let reader = new FileReader();
-      reader.onload = () => {
-        let content = reader.result.toString();
-        //Look for the content title
-        let theName = this.textControl.getTitleName(content);
-        //If there is no title then set it to be the file name
-        if (theName == null) {
-          theName = this.textControl.getTextBetween(obj.filename, '/', '.');
-        }
-
-        let formattedText: string = this.textControl.cleanUpContent(
-          reader.result.toString(),
-          theName
-        );
-
-        let contentToAdd = new PageModule(
-          theName,
-          obj.filename,
-          this.sanitizer.bypassSecurityTrustHtml(formattedText)
-        );
-        let curAmount = this.book.pages.length;
-        contentToAdd.index = curAmount;
-        this.book.pages.push(contentToAdd);
-        this.currentFiles++;
-        if (this.currentFiles == this.currentMaxFiles) {
-          this.book.Init();
-          this.epubService.callOnOpenEpub(this.book);
-          if (this.book.index == null) {
-            this.book.usePagesAsMenu = true;
-          }
-          this.setupButtonsIds();
-        }
+        onLoad(reader.result.toString());
       };
       reader.readAsText(o);
+    });
+  }
+  //#endregion Content
+  loadContent(obj: ZipEntry) {
+    this.readZipEntryAsText(obj, (content) => {
+      //Look for the content title
+      let theName = this.textControl.getTitleName(content);
+      //If there is no title then set it to be the file name
+      if (theName == null) {
+        theName = this.textControl.getTextBetween(obj.filename, '/', '.');
+      }
+      let formattedText: string = this.textControl.cleanUpContent(
+        content,
+        theName
+      );
+      let contentToAdd = new PageModule(
+        theName,
+        obj.filename,
+        this.sanitizer.bypassSecurityTrustHtml(formattedText)
+      );
+      let curAmount = this.book.pages.length;
+      contentToAdd.index = curAmount;
+      this.book.pages.push(contentToAdd);
+      this.currentFiles++;
+      if (this.currentFiles == this.currentMaxFiles) {
+        this.book.Init();
+        this.epubService.callOnOpenEpub(this.book);
+        if (this.book.index == null) {
+          this.book.usePagesAsMenu = true;
+        }
+        this.setupButtonsIds();
+      }
     });
   }
 
