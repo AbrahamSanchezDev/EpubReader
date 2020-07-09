@@ -70,6 +70,9 @@ export class ReaderComponent implements AfterViewChecked {
     epubService.OnFileSelected.subscribe((file) => {
       this.fileChanged(file);
     });
+    epubService.OnToggleChapters.subscribe(() => {
+      this.toggleIndex();
+    });
     this.loadTestingFile();
   }
 
@@ -357,5 +360,6 @@ export class ReaderComponent implements AfterViewChecked {
 
   toggleIndex(): void {
     this.opened = !this.opened;
+    this.epubService.OnShowChapters.emit(this.opened);
   }
 }

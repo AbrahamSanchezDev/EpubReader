@@ -15,8 +15,9 @@ import { TextToSpeechService } from 'src/app/service/text-to-speech/text-to-spee
 export class EpubReaderComponent implements OnInit {
   epub: BookObjModule;
   textToRead: FormateadParagraph;
-  curContentIndex = 0;
   curContent: PageModule;
+
+  curContentIndex = 0;
   curParagraph = 0;
   curMaxContent = 0;
   curMaxParagraph = 0;
@@ -51,11 +52,13 @@ export class EpubReaderComponent implements OnInit {
       this.reading = false;
       this.cancelSpeech();
       this.focusCurrentParagraph(false);
-      this.focusParent(false);
     }
   }
   reading: boolean;
   Read(read: boolean): void {
+    if (this.epub == null) {
+      return;
+    }
     this.reading = read;
     // console.log('Start Reading ' + read);
     if (read) {
@@ -63,7 +66,6 @@ export class EpubReaderComponent implements OnInit {
     } else {
       this.cancelSpeech();
       this.focusCurrentParagraph(false);
-      this.focusParent(false);
     }
   }
 
@@ -74,7 +76,6 @@ export class EpubReaderComponent implements OnInit {
     // console.log('Loaded book ' + epubOpened.name);
     this.epub = epubOpened;
   }
-
   getVoices(): string[] {
     return this.textToSpeech.voices;
   }
@@ -143,17 +144,15 @@ export class EpubReaderComponent implements OnInit {
     }
     this.read(this.textToRead.getTextToRead());
   }
-
-  focusParent(focus: boolean): void {
-    this.setElementToSelected(this.curContent.getParent(), focus);
-  }
   focusCurrentParagraph(focus: boolean) {
-    this.setElementToSelected(
-      this.curContent.getParagraphElement(this.curParagraph),
-      focus
-    );
     if (!focus && this.textToRead) {
       this.textToRead.resetValues();
+    }
+    if (this.curContent) {
+      this.setElementToSelected(
+        this.curContent.getParagraphElement(this.curParagraph),
+        focus
+      );
     }
   }
   setFocusOnCurrentParagraph(): void {
@@ -177,7 +176,11 @@ export class EpubReaderComponent implements OnInit {
     if (element == null) {
       return;
     }
-    this.render.setAttribute(element, 'class', selected ? 'selected' : '');
+    this.render.setAttribute(
+      element,
+      'class',
+      selected ? 'selected' : 'text-obj'
+    );
   }
   read(text: string) {
     this.textToSpeech.read(text);

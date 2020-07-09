@@ -20,7 +20,6 @@ export class EpubReaderOptionsComponent implements OnInit {
   }
   ngOnInit(): void {}
   reading(): boolean {
-    return true;
     return this.readingAtm;
   }
 
@@ -34,6 +33,9 @@ export class EpubReaderOptionsComponent implements OnInit {
   }
   readPreviews(): void {
     this.epubService.OnReadNext.emit(false);
+  }
+  showChapters(): void {
+    this.epubService.toggleChapters();
   }
   getReadText(): string {
     if (this.readingAtm) {

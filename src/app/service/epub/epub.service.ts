@@ -11,6 +11,8 @@ export class EpubService {
   public OnRead: EventEmitter<boolean> = new EventEmitter<boolean>();
   public OnReadNext: EventEmitter<boolean> = new EventEmitter<boolean>();
   public OnFileSelected: EventEmitter<File> = new EventEmitter<File>();
+  public OnShowChapters: EventEmitter<boolean> = new EventEmitter<boolean>();
+  public OnToggleChapters: EventEmitter<void> = new EventEmitter<void>();
 
   private ids: string[] = [];
 
@@ -27,5 +29,8 @@ export class EpubService {
   }
   getIds(): string[] {
     return this.ids;
+  }
+  toggleChapters(): void {
+    this.OnToggleChapters.emit();
   }
 }
