@@ -31,14 +31,9 @@
         />
       </button>
 
-      <p>Voice Settings</p>
-      <mat-slider
-        thumbLabel
-        [displayWith]="formatLabel"
-        tickInterval="1000"
-        min="1"
-        max="100000"
-      ></mat-slider>
+      <button mat-menu-item (click)="showReadOptions()">
+        <span>Read aloud Options</span>
+      </button>
     </mat-menu>
   </div>
 </div>

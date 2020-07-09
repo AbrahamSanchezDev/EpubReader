@@ -1,23 +1,28 @@
 <div>
   <!-- Language -->
   <div>
-    <select (change)="onChangeVoice($event.target.value)" class="voices">
+    <!-- <select (change)="onChangeVoice($event.target.value)" class="voices">
       <option *ngFor="let voice of getVoices()" [value]="voice">
         {{ voice }}</option
       >
-    </select>
-    <!-- <mat-form-field appearance="fill">
-          <mat-label>Language</mat-label>
-    
-          <mat-select [(ngModel)]="selectedValue" name="speechVoices">
-            <mat-option *ngFor="let voice of getVoices()" [value]="voice">
-              {{ voice }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field> -->
+    </select> -->
+    <mat-form-field appearance="fill">
+      <mat-label>Language</mat-label>
+
+      <mat-select
+        (selectionChange)="onChangeVoice($event.value)"
+        name="speechVoices"
+        [value]="getCurrentVoice()"
+      >
+        <mat-option *ngFor="let voice of getVoices()" [value]="voice">
+          {{ voice }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
-  <!-- Pitch -->
+
   <div>
+    <!-- Pitch -->
     <p>Pitch</p>
     <mat-slider
       thumbLabel
@@ -28,6 +33,7 @@
       tickInterval="1000"
       (change)="onPitch($event.value)"
     ></mat-slider>
+    <!-- Rate -->
     <p>Rate</p>
     <mat-slider
       thumbLabel
@@ -38,6 +44,7 @@
       tickInterval="1000"
       (change)="onRate($event.value)"
     ></mat-slider>
+    <!-- Volume -->
     <p>Volume</p>
     <mat-slider
       thumbLabel

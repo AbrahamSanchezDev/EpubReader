@@ -15,6 +15,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { EpubReaderComponent } from './component/epub/text-to-speach/epub-reader/epub-reader.component';
 import { EpubReaderOptionsComponent } from './component/epub/text-to-speach/epub-reader-options/epub-reader-options.component';
 import { TextToSpeechOptionsComponent } from './component/epub/text-to-speach/text-to-speech-options/text-to-speech-options.component';
+import { TextToSpeechService } from './service/text-to-speech/text-to-speech.service';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,7 @@ import { TextToSpeechOptionsComponent } from './component/epub/text-to-speach/te
     NoopAnimationsModule,
     InUseMaterialModule,
   ],
-  providers: [],
+  providers: [TextToSpeechService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

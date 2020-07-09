@@ -52,6 +52,9 @@ export class TextToSpeechService {
     }
     this.speech.speak(this.speechOptions);
   }
+  setVoice(voice: string) {
+    this.selectedValue = voice;
+  }
   setPitch(value: number) {
     this.speechOptions.pitch = value;
   }

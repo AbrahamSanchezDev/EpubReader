@@ -7,6 +7,8 @@ import {
 } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
+import { MatDialog } from '@angular/material/dialog';
+import { TextToSpeechOptionsComponent } from '../text-to-speach/text-to-speech-options/text-to-speech-options.component';
 
 @Component({
   selector: 'app-epub-options',
@@ -17,7 +19,11 @@ export class EpubOptionsComponent implements OnInit {
   book: BookObjModule;
   @Output() toggleChapters: EventEmitter<void> = new EventEmitter<void>();
 
-  constructor(private epubService: EpubService, private render: Renderer2) {
+  constructor(
+    private epubService: EpubService,
+    private render: Renderer2,
+    public dialog: MatDialog
+  ) {
     epubService.onOpenEpub.subscribe((epub) => {
       this.onOpenEpub(epub);
     });
@@ -154,5 +160,11 @@ export class EpubOptionsComponent implements OnInit {
     }
 
     return value;
+  }
+
+  showReadOptions(): void {
+    const dialogRef = this.dialog.open(TextToSpeechOptionsComponent, {
+      width: '80%',
+    });
   }
 }

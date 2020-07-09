@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TextToSpeechService } from 'src/app/service/text-to-speech/text-to-speech.service';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-text-to-speech-options',
@@ -7,14 +8,20 @@ import { TextToSpeechService } from 'src/app/service/text-to-speech/text-to-spee
   styleUrls: ['./text-to-speech-options.component.css'],
 })
 export class TextToSpeechOptionsComponent implements OnInit {
-  constructor(private textToSpeech: TextToSpeechService) {}
+  constructor(
+    private textToSpeech: TextToSpeechService,
+    public dialogRef: MatDialogRef<TextToSpeechOptionsComponent>
+  ) {}
 
   ngOnInit(): void {}
   getVoices(): string[] {
     return this.textToSpeech.voices;
   }
   onChangeVoice(voiceName: string) {
-    this.textToSpeech.selectedValue = voiceName;
+    this.textToSpeech.setVoice(voiceName);
+  }
+  getCurrentVoice(): string {
+    return this.textToSpeech.selectedValue;
   }
   onPitch(value: number) {
     this.textToSpeech.setPitch(value);
