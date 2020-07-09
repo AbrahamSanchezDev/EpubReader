@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  Renderer2,
-  EventEmitter,
-  Output,
-} from '@angular/core';
+import { Component, OnInit, Renderer2 } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,7 +11,6 @@ import { TextToSpeechOptionsComponent } from '../text-to-speach/text-to-speech-o
 })
 export class EpubOptionsComponent implements OnInit {
   book: BookObjModule;
-  @Output() toggleChapters: EventEmitter<void> = new EventEmitter<void>();
 
   constructor(
     private epubService: EpubService,
@@ -134,7 +127,7 @@ export class EpubOptionsComponent implements OnInit {
   }
 
   showChapters(): void {
-    this.toggleChapters.emit();
+    this.epubService.toggleChapters();
   }
   //#endregion
 

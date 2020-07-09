@@ -22,10 +22,7 @@
       </div>
     </mat-sidenav>
     <mat-sidenav-content #contentDisplay>
-      <app-epub-options
-        class="epub-options"
-        (toggleChapters)="toggleIndex()"
-      ></app-epub-options>
+      <app-epub-options class="epub-options"></app-epub-options>
       <app-epub-reader></app-epub-reader>
       <app-epub-display [book]="getBook()"></app-epub-display>
 

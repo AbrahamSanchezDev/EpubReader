@@ -212,6 +212,41 @@ export class ReaderComponent implements AfterViewChecked {
     }
     return false;
   }
+  loadContent(obj: ZipEntry) {
+    this.readZipEntryAsText(obj, (content) => {
+      //Look for the content title
+      let theName = this.textControl.getTitleName(content);
+      //If there is no title then set it to be the file name
+      if (theName == null) {
+        theName = this.textControl.getTextBetween(obj.filename, '/', '.');
+      }
+      let formattedText: string = this.textControl.cleanUpContent(
+        content,
+        theName
+      );
+      let contentToAdd = new PageModule(
+        theName,
+        obj.filename,
+        this.sanitizer.bypassSecurityTrustHtml(formattedText)
+      );
+      let curAmount = this.book.pages.length;
+      contentToAdd.index = curAmount;
+      this.book.pages.push(contentToAdd);
+      this.checkIfFinishLoadingContent();
+    });
+  }
+  checkIfFinishLoadingContent(): void {
+    this.currentFiles++;
+    if (this.currentFiles == this.currentMaxFiles) {
+      this.book.Init();
+      this.epubService.callOnOpenEpub(this.book);
+      if (this.book.index == null) {
+        this.book.usePagesAsMenu = true;
+      }
+      this.setupButtonsIds();
+    }
+  }
+
   //#endregion
 
   //Reset the values to default
@@ -266,37 +301,6 @@ export class ReaderComponent implements AfterViewChecked {
     });
   }
   //#endregion Content
-  loadContent(obj: ZipEntry) {
-    this.readZipEntryAsText(obj, (content) => {
-      //Look for the content title
-      let theName = this.textControl.getTitleName(content);
-      //If there is no title then set it to be the file name
-      if (theName == null) {
-        theName = this.textControl.getTextBetween(obj.filename, '/', '.');
-      }
-      let formattedText: string = this.textControl.cleanUpContent(
-        content,
-        theName
-      );
-      let contentToAdd = new PageModule(
-        theName,
-        obj.filename,
-        this.sanitizer.bypassSecurityTrustHtml(formattedText)
-      );
-      let curAmount = this.book.pages.length;
-      contentToAdd.index = curAmount;
-      this.book.pages.push(contentToAdd);
-      this.currentFiles++;
-      if (this.currentFiles == this.currentMaxFiles) {
-        this.book.Init();
-        this.epubService.callOnOpenEpub(this.book);
-        if (this.book.index == null) {
-          this.book.usePagesAsMenu = true;
-        }
-        this.setupButtonsIds();
-      }
-    });
-  }
 
   added = false;
   setupButtonsIds(): void {
