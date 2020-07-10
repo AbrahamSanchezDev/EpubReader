@@ -6,18 +6,16 @@
           Close
         </button>
         <!-- Index -->
-        <div #indexMenu class="book-index">
-          <!-- Episodes -->
-          <div class="index-obj"></div>
-          <div *ngIf="useContentAsMenu()">
-            <button
-              *ngFor="let obj of getContent()"
-              (click)="skipTo(getContentName(obj))"
-              class="index-obj"
-            >
-              {{ getContentName(obj) }}
-            </button>
-          </div>
+        <div #indexMenu class="book-index"></div>
+        <!-- Episodes -->
+        <div *ngIf="useContentAsMenu()" class="book-index">
+          <button
+            *ngFor="let obj of getContent()"
+            (click)="skipTo(getContentName(obj))"
+            class="index-obj"
+          >
+            {{ getContentName(obj) }}
+          </button>
         </div>
       </div>
     </mat-sidenav>

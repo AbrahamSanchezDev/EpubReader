@@ -6,7 +6,6 @@ import {
 } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule } from 'src/app/model/epub/page/page.module';
-import { SafeHtml } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { EpubLoaderService } from 'src/app/service/epub/epub-loader.service';
@@ -92,6 +91,9 @@ export class ReaderComponent implements AfterViewChecked {
   //#region Index Formatting
   //Chapters index is decided by the book data
   setupButtonsIds(): void {
+    if (this.book.index == null) {
+      return;
+    }
     if (this.elementRef) {
       this.elementRef.nativeElement.innerHTML = this.book.index;
       // //Remove old content
@@ -131,28 +133,25 @@ export class ReaderComponent implements AfterViewChecked {
   //#endregion
 
   //#region Html callback
-  hasBook(): boolean {
-    return this.book != null;
-  }
+  //Get the book object
   getBook(): BookObjModule {
     return this.book;
   }
-  getBookName(): string {
-    if (this.book == null) {
-      return '';
+  //Check if should use the content as menu
+  useContentAsMenu(): boolean {
+    if (this.book) {
+      return this.book.usePagesAsMenu;
     }
-    return this.book.name;
+    return false;
   }
+  //Get the content in the book
   getContent(): PageModule[] {
     if (this.book == null) {
       return null;
     }
     return this.book.pages;
   }
-  getContentData(obj: PageModule) {
-    return obj.content;
-  }
-
+  //Used to set the name of the button when using content as menu
   getContentName(page: PageModule) {
     if (this.book == null) {
       return '';
