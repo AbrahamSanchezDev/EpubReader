@@ -6,15 +6,38 @@ import { EpubService } from './epub.service';
 import { ZipEntry } from '../zip/ZipEntry';
 import { PageModule } from 'src/app/model/epub/page/page.module';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
+import { TextReplaceData } from 'src/app/interface/text-replace-data';
 
+const navOptions: TextReplaceData = {
+  beginString: 'href="',
+  midString: 'tml#',
+  replaceMidFor: '',
+  removeFromTo: [
+    //Remove the Nav
+    { replaceFor: '<div class= "menu">', original: '<nav', originalEnd: '>' },
+  ],
+  replaceText: [
+    {
+      original: '</display:>',
+      replaceFor: '</div>',
+    },
+    {
+      //Replace the <a></a> link html to Button
+      original: '<a ',
+      replaceFor: '<button class ="index-obj" type="button" id ="',
+    },
+    {
+      //Replace the <a></a> link html to Button
+      original: '</a>',
+      replaceFor: '</button>',
+    },
+  ],
+  removeAllTags: ['ol', 'li'],
+};
 @Injectable({
   providedIn: 'root',
 })
 export class EpubLoaderService {
-  public onFinishLoading: EventEmitter<BookObjModule> = new EventEmitter<
-    BookObjModule
-  >();
-
   book: BookObjModule;
   currentFiles: number;
   currentMaxFiles: number;
@@ -27,7 +50,10 @@ export class EpubLoaderService {
   ) {}
 
   //Called when adding a new file from selector
-  fileChanged(file) {
+  loadEpub(file) {
+    this.currentFiles = 0;
+    this.currentMaxFiles = 0;
+    this.book = new BookObjModule();
     this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
       //Load File Name
       this.lookForFileName(data);
@@ -159,13 +185,42 @@ export class EpubLoaderService {
     this.currentFiles++;
     if (this.currentFiles == this.currentMaxFiles) {
       this.book.Init();
-      this.epubService.callOnOpenEpub(this.book);
+
       if (this.book.index == null) {
         this.book.usePagesAsMenu = true;
       }
-      this.onFinishLoading.emit(this.book);
+      this.epubService.callOnOpenEpub(this.book);
     }
   }
+  //#endregion
 
+  //#region LoadIndex
+  loadIndex(obj: ZipEntry) {
+    this.readZipEntryAsText(obj, (content) => {
+      let formattedText: string = '';
+      //Loaded a nav indexer
+      if (obj.filename.includes('nav.xhtml')) {
+        //Get name from original text
+        this.book.name = this.textControl.getFileNameFromIndex(
+          content,
+          navOptions
+        );
+        formattedText = this.textControl.replaceAllTextBetween(
+          content,
+          navOptions
+        );
+      } else {
+        console.log('No special Settings for ' + obj.filename);
+        formattedText = content;
+      }
+      this.book.index = this.sanitizer.bypassSecurityTrustHtml(formattedText);
+    });
+  }
+  useContentAsMenu(): boolean {
+    if (this.book == null) {
+      return false;
+    }
+    return this.book.usePagesAsMenu;
+  }
   //#endregion
 }
