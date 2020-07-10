@@ -110,22 +110,7 @@ export class ReaderComponent implements AfterViewChecked {
       //Load Images
       this.loadImages(data);
       //Load Content
-      for (let i = 0; i < data.length; i++) {
-        const name = data[i].filename;
-        //htmls = ".xhtml"
-        if (name.includes('.xhtml')) {
-          //directory = nav.xhtml
-          if (this.isAnIndexer(name)) {
-            // this.loadIndex(data[i]);
-          }
-          //Content
-          else {
-            this.currentMaxFiles++;
-            // console.log('Is Content : ' + name);
-            this.loadContent(data[i]);
-          }
-        }
-      }
+      this.getContentFromData(data);
     });
   }
   //#region File name
