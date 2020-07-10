@@ -16,7 +16,6 @@ import { EpubLoaderService } from 'src/app/service/epub/epub-loader.service';
   styleUrls: ['./reader.component.css'],
 })
 export class ReaderComponent implements AfterViewChecked {
-  @ViewChild('bookArea') bookArea;
   @ViewChild('indexMenu') elementRef: ElementRef;
 
   filePath = 'assets/TheDefeatedDragon.epub';

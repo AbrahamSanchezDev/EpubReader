@@ -1,6 +1,7 @@
 <div class="render-parent">
   <mat-sidenav-container class="example-container">
     <mat-sidenav #sidenav mode="side" [(opened)]="opened" class="menu-content">
+      <!-- Episodes Panel -->
       <div>
         <button mat-icon-button (click)="toggleIndex()" class="file-selector">
           Close
@@ -19,11 +20,11 @@
         </div>
       </div>
     </mat-sidenav>
-    <mat-sidenav-content #contentDisplay>
+    <mat-sidenav-content>
+      <!-- Display book -->
       <app-epub-options class="epub-options"></app-epub-options>
       <app-epub-reader></app-epub-reader>
       <app-epub-display [book]="getBook()"></app-epub-display>
-
       <app-epub-reader-options></app-epub-reader-options>
     </mat-sidenav-content>
   </mat-sidenav-container>
