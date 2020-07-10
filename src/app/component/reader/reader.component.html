@@ -8,7 +8,7 @@
         <!-- Index -->
         <div #indexMenu class="book-index">
           <!-- Episodes -->
-          <div [innerHTML]="getIndexContent()" class="index-obj"></div>
+          <div class="index-obj"></div>
           <div *ngIf="useContentAsMenu()">
             <button
               *ngFor="let obj of getContent()"

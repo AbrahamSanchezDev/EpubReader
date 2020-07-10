@@ -90,6 +90,7 @@ export class ReaderComponent implements AfterViewChecked {
     this.epubService.clearIds();
   }
   //#region Index Formatting
+  //Chapters index is decided by the book data
   setupButtonsIds(): void {
     if (this.elementRef) {
       this.elementRef.nativeElement.innerHTML = this.book.index;
@@ -157,13 +158,6 @@ export class ReaderComponent implements AfterViewChecked {
       return '';
     }
     return page.name;
-  }
-  //Chapters index is decided by the book data
-  getIndexContent(): SafeHtml {
-    if (this.book == null) {
-      return '';
-    }
-    return this.book.index;
   }
 
   //#endregion
