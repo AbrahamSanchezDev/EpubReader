@@ -92,6 +92,7 @@ export class ReaderComponent implements AfterViewChecked {
   //#region Index Formatting
   setupButtonsIds(): void {
     if (this.elementRef) {
+      this.elementRef.nativeElement.innerHTML = this.book.index;
       // //Remove old content
       setTimeout(() => {
         let buttons = this.elementRef.nativeElement.querySelectorAll(

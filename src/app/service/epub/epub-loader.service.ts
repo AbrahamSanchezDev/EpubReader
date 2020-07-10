@@ -127,10 +127,7 @@ export class EpubLoaderService {
   //Check if the file has and image format
   isImage(name: string) {
     const toLowers = name.toLocaleLowerCase();
-    if (toLowers.includes('.png')) {
-      return true;
-    }
-    if (toLowers.includes('.jpg')) {
+    if (toLowers.includes('.png') || toLowers.includes('.jpg')) {
       return true;
     }
     return false;
