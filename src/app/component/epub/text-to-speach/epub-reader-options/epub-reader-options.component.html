@@ -1,4 +1,4 @@
-<div class="reader-options">
+<div class="reader-options" *ngIf="showOptions()">
   <div class="lowerMenu">
     <button (click)="readPreviews()" *ngIf="reading()"><</button>
     <button (click)="toggleRead()">{{ getReadText() }}</button>
