@@ -7,7 +7,6 @@ import { ZipEntry } from '../zip/ZipEntry';
 import { PageModule } from 'src/app/model/epub/page/page.module';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { TextReplaceData } from 'src/app/interface/text-replace-data';
-import { EpubSaveDataService } from './epub-save-data.service';
 
 const navOptions: TextReplaceData = {
   beginString: 'href="',
@@ -47,8 +46,7 @@ export class EpubLoaderService {
     private zip: ZipService,
     private textControl: EpubTextFormatService,
     private sanitizer: DomSanitizer,
-    private epubService: EpubService,
-    private saveData: EpubSaveDataService
+    private epubService: EpubService
   ) {}
 
   //Called when adding a new file from selector

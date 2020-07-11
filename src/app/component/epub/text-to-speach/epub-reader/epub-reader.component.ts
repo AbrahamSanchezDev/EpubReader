@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import { Component, OnInit, Renderer2, HostListener } from '@angular/core';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import {
@@ -6,7 +6,13 @@ import {
   FormateadParagraph,
 } from 'src/app/model/epub/page/page.module';
 import { TextToSpeechService } from 'src/app/service/text-to-speech/text-to-speech.service';
+import { SaveDataInLocalStorageService } from 'src/app/service/save-to-local-storage/save-data-in-local-storage.service';
 
+export class ReadData {
+  fileName = '';
+  curContentIndex = 0;
+  curParagraph = 0;
+}
 @Component({
   selector: 'app-epub-reader',
   templateUrl: './epub-reader.component.html',
@@ -25,16 +31,42 @@ export class EpubReaderComponent implements OnInit {
   constructor(
     private epubService: EpubService,
     private textToSpeech: TextToSpeechService,
-    private render: Renderer2
+    private render: Renderer2,
+    private dataSave: SaveDataInLocalStorageService<ReadData>
   ) {
     this.registerToEvents();
   }
-
+  @HostListener('window:beforeunload', ['$event'])
+  beforeunloadHandler(event) {
+    this.saveReading();
+  }
+  saveReading(): void {
+    if (this.epub == null) return;
+    const book = this.epub;
+    let readData = new ReadData();
+    readData.fileName = book.name;
+    readData.curContentIndex = this.curContentIndex;
+    readData.curParagraph = this.curParagraph;
+    this.dataSave.saveDataFor(readData.fileName, readData);
+  }
+  loadReading(): void {
+    if (this.epub == null) return;
+    let obj = this.dataSave.loadDataFor(this.epub.name);
+    if (obj != null) {
+      this.curContentIndex = obj.curContentIndex;
+      this.curParagraph = obj.curParagraph;
+      this.updateCurrentContent();
+      setTimeout(() => {
+        this.setFocusOnCurrentParagraph();
+      }, 100);
+    }
+  }
   ngOnInit(): void {}
 
   ngOnDestroy() {
     this.cancelRead();
     window.onbeforeunload = null;
+    this.saveReading();
   }
   registerToEvents(): void {
     this.epubService.onOpenEpub.subscribe((book) => {
@@ -66,6 +98,7 @@ export class EpubReaderComponent implements OnInit {
     } else {
       this.cancelSpeech();
       this.focusCurrentParagraph(false);
+      this.saveReading();
     }
   }
 
@@ -73,8 +106,12 @@ export class EpubReaderComponent implements OnInit {
     this.textToSpeech.cancelSpeech();
   }
   onLoadedBook(epubOpened: BookObjModule): void {
+    if (this.epub != null) {
+      this.saveReading();
+    }
     // console.log('Loaded book ' + epubOpened.name);
     this.epub = epubOpened;
+    this.loadReading();
   }
   getVoices(): string[] {
     return this.textToSpeech.voices;
@@ -159,6 +196,8 @@ export class EpubReaderComponent implements OnInit {
     const index = this.curParagraph;
     const content = this.curContent;
     if (!content.isValidIndex(index)) {
+      console.log('no content');
+
       return;
     }
     if (!content.isParagraphInFullView(index)) {
