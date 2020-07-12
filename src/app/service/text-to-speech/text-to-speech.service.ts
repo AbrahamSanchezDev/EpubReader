@@ -13,17 +13,18 @@ export class TextToSpeechService {
 
   constructor() {
     this.getAllVoices();
+    this.registerToOnUnload();
+  }
+  //Register to the  on unload
+  registerToOnUnload(): void {
     window.onbeforeunload = () => {
       if (this.reading) {
         this.speech.cancel();
-        console.log('Was reading');
       }
     };
   }
+  //Get the voices from the speechSynthesis
   getAllVoices(): void {
-    if (!('speechSynthesis' in window)) {
-      console.log("You don't have speechSynthesis");
-    }
     this.speech = window.speechSynthesis;
     this.speech.addEventListener('voiceschanged', () => {
       this.allVoices = speechSynthesis.getVoices();
@@ -37,11 +38,12 @@ export class TextToSpeechService {
     this.speechOptions.rate = 1.5;
     this.speechOptions.volume = 1;
   }
-
+  //Cancel speech
   cancelSpeech() {
     this.reading = false;
     this.speech.cancel();
   }
+  //Read the text
   read(text: string) {
     this.speechOptions.text = text;
     for (let i = 0; i < this.allVoices.length; i++) {
@@ -52,15 +54,19 @@ export class TextToSpeechService {
     }
     this.speech.speak(this.speechOptions);
   }
+  //Set the voice to read with
   setVoice(voice: string) {
     this.selectedValue = voice;
   }
+  //Set voice pitch
   setPitch(value: number) {
     this.speechOptions.pitch = value;
   }
+  //Set voice rate
   setRate(value: number) {
     this.speechOptions.rate = value;
   }
+  //Set voice volume
   setVolume(value: number) {
     this.speechOptions.volume = value;
   }
