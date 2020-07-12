@@ -49,7 +49,7 @@ describe('TextToSpeechService', () => {
     setTimeout(() => {
       if (voices != null) {
         service.allVoices = voices;
-        service.selectedValue = voices[2].name.toString();
+        service.selectedValue = voices[0].name.toString();
       }
       let testText = 'Some Text';
       service.read(testText);

@@ -17,7 +17,7 @@ export class EpubService {
   private ids: string[] = [];
 
   constructor() {}
-
+  //Call the on open
   callOnOpenEpub(epub: BookObjModule) {
     this.onOpenEpub.emit(epub);
   }

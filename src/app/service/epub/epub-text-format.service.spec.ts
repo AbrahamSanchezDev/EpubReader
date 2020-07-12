@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { EpubTextFormatService } from './epub-text-format.service';
 
-describe('EpubTextFormatService', () => {
+fdescribe('EpubTextFormatService', () => {
   let service: EpubTextFormatService;
 
   beforeEach(() => {
