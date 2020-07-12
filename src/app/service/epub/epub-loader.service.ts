@@ -1,4 +1,4 @@
-import { Injectable, EventEmitter } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ZipService } from '../zip/zip.service';
 import { EpubTextFormatService } from './epub-text-format.service';
 import { DomSanitizer } from '@angular/platform-browser';
