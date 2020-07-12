@@ -30,6 +30,12 @@
         "command": "ng test"
       },
       {
+        "name": "Code Coverage",
+        "singleInstance": true,
+        "color": "#E28032",
+        "command": "ng test --code-coverage"
+      },
+      {
         "name": "Update Angular and Angular Cli",
         "singleInstance": true,
         "color": "#fff",

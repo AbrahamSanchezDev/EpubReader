@@ -9,12 +9,12 @@ export class testingSave {
 export class testingSaveService extends SaveDataInLocalStorageService<
   testingSave
 > {}
-describe('EpubSaveDataService', () => {
+fdescribe('SaveDataInLocalStorageService', () => {
   let service: testingSaveService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(testingSaveService);
+    service = new testingSaveService();
   });
 
   it('should be created', () => {
