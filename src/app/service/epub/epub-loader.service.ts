@@ -10,7 +10,7 @@ import { TextReplaceData } from 'src/app/interface/text-replace-data';
 
 const navOptions: TextReplaceData = {
   beginString: 'href="',
-  midString: 'tml#',
+  midString: 'xhtml#',
   replaceMidFor: '',
   removeFromTo: [
     //Remove the Nav
@@ -198,10 +198,7 @@ export class EpubLoaderService {
       //Loaded a nav indexer
       if (obj.filename.includes('nav.xhtml')) {
         //Get name from original text
-        this.book.name = this.textControl.getFileNameFromIndex(
-          content,
-          navOptions
-        );
+        this.book.name = this.textControl.getFileNameFromIndex(content);
         formattedText = this.textControl.replaceAllTextBetween(
           content,
           navOptions
