@@ -2,7 +2,7 @@ import { Component, OnInit, Renderer2 } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { MatDialog } from '@angular/material/dialog';
-import { TextToSpeechOptionsComponent } from '../text-to-speach/text-to-speech-options/text-to-speech-options.component';
+import { TextToSpeechOptionsComponent } from '../text-to-speech/text-to-speech-options/text-to-speech-options.component';
 
 @Component({
   selector: 'app-epub-options',
