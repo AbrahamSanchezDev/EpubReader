@@ -50,7 +50,7 @@ export class EpubLoaderService {
   ) {}
 
   //Called when adding a new file from selector
-  loadEpub(file) {
+  loadEpub(file: File) {
     this.currentFiles = 0;
     this.currentMaxFiles = 0;
     this.book = new BookObjModule();

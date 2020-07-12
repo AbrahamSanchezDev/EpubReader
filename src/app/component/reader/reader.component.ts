@@ -67,7 +67,7 @@ export class ReaderComponent implements AfterViewChecked {
       .get(filePath + fileName, { responseType: 'blob' })
       .subscribe((data) => {
         if (data != null) {
-          this.loadEpub(data);
+          this.loadEpub(<File>data);
         }
       });
   }
@@ -76,7 +76,10 @@ export class ReaderComponent implements AfterViewChecked {
     this.loadEpub(event.target.files[0]);
   }
   //Called when adding a new file from selector
-  loadEpub(file) {
+  loadEpub(file: File) {
+    if (file == null) {
+      return;
+    }
     this.resetData();
     this.loader.loadEpub(file);
   }

@@ -47,7 +47,7 @@ describe('TextToSpeechService', () => {
     service.getAllVoices();
     spyOn(service.speech, 'speak');
     setTimeout(() => {
-      if (voices != null) {
+      if (voices != null && voices.length > 0) {
         service.allVoices = voices;
         service.selectedValue = voices[0].name.toString();
       }
