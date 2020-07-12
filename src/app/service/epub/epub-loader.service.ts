@@ -46,7 +46,7 @@ export class EpubLoaderService {
     private zip: ZipService,
     private textControl: EpubTextFormatService,
     private sanitizer: DomSanitizer,
-    private epubService: EpubService
+    public epubService: EpubService
   ) {}
 
   //Called when adding a new file from selector
@@ -92,7 +92,8 @@ export class EpubLoaderService {
       this.setFileName(content);
     });
   }
-  setFileName(result: string) {
+  //Set the book name using the given result
+  setFileName(result: string): void {
     this.book.name = this.textControl.getTextBetween(
       result,
       '<dc:title>',
@@ -155,6 +156,7 @@ export class EpubLoaderService {
     }
     return false;
   }
+
   loadContent(obj: ZipEntry) {
     this.readZipEntryAsText(obj, (content) => {
       //Look for the content title
@@ -178,14 +180,12 @@ export class EpubLoaderService {
       this.checkIfFinishLoadingContent();
     });
   }
+  //Check if it should finish loading content
   checkIfFinishLoadingContent(): void {
     this.currentFiles++;
     if (this.currentFiles == this.currentMaxFiles) {
       this.book.Init();
-
-      if (this.book.index == null) {
-        this.book.usePagesAsMenu = true;
-      }
+      this.book.usePagesAsMenu = this.book.index == null;
       this.epubService.callOnOpenEpub(this.book);
     }
   }
@@ -210,6 +210,8 @@ export class EpubLoaderService {
       this.book.index = this.sanitizer.bypassSecurityTrustHtml(formattedText);
     });
   }
+
+  //Returns if should use the content as menu
   useContentAsMenu(): boolean {
     if (this.book == null) {
       return false;
