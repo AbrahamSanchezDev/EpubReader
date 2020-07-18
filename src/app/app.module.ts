@@ -16,6 +16,7 @@ import { EpubReaderOptionsComponent } from './component/epub/text-to-speech/epub
 import { TextToSpeechOptionsComponent } from './component/epub/text-to-speech/text-to-speech-options/text-to-speech-options.component';
 import { TextToSpeechService } from './service/text-to-speech/text-to-speech.service';
 import { SaveDataInLocalStorageService } from './service/save-to-local-storage/save-data-in-local-storage.service';
+import { ZipService } from './service/zip/zip.service';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,7 @@ import { SaveDataInLocalStorageService } from './service/save-to-local-storage/s
     NoopAnimationsModule,
     InUseMaterialModule,
   ],
-  providers: [TextToSpeechService, SaveDataInLocalStorageService],
+  providers: [TextToSpeechService, SaveDataInLocalStorageService, ZipService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

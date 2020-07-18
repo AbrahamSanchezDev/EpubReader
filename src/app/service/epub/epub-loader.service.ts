@@ -43,7 +43,7 @@ export class EpubLoaderService {
   currentMaxFiles: number;
 
   constructor(
-    private zip: ZipService,
+    public zip: ZipService,
     private textControl: EpubTextFormatService,
     private sanitizer: DomSanitizer,
     public epubService: EpubService
@@ -51,10 +51,12 @@ export class EpubLoaderService {
 
   //Called when adding a new file from selector
   loadEpub(file: File) {
+    if (file == null) return;
     this.currentFiles = 0;
     this.currentMaxFiles = 0;
     this.book = new BookObjModule();
-    this.zip.getEntries(file).subscribe((data: ZipEntry[]) => {
+    var observable = this.zip.getEntries(file);
+    observable.subscribe((data: ZipEntry[]) => {
       //Load File Name
       this.lookForFileName(data);
       //Load Images
@@ -114,7 +116,6 @@ export class EpubLoaderService {
     if (!this.isImage(obj.filename)) {
       return;
     }
-    this.readZipEntryAsText(obj, (content) => {});
     const data = this.zip.getData(obj);
     data.data.subscribe((o) => {
       const reader = new FileReader();
