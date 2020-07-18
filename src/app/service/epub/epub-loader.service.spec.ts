@@ -8,7 +8,7 @@ import { ZipTask } from '../zip/ZipTask';
 import { Observable } from 'rxjs';
 import { ZipTaskProgress } from '../zip/ZipTaskProgress';
 
-fdescribe('EpubLoaderService', () => {
+describe('EpubLoaderService', () => {
   let service: EpubLoaderService;
 
   let book: BookObjModule;
@@ -148,6 +148,12 @@ fdescribe('EpubLoaderService', () => {
   it('should get content from datas', () => {
     spyOn(service.zipService, 'getData').and.returnValue(zipTaskData);
     spyOn(service, 'isAnIndexer');
+    spyOn(service, 'readZipEntryAsText').and.callFake((obj, onload) => {
+      onload(
+        '<div>some content text <title>SomeName</title> name.<a>MyName</a> should be more</div>'
+      );
+    });
+    zipEntryTest.filename = 'someOther';
     service.getContentFromData(entryTests);
     expect(service.isAnIndexer).not.toHaveBeenCalled();
 
