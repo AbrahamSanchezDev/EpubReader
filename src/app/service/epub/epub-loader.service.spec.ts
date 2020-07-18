@@ -69,13 +69,13 @@ fdescribe('EpubLoaderService', () => {
       subscriber.next(zipEntry);
       subscriber.complete();
     });
-    spyOn(service.zip, 'getEntries').and.returnValue(observable);
+    spyOn(service.zipService, 'getEntries').and.returnValue(observable);
     service.loadEpub(file);
-    expect(service.zip.getEntries).toHaveBeenCalled();
+    expect(service.zipService.getEntries).toHaveBeenCalled();
   });
 
-  it('should read Zip as text', async(() => {
-    spyOn(service.zip, 'getData').and.returnValue(zipTaskData);
+  it('should read Zip File as text', async(() => {
+    spyOn(service.zipService, 'getData').and.returnValue(zipTaskData);
     spyOn(service, 'isImage');
     service.readZipEntryAsText(zipEntryTest, (result) => {
       expect(result).not.toBeNull();
@@ -83,7 +83,7 @@ fdescribe('EpubLoaderService', () => {
     });
     setTimeout(() => {
       expect(service.isImage).toHaveBeenCalled();
-    });
+    }, 100);
   }));
 
   it('should load file name', () => {
@@ -125,14 +125,14 @@ fdescribe('EpubLoaderService', () => {
     expect(service.loadImage).toHaveBeenCalledTimes(entryTests.length);
   });
   it('should load Image', () => {
-    spyOn(service.zip, 'getData').and.returnValue(zipTaskData);
+    spyOn(service.zipService, 'getData').and.returnValue(zipTaskData);
     service.loadImages(entryTests);
-    expect(service.zip.getData).not.toHaveBeenCalled();
+    expect(service.zipService.getData).not.toHaveBeenCalled();
     var data = zipEntryTest;
     data.filename = 'image.png';
     entryTests.push(data);
     service.loadImages(entryTests);
-    expect(service.zip.getData).toHaveBeenCalled();
+    expect(service.zipService.getData).toHaveBeenCalled();
   });
 
   it('should check if the given text is an image', () => {
@@ -143,6 +143,26 @@ fdescribe('EpubLoaderService', () => {
     indexer = service.isImage('img.jpg');
     expect(indexer).toBe(true);
   });
+  it('should get content from datas', () => {
+    spyOn(service.zipService, 'getData').and.returnValue(zipTaskData);
+    spyOn(service, 'isAnIndexer');
+    service.getContentFromData(entryTests);
+    expect(service.isAnIndexer).not.toHaveBeenCalled();
+
+    service.currentMaxFiles = 0;
+    zipEntryTest.filename = 'nav.xhtml';
+    service.getContentFromData(entryTests);
+    expect(service.isAnIndexer).toHaveBeenCalled();
+    expect(service.currentMaxFiles).toBe(0);
+  });
+  it('should get content from datas and increase max files', () => {
+    spyOn(service.zipService, 'getData').and.returnValue(zipTaskData);
+    service.currentMaxFiles = 0;
+    zipEntryTest.filename = 'some content.xhtml';
+    service.getContentFromData(entryTests);
+    expect(service.currentMaxFiles).toBe(1);
+  });
+
   it('should check if the given text is an indexer', () => {
     let indexer = service.isAnIndexer('someText.xhtml');
     expect(indexer).toBe(false);

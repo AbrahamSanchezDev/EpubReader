@@ -13,6 +13,12 @@ export class ZipService {
   constructor() {}
   //Gets the zip files and return them as entry data
   getEntries(file): Observable<Array<ZipEntry>> {
+    if (zip == undefined) {
+      return new Observable((subscriber) => {
+        subscriber.next([]);
+        subscriber.complete();
+      });
+    }
     zip.workerScriptsPath = 'assets/js/';
     return new Observable((subscriber) => {
       const reader = new zip.BlobReader(file);
@@ -34,6 +40,12 @@ export class ZipService {
 
   getData(entry: ZipEntry): ZipTask {
     const progress = new Subject<ZipTaskProgress>();
+
+    if (zip == undefined) {
+      const data = new Observable<Blob>((subscriber) => {});
+      return { progress, data };
+    }
+
     const data = new Observable<Blob>((subscriber) => {
       const writer = new zip.BlobWriter();
 

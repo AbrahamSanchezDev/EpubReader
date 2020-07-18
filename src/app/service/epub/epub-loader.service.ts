@@ -43,7 +43,7 @@ export class EpubLoaderService {
   currentMaxFiles: number;
 
   constructor(
-    public zip: ZipService,
+    public zipService: ZipService,
     private textControl: EpubTextFormatService,
     private sanitizer: DomSanitizer,
     public epubService: EpubService
@@ -55,7 +55,7 @@ export class EpubLoaderService {
     this.currentFiles = 0;
     this.currentMaxFiles = 0;
     this.book = new BookObjModule();
-    var observable = this.zip.getEntries(file);
+    var observable = this.zipService.getEntries(file);
     observable.subscribe((data: ZipEntry[]) => {
       //Load File Name
       this.lookForFileName(data);
@@ -66,7 +66,7 @@ export class EpubLoaderService {
     });
   }
   readZipEntryAsText(obj: ZipEntry, onLoad: Function) {
-    const data = this.zip.getData(obj);
+    const data = this.zipService.getData(obj);
     data.data.subscribe((o) => {
       const reader = new FileReader();
       reader.onload = () => {
@@ -116,7 +116,7 @@ export class EpubLoaderService {
     if (!this.isImage(obj.filename)) {
       return;
     }
-    const data = this.zip.getData(obj);
+    const data = this.zipService.getData(obj);
     data.data.subscribe((o) => {
       const reader = new FileReader();
       reader.onload = () => {
@@ -141,12 +141,11 @@ export class EpubLoaderService {
   getContentFromData(data: ZipEntry[]): void {
     for (let i = 0; i < data.length; i++) {
       const name = data[i].filename;
-      if (name.includes('.xhtml')) {
-        //If is not an indexer then is Content
-        if (!this.isAnIndexer(name)) {
-          this.currentMaxFiles++;
-          this.loadContent(data[i]);
-        }
+      if (!name.includes('.xhtml')) continue;
+      //If is not an indexer then is Content
+      if (this.isAnIndexer(name) == false) {
+        this.currentMaxFiles++;
+        this.loadContent(data[i]);
       }
     }
   }
