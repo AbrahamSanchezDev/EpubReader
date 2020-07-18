@@ -162,7 +162,7 @@ export class EpubLoaderService {
       //Look for the content title
       let theName = this.textControl.getTitleName(content);
       //If there is no title then set it to be the file name
-      if (theName == null) {
+      if (theName == null || theName == '') {
         theName = this.textControl.getTextBetween(obj.filename, '/', '.');
       }
       let formattedText: string = this.textControl.cleanUpContent(
@@ -194,7 +194,7 @@ export class EpubLoaderService {
   //#region LoadIndex
   loadIndex(obj: ZipEntry) {
     this.readZipEntryAsText(obj, (content) => {
-      let formattedText: string = '';
+      let formattedText: string = content;
       //Loaded a nav indexer
       if (obj.filename.includes('nav.xhtml')) {
         //Get name from original text
@@ -203,9 +203,6 @@ export class EpubLoaderService {
           content,
           navOptions
         );
-      } else {
-        console.log('No special Settings for ' + obj.filename);
-        formattedText = content;
       }
       this.book.index = this.sanitizer.bypassSecurityTrustHtml(formattedText);
     });

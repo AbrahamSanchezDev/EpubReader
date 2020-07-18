@@ -87,7 +87,9 @@ fdescribe('EpubLoaderService', () => {
   }));
 
   it('should load file name', () => {
-    spyOn(service, 'readZipEntryAsText');
+    spyOn(service, 'readZipEntryAsText').and.callFake((obj, onload) => {
+      onload('some content text /title name. should be more');
+    });
     service.book.name = 'Some title';
     service.loadFileName(zipEntryTest);
     expect(service.readZipEntryAsText).not.toHaveBeenCalled();
@@ -170,6 +172,27 @@ fdescribe('EpubLoaderService', () => {
     expect(indexer).toBe(true);
   });
 
+  it('should load content', () => {
+    spyOn(service.zipService, 'getData').and.returnValue(zipTaskData);
+    spyOn(service, 'checkIfFinishLoadingContent');
+    spyOn(service, 'readZipEntryAsText').and.callFake((obj, onload) => {
+      onload('some content text /title name. should be more');
+    });
+    service.loadContent(zipEntryTest);
+    expect(service.checkIfFinishLoadingContent).toHaveBeenCalled();
+  });
+  it('should load content and get title', () => {
+    spyOn(service.zipService, 'getData').and.returnValue(zipTaskData);
+    spyOn(service, 'checkIfFinishLoadingContent');
+    spyOn(service, 'readZipEntryAsText').and.callFake((obj, onload) => {
+      onload(
+        'some content text <title> Some Name </title> name. should be more'
+      );
+    });
+    service.loadContent(zipEntryTest);
+    expect(service.checkIfFinishLoadingContent).toHaveBeenCalled();
+  });
+
   it('should check if should finish reading', () => {
     spyOn(service.epubService, 'callOnOpenEpub');
     //Not finish
@@ -190,6 +213,22 @@ fdescribe('EpubLoaderService', () => {
     service.checkIfFinishLoadingContent();
     expect(service.epubService.callOnOpenEpub).toHaveBeenCalled();
     expect(service.book.usePagesAsMenu).toBe(false);
+  });
+
+  it('should loadIndex', () => {
+    spyOn(service, 'readZipEntryAsText').and.callFake((obj, onload) => {
+      onload(
+        '<div>some content text <title>SomeName</title> name.<a>MyName</a> should be more</div>'
+      );
+    });
+    service.book.index = null;
+    zipEntryTest.filename = 'someName';
+    service.loadIndex(zipEntryTest);
+    expect(service.book.index).not.toBeNull();
+    //When the file is named nav.xhtml
+    zipEntryTest.filename = 'nav.xhtml';
+    service.loadIndex(zipEntryTest);
+    expect(service.book.name).toBe('MyName');
   });
 
   it('should return if should use content as menu', () => {
