@@ -43,25 +43,29 @@ describe('TextToSpeechService', () => {
     expect(service.reading).toBe(false);
   });
 
-  it('should not read the given text', fakeAsync(() => {
-    tick(100);
-    service.speech = window.speechSynthesis;
-    spyOn(service.speech, 'getVoices').and.returnValues(voices);
-    service.getVoices();
+  it('should read the given text', async(() => {
+    setTimeout(() => {
+      service.speech = window.speechSynthesis;
+      spyOn(service.speech, 'getVoices').and.returnValues(voices);
+      service.getVoices();
 
-    expect(voices).not.toBeNull();
-    const testText = 'Some Text';
-    spyOn(service.speech, 'speak');
+      console.log(voices);
 
-    service.speechOptions.voice = service.allVoices[0];
-    service.selectedValue = voices[1].name.toString();
-    service.read(testText);
-    expect(service.speechOptions.voice.name).toBe(voices[1].name);
-    //Check that it didn't change if the selected value was didn't match any voice
-    service.speechOptions.voice = service.allVoices[0];
-    service.selectedValue = 'some other';
-    service.read(testText);
-    expect(service.speechOptions.voice.name).toBe(voices[0].name);
+      expect(voices).not.toBeNull();
+      expect(service.allVoices.length).not.toBe(0);
+      const testText = 'Some Text';
+      spyOn(service.speech, 'speak');
+
+      service.speechOptions.voice = service.allVoices[0];
+      service.selectedValue = voices[1].name.toString();
+      service.read(testText);
+      expect(service.speechOptions.voice.name).toBe(voices[1].name);
+      //Check that it didn't change if the selected value was didn't match any voice
+      service.speechOptions.voice = service.allVoices[0];
+      service.selectedValue = 'some other';
+      service.read(testText);
+      expect(service.speechOptions.voice.name).toBe(voices[0].name);
+    }, 500);
   }));
 
   it('should set selected voice', () => {
