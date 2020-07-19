@@ -1,4 +1,4 @@
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed, async, fakeAsync, tick } from '@angular/core/testing';
 
 import { TextToSpeechService } from './text-to-speech.service';
 
@@ -43,18 +43,25 @@ describe('TextToSpeechService', () => {
     expect(service.reading).toBe(false);
   });
 
-  it('should read the given text', async(() => {
-    service.getAllVoices();
+  it('should not read the given text', fakeAsync(() => {
+    tick(100);
+    service.speech = window.speechSynthesis;
+    spyOn(service.speech, 'getVoices').and.returnValues(voices);
+    service.getVoices();
+
+    expect(voices).not.toBeNull();
+    const testText = 'Some Text';
     spyOn(service.speech, 'speak');
-    setTimeout(() => {
-      if (voices != null && voices.length > 0) {
-        service.allVoices = voices;
-        service.selectedValue = voices[0].name.toString();
-      }
-      let testText = 'Some Text';
-      service.read(testText);
-      expect(service.speech.speak).toHaveBeenCalled();
-    }, 300);
+
+    service.speechOptions.voice = service.allVoices[0];
+    service.selectedValue = voices[1].name.toString();
+    service.read(testText);
+    expect(service.speechOptions.voice.name).toBe(voices[1].name);
+    //Check that it didn't change if the selected value was didn't match any voice
+    service.speechOptions.voice = service.allVoices[0];
+    service.selectedValue = 'some other';
+    service.read(testText);
+    expect(service.speechOptions.voice.name).toBe(voices[0].name);
   }));
 
   it('should set selected voice', () => {

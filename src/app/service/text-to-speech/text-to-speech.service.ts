@@ -27,16 +27,20 @@ export class TextToSpeechService {
   getAllVoices(): void {
     this.speech = window.speechSynthesis;
     this.speech.addEventListener('voiceschanged', () => {
-      this.allVoices = speechSynthesis.getVoices();
-      for (let i = 0; i < this.allVoices.length; i++) {
-        this.voices.push(this.allVoices[i].name.toString());
-      }
-      this.selectedValue = this.voices[2];
+      this.getVoices();
     });
     this.speechOptions = new SpeechSynthesisUtterance();
     this.speechOptions.pitch = 1.5;
     this.speechOptions.rate = 1.5;
     this.speechOptions.volume = 1;
+  }
+  //Get the voices now that they are available
+  getVoices(): void {
+    this.allVoices = this.speech.getVoices();
+    for (let i = 0; i < this.allVoices.length; i++) {
+      this.voices.push(this.allVoices[i].name.toString());
+    }
+    this.selectedValue = this.voices[2];
   }
   //Cancel speech
   cancelSpeech() {
