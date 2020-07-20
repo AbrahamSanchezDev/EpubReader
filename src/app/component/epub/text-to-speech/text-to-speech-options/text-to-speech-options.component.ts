@@ -9,7 +9,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class TextToSpeechOptionsComponent implements OnInit {
   constructor(
-    private textToSpeech: TextToSpeechService,
+    public textToSpeech: TextToSpeechService,
     public dialogRef: MatDialogRef<TextToSpeechOptionsComponent>
   ) {}
 
@@ -17,18 +17,22 @@ export class TextToSpeechOptionsComponent implements OnInit {
   getVoices(): string[] {
     return this.textToSpeech.voices;
   }
+  //Set the voice in the text speech service
   onChangeVoice(voiceName: string) {
     this.textToSpeech.setVoice(voiceName);
   }
   getCurrentVoice(): string {
     return this.textToSpeech.selectedValue;
   }
+  //Set the pitch in the text speech service
   onPitch(value: number) {
     this.textToSpeech.setPitch(value);
   }
+  //Set the rate in the text speech service
   onRate(value: number) {
     this.textToSpeech.setRate(value);
   }
+  //Set the volume in the text speech service
   onVolume(value: number) {
     this.textToSpeech.setVolume(value);
   }

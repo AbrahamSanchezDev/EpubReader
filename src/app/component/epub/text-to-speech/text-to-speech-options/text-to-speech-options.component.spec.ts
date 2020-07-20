@@ -34,4 +34,25 @@ describe('TextToSpeechOptionsComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should change voice', () => {
+    spyOn(component.textToSpeech, 'setVoice');
+    component.onChangeVoice('Some Voice');
+    expect(component.textToSpeech.setVoice).toHaveBeenCalled();
+  });
+  it('should change pitch', () => {
+    spyOn(component.textToSpeech, 'setPitch');
+    component.onPitch(0.5);
+    expect(component.textToSpeech.setPitch).toHaveBeenCalled();
+  });
+  it('should change rate', () => {
+    spyOn(component.textToSpeech, 'setRate');
+    component.onRate(0.5);
+    expect(component.textToSpeech.setRate).toHaveBeenCalled();
+  });
+  it('should change voice', () => {
+    spyOn(component.textToSpeech, 'setVolume');
+    component.onVolume(0.5);
+    expect(component.textToSpeech.setVolume).toHaveBeenCalled();
+  });
 });
