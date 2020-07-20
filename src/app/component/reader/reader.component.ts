@@ -1,9 +1,4 @@
-import {
-  Component,
-  ViewChild,
-  ElementRef,
-  AfterViewChecked,
-} from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule } from 'src/app/model/epub/page/page.module';
 import { HttpClient } from '@angular/common/http';
@@ -15,7 +10,7 @@ import { EpubLoaderService } from 'src/app/service/epub/epub-loader.service';
   templateUrl: './reader.component.html',
   styleUrls: ['./reader.component.css'],
 })
-export class ReaderComponent implements AfterViewChecked {
+export class ReaderComponent implements OnInit {
   @ViewChild('indexMenu') elementRef: ElementRef;
 
   filePath = 'assets/TheDefeatedDragon.epub';
@@ -26,14 +21,16 @@ export class ReaderComponent implements AfterViewChecked {
 
   addedImages: boolean = false;
 
+  loadTesting: boolean = true;
   constructor(
     private http: HttpClient,
-    private epubService: EpubService,
-    private loader: EpubLoaderService
+    public epubService: EpubService,
+    public loader: EpubLoaderService
   ) {
     this.registerEvents();
     this.loadTestingFile();
   }
+  //Register for the events
   registerEvents(): void {
     this.epubService.OnFileSelected.subscribe((file) => {
       this.loadEpub(file);
@@ -45,33 +42,33 @@ export class ReaderComponent implements AfterViewChecked {
       this.onBookLoaded(book);
     });
   }
-
-  //Add the events to the menu index after the inner html is updated
-  ngAfterViewChecked(): void {}
-  public ngAfterViewInit(): void {}
-
   ngOnInit(): void {}
+  //For Testing purposes
+  loadTestingFile() {
+    // setTimeout(() => {
+    //   if (this.loadTesting == false) return;
+    //   let filePath = 'assets/epub/';
+    //   let dragons = 'The Defeated Dragon 1 - 100.epub';
+    //   let alchemist = 'The Alchemist God.epub';
+    //   let devils = 'Devils Son in Law.epub';
+    //   let fileName = alchemist;
+    //   this.http
+    //     .get(filePath + fileName, { responseType: 'blob' })
+    //     .subscribe((data) => {
+    //       if (data != null) {
+    //         this.loadEpub(<File>data);
+    //       }
+    //     });
+    // }, 100);
+  }
+
+  //Called when a book is loaded
   onBookLoaded(book: BookObjModule): void {
     this.resetData();
     this.book = book;
     this.setupButtonsIds();
   }
-
-  loadTestingFile() {
-    let filePath = 'assets/epub/';
-    let dragons = 'The Defeated Dragon 1 - 100.epub';
-    let alchemist = 'The Alchemist God.epub';
-    let devils = 'Devils Son in Law.epub';
-    let fileName = alchemist;
-    this.http
-      .get(filePath + fileName, { responseType: 'blob' })
-      .subscribe((data) => {
-        if (data != null) {
-          this.loadEpub(<File>data);
-        }
-      });
-  }
-
+  //Called from the html input element
   onFileSelected(event) {
     this.loadEpub(event.target.files[0]);
   }
@@ -83,7 +80,6 @@ export class ReaderComponent implements AfterViewChecked {
     this.resetData();
     this.loader.loadEpub(file);
   }
-
   //Reset the values to default
   resetData(): void {
     this.book = null;
@@ -96,34 +92,43 @@ export class ReaderComponent implements AfterViewChecked {
     if (this.book.index == null) {
       return;
     }
-    if (this.elementRef) {
-      this.elementRef.nativeElement.innerHTML = this.book.index;
-      // //Remove old content
-      setTimeout(() => {
-        let buttons = this.elementRef.nativeElement.querySelectorAll(
-          'button'
-        ) as HTMLButtonElement[];
-
-        buttons.forEach((button: HTMLButtonElement) => {
-          let id = '';
-          if (this.book.usePagesAsMenu) {
-            id = button.innerText;
-          } else {
-            id = button.id;
-            button.addEventListener(
-              'click',
-              (e) => {
-                //call to skip to the same id as the element
-                this.skipTo(id);
-              },
-              false
-            );
-            button.id = '';
-          }
-          this.epubService.addContentId(id);
-        }, 50);
-      });
-    }
+    if (!this.elementRef) return;
+    this.setElementToIndexSaveHtml();
+    // //Remove old content
+    setTimeout(() => {
+      this.getButtonsAndSetThem();
+    }, 20);
+  }
+  getButtonsAndSetThem(): void {
+    let buttons = this.elementRef.nativeElement.querySelectorAll(
+      'button'
+    ) as HTMLButtonElement[];
+    buttons.forEach((button: HTMLButtonElement) => {
+      let id = '';
+      if (this.book.usePagesAsMenu) {
+        id = button.innerText;
+      } else {
+        id = button.id;
+        button.addEventListener(
+          'click',
+          () => {
+            //call to skip to the same id as the element
+            this.skipTo(id);
+          },
+          false
+        );
+        button.id = '';
+      }
+      this.addContentId(id);
+    });
+  }
+  //Add id to the list in epub service
+  addContentId(id: string) {
+    this.epubService.addContentId(id);
+  }
+  //Set the book index as content
+  setElementToIndexSaveHtml() {
+    this.elementRef.nativeElement.innerHTML = this.book.index;
   }
   //Skip to the given id
   skipTo(id: string) {
@@ -155,7 +160,7 @@ export class ReaderComponent implements AfterViewChecked {
   }
   //Used to set the name of the button when using content as menu
   getContentName(page: PageModule) {
-    if (this.book == null) {
+    if (page == null) {
       return '';
     }
     return page.name;
