@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2 } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,11 +13,7 @@ export class EpubOptionsComponent implements OnInit {
   book: BookObjModule;
   selectedId: string;
   readingAtm: boolean = false;
-  constructor(
-    public epubService: EpubService,
-    private render: Renderer2,
-    public dialog: MatDialog
-  ) {
+  constructor(public epubService: EpubService, public dialog: MatDialog) {
     epubService.onOpenEpub.subscribe((epub: BookObjModule) => {
       this.onOpenEpub(epub);
     });
