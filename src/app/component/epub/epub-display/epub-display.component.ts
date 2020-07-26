@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  Input,
-  ElementRef,
-  ViewChild,
-  Renderer2,
-} from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule } from 'src/app/model/epub/page/page.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
@@ -23,20 +16,20 @@ export class EpubDisplayComponent implements OnInit {
   notFoundImg: string =
     'https://c.wallhere.com/photos/b0/78/nozomu_itoshiki_Sayonara_Zetsubou_Sensei_Kafuka_Fuura_anime-231302.jpg!d';
 
-  constructor(private epubService: EpubService, private render: Renderer2) {
-    epubService.onOpenEpub.subscribe((epub) => {
+  constructor(public epubService: EpubService) {
+    epubService.onOpenEpub.subscribe((epub: BookObjModule) => {
       this.onOpenEpub(epub);
     });
   }
 
   ngOnInit(): void {}
-
+  //Call the add events on book loaded after delay
   onOpenEpub(epub: BookObjModule) {
     setTimeout(() => {
       this.addEvents();
     }, 5);
   }
-
+  //Should add images
   addEvents(): void {
     if (this.addedImages == false) {
       let images = this.content.nativeElement.querySelectorAll('img');
@@ -44,7 +37,6 @@ export class EpubDisplayComponent implements OnInit {
       images.forEach((img) => {
         img.src = this.getImg(img.id);
         this.addedImages = true;
-        // img.style = '';
       });
     }
   }
@@ -62,9 +54,11 @@ export class EpubDisplayComponent implements OnInit {
     }
     return this.notFoundImg;
   }
+  //Get the name of the book
   getBookName(): string {
     return this.book ? (this.book.name ? this.book.name : '') : '';
   }
+  //Get content from the book
   getContent(): PageModule[] {
     if (this.book == null) {
       return null;
