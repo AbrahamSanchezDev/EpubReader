@@ -11,98 +11,53 @@ import { TextToSpeechOptionsComponent } from '../text-to-speech/text-to-speech-o
 })
 export class EpubOptionsComponent implements OnInit {
   book: BookObjModule;
-
+  selectedId: string;
+  readingAtm: boolean = false;
   constructor(
-    private epubService: EpubService,
+    public epubService: EpubService,
     private render: Renderer2,
     public dialog: MatDialog
   ) {
-    epubService.onOpenEpub.subscribe((epub) => {
+    epubService.onOpenEpub.subscribe((epub: BookObjModule) => {
       this.onOpenEpub(epub);
     });
-    epubService.OnRead.subscribe((read) => {
+    epubService.OnRead.subscribe((read: boolean) => {
       this.onRead(read);
     });
   }
   ngOnInit(): void {}
-
+  //Should set the book after some delay
   onOpenEpub(epub: BookObjModule) {
     setTimeout(() => {
       this.book = epub;
     }, 5);
   }
-
+  //Returns  if has a book
   hasBook(): boolean {
     return this.book != null;
   }
+  //Change the reading state
+  onRead(read: boolean): void {
+    this.readingAtm = read;
+  }
+  //Call read next event
+  readNext(): void {
+    this.epubService.OnReadNext.emit(true);
+  }
+  //Call read previews event
+  readPreviews(): void {
+    this.epubService.OnReadNext.emit(false);
+  }
 
-  selectedId: string;
-  onTest(): void {
-    const ids = this.epubService.getIds();
-    if (ids.length == 0) {
-      console.log('no pages');
-      return;
-    }
-    this.selectedId = ids[0];
-    this.checkIfInView(this.selectedId);
-  }
-  focusOn(): void {
-    this.skipTo(this.selectedId);
-  }
-  //Skip to the given id
-  skipTo(id: string) {
-    if (id == null) {
-      console.log('null id');
-      return;
-    }
-    let element = document.getElementById(`${id}`) as HTMLElement;
-    if (element) {
-      this.skipToElement(element);
-    }
-  }
-  skipToElement(element: HTMLElement) {
-    element.scrollIntoView({ behavior: 'auto', block: 'start' });
-  }
-  checkIfInView(elementId: string): void {
-    let parent = document.getElementById(elementId);
-    if (parent == null) {
-      console.log('null parent');
-      return;
-    }
-    var position = parent.getBoundingClientRect();
-    // checking whether fully visible
-    if (position.top >= 0 && position.bottom <= window.innerHeight) {
-      console.log('Element is fully visible in screen');
-    }
-    // checking for partial visibility
-    else if (position.top < window.innerHeight && position.bottom >= 0) {
-      console.log('Element is partially visible in screen');
-    } else {
-      console.log('Not in display');
-    }
-  }
-  getFirstInView(): void {
-    const pages = this.book.pages;
-    for (let i = 0; i < pages.length; i++) {
-      if (pages[i].pageIsInView()) {
-        let obj = pages[i].getFirstInView();
-        if (obj) {
-          this.render.setAttribute(obj, 'class', 'selected');
-          this.skipToElement(obj);
-          setTimeout(() => {
-            this.render.setAttribute(obj, 'class', '');
-          }, 1000);
-          console.log('Got obj');
-        } else {
-          console.log('nothing in full view');
-        }
+  //#region Html Calls
 
-        return;
-      }
-    }
-    console.log('No PAge  is in full view');
+  //#region Menu
+
+  //Send the event that there was a file selected
+  onFileSelected(event) {
+    this.epubService.OnFileSelected.emit(event.target.files[0]);
   }
-  readingAtm: boolean = false;
+  //Toggle the read state
   toggleRead(): void {
     if (this.book == null) {
       return;
@@ -110,27 +65,27 @@ export class EpubOptionsComponent implements OnInit {
     this.readingAtm = !this.readingAtm;
     this.epubService.OnRead.emit(this.readingAtm);
   }
-  onRead(read: boolean) {
-    this.readingAtm = read;
-  }
-  readNext(): void {
-    this.epubService.OnReadNext.emit(true);
-  }
-  readPreviews(): void {
-    this.epubService.OnReadNext.emit(false);
-  }
-
-  //#region Menu
-  onFileSelected(event) {
-    // this.fileChanged(event.target.files[0]);
-    this.epubService.OnFileSelected.emit(event.target.files[0]);
-  }
-
+  //Toggle show chapters
   showChapters(): void {
     this.epubService.toggleChapters();
   }
+  //Show the menu pop up
+  showReadOptions(): void {
+    const dialogRef = this.dialog.open(TextToSpeechOptionsComponent, {
+      width: '80%',
+    });
+  }
+
   //#endregion
 
+  //Returns the text to display on the menu for showing chapters
+  getIndexText(): string {
+    if (this.book == null) {
+      return '';
+    }
+    return 'Chapters';
+  }
+  //Returns the text to display for read out load menu
   getReadText(): string {
     if (this.book == null) {
       return '';
@@ -140,24 +95,5 @@ export class EpubOptionsComponent implements OnInit {
     }
     return 'Read aloud';
   }
-  getIndexText(): string {
-    if (this.book == null) {
-      return '';
-    }
-    return 'Chapters';
-  }
-
-  formatLabel(value: number) {
-    if (value >= 1000) {
-      return Math.round(value / 1000) + 'k';
-    }
-
-    return value;
-  }
-
-  showReadOptions(): void {
-    const dialogRef = this.dialog.open(TextToSpeechOptionsComponent, {
-      width: '80%',
-    });
-  }
+  //#endregion
 }
