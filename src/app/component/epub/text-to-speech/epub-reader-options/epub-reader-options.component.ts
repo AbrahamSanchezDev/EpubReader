@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EpubService } from 'src/app/service/epub/epub.service';
+import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 
 @Component({
   selector: 'app-epub-reader-options',
@@ -10,19 +11,21 @@ export class EpubReaderOptionsComponent implements OnInit {
   readingAtm: boolean;
 
   hasBook: boolean;
-  constructor(private epubService: EpubService) {
-    epubService.OnRead.subscribe((read) => {
+  constructor(public epubService: EpubService) {
+    epubService.OnRead.subscribe((read: boolean) => {
       this.onRead(read);
     });
-    epubService.onOpenEpub.subscribe((book) => {
+    epubService.onOpenEpub.subscribe((book: BookObjModule) => {
       this.hasBook = book != null;
     });
   }
+  ngOnInit(): void {}
 
+  //Set reading atm
   onRead(read: boolean) {
     this.readingAtm = read;
   }
-  ngOnInit(): void {}
+  //Check if its reading
   reading(): boolean {
     return this.readingAtm;
   }
