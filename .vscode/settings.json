@@ -12,6 +12,12 @@
         "command": "ng serve -o"
       },
       {
+        "name": "Buid Div",
+        "singleInstance": true,
+        "color": "#fff",
+        "command": "ng build --prod --base-href https://holykiller.github.io/EpubReader/"
+      },
+      {
         "name": "Deploy",
         "singleInstance": true,
         "color": "#fff",
@@ -43,9 +49,5 @@
       }
     ]
   },
-  "cSpell.words": [
-    "epub",
-    "htmls",
-    "voiceschanged"
-  ]
+  "cSpell.words": ["epub", "htmls", "voiceschanged"]
 }

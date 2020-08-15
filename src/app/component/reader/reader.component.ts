@@ -28,7 +28,7 @@ export class ReaderComponent implements OnInit {
     public loader: EpubLoaderService
   ) {
     this.registerEvents();
-    this.loadTestingFile();
+    // this.loadTestingFile();
   }
   //Register for the events
   registerEvents(): void {
