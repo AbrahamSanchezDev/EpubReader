@@ -169,7 +169,11 @@ export class EpubReaderComponent implements OnInit {
       this.curContentIndex = this.epub.pages.length - 1;
     }
     this.curContent = this.epub.pages[this.curContentIndex];
-    this.curMaxParagraph = this.curContent.getTotalParagraphs();
+    if (this.curContent != null)
+      this.curMaxParagraph = this.curContent.getTotalParagraphs();
+    else {
+      console.log('null current content');
+    }
     // console.log(this.curContent);
   }
 
