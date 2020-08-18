@@ -165,6 +165,9 @@ export class EpubReaderComponent implements OnInit {
   updateCurrentContent(): void {
     this.resetCurrent();
     this.curMaxContent = this.epub.pages.length;
+    if (this.curContentIndex >= this.epub.pages.length) {
+      this.curContentIndex = this.epub.pages.length - 1;
+    }
     this.curContent = this.epub.pages[this.curContentIndex];
     this.curMaxParagraph = this.curContent.getTotalParagraphs();
     // console.log(this.curContent);
