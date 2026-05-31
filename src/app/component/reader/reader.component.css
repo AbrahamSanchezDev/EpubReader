@@ -1,17 +1,21 @@
 .reader-shell {
+  margin-left: 1.25%;
   min-height: 100vh;
-  width: 100%;
+  width: 95%;
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 1rem;
   padding: 1rem;
-  background: #f3f4f6;
+  /* background: #f3f4f6; */
+  overflow: visible; /* Asegura que deje ver el scroll */
 }
 
 .reader-sidebar {
   position: sticky;
   top: 1rem;
   align-self: start;
+  max-height: calc(100vh - 2rem); /* Limita la barra de controles al tamaño de la pantalla */
+  overflow-y: auto; /* Si los controles no caben, que tengan su propio mini-scroll */
 }
 
 .reader-main {
@@ -19,6 +23,8 @@
   flex-direction: column;
   gap: 1rem;
   min-width: 0;
+  height: auto;       /* <-- Asegura que crezca libremente */
+  overflow: visible;  /* <-- Permite que el contenido desborde hacia el navegador */
 }
 
 .control-card {

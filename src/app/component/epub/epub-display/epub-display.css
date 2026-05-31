@@ -2,20 +2,22 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  /* background-color: beige; */
+  width: 100%;
+  height: auto;       /* Crece según el contenido */
+  overflow: visible;  /* No atrapa el scroll */
 }
-
 .book-title {
   text-align: center;
 }
 .pages-parent {
   width: 100%;
-  max-height: calc(100vh - 56px);
   display: flex;
   flex-direction: column;
-  overflow: auto;
-  padding: 0.5rem;
   align-items: center;
+  padding: 0.5rem;
+
+  max-height: none;   /* <-- ELIMINA cualquier calc(100vh - 56px) que tuvieras aquí */
+  overflow: visible;  /* <-- Cambiado a visible para que use el navegador */
 }
 .book-content {
   margin-left: 1%;
@@ -23,15 +25,16 @@
   max-width: 93%;
 }
 
-/* Internal loading overlay (component-scoped) */
+/* Como el libro ahora mide miles de píxeles, la pantalla de carga debe ser fixed
+   para que no aparezca arriba en la página si ya vas por la mitad leyendo */
 .epub-loading-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.85);
-  z-index: 20;
+  z-index: 10000;
 }
 .epub-loading-box {
   background: #ffffffee;

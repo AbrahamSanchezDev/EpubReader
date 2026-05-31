@@ -1,20 +1,22 @@
 /* Make <app-reader> occupy the full viewport and stay fixed
 	 so other content can be scrolled under it. */
 app-reader {
-	position: fixed;
-	inset: 0; /* top:0; right:0; bottom:0; left:0; */
-	width: 100vw;
-	height: 100vh;
-	z-index: 9999;
+	position: block;
+	/* inset: 0; top:0; right:0; bottom:0; left:0; */
+	width: 99%;
+  /* min-height: 100vh; */
+	/* z-index: 9999; */
 }
 
 /* Push the main flow below the fixed reader so the page
 	 content starts after the full-screen reader. When you scroll,
 	 the content will move up and appear under the fixed reader. */
 main {
-	margin-top: 100vh;
+	/* margin-top: 100vh; */
 	position: relative;
 	z-index: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Optional: keep internal content stacking normal */
