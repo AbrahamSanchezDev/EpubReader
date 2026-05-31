@@ -9,9 +9,11 @@ import * as JSZip from 'jszip';
   providedIn: 'root',
 })
 export class ZipService {
+  public lastFileName = '';
   // Gets the zip files and returns them as entry data
   getEntries(file: Blob): Observable<ZipEntry[]> {
     console.log('Getting entries from zip file', file);
+    this.lastFileName = file instanceof File ? file.name : 'unknown.zip';
 
     return new Observable((subscriber) => {
       JSZip.loadAsync(file)

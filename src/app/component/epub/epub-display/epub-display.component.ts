@@ -40,7 +40,6 @@ export class EpubDisplayComponent {
       }
       if (p.done || this.progressPercent() >= 99) {
         // small delay to let UI show 100%
-        console.log('Loading complete, hiding progress after delay');
         setTimeout(() => {
           this.loading.set(false);
         }, 300);

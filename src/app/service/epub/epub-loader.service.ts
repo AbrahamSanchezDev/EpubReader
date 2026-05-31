@@ -41,6 +41,9 @@ export class EpubLoaderService {
   book: BookObjModule = new BookObjModule();
   currentFiles = 0;
   currentMaxFiles = 0;
+  private pendingContentLoads = 0;
+  private pendingMetadataLoads = 0;
+  private hasEmittedBook = false;
 
   public zipService = inject(ZipService);
   private textControl = inject(EpubTextFormatService);
@@ -52,14 +55,17 @@ export class EpubLoaderService {
     if (file == null) return;
     this.currentFiles = 0;
     this.currentMaxFiles = 0;
+    this.pendingContentLoads = 0;
+    this.pendingMetadataLoads = 0;
+    this.hasEmittedBook = false;
     this.book = new BookObjModule();
     const observable = this.zipService.getEntries(file);
     observable.subscribe((data: ZipEntry[]) => {
-      //Load File Name
-      this.lookForFileName(data);
+      //Load file metadata and menu index first
+      this.loadFileMetadata(data);
       //Load Images
       this.loadImages(data);
-      //Load Content
+      //Load EPUB content pages
       this.getContentFromData(data);
     });
   }
@@ -75,11 +81,22 @@ export class EpubLoaderService {
     });
   }
   //#region File name
-  lookForFileName(data: ZipEntry[]): void {
+  loadFileMetadata(data: ZipEntry[]): void {
+    let foundOpf = false;
+    let foundNav = false;
     for (const entry of data) {
       const name = entry.filename;
-      if (name.includes('book.opf')) {
+      if (!foundOpf && name.includes('book.opf')) {
+        foundOpf = true;
+        this.pendingMetadataLoads++;
         this.loadFileName(entry);
+      }
+      if (!foundNav && this.isAnIndexer(name)) {
+        foundNav = true;
+        this.pendingMetadataLoads++;
+        this.loadIndex(entry);
+      }
+      if (foundOpf && foundNav) {
         break;
       }
     }
@@ -87,19 +104,19 @@ export class EpubLoaderService {
   loadFileName(obj: ZipEntry) {
     if (this.book.name != null) {
       console.log('Already has name');
+      this.pendingMetadataLoads = Math.max(0, this.pendingMetadataLoads - 1);
+      this.emitBookReady();
       return;
     }
     this.readZipEntryAsText(obj, (content) => {
       this.setFileName(content);
+      this.pendingMetadataLoads = Math.max(0, this.pendingMetadataLoads - 1);
+      this.emitBookReady();
     });
   }
   //Set the book name using the given result
   setFileName(result: string): void {
-    this.book.name = this.textControl.getTextBetween(
-      result,
-      '<dc:title>',
-      '</dc:title>'
-    );
+    this.book.name = this.textControl.getTextBetween(result, '<dc:title>', '</dc:title>');
   }
   //#endregion
 
@@ -141,12 +158,14 @@ export class EpubLoaderService {
     for (const entry of data) {
       const name = entry.filename;
       if (!name.includes('.xhtml')) continue;
-      //If is not an indexer then is Content
-      if (this.isAnIndexer(name) == false) {
-        this.currentMaxFiles++;
-        this.loadContent(entry);
+      if (this.isAnIndexer(name)) {
+        continue;
       }
+      this.currentMaxFiles++;
+      this.pendingContentLoads++;
+      this.loadContent(entry);
     }
+    this.emitBookReady();
   }
   //Check if its an index file
   isAnIndexer(name: string): boolean {
@@ -164,19 +183,18 @@ export class EpubLoaderService {
       if (theName == null || theName == '') {
         theName = this.textControl.getTextBetween(obj.filename, '/', '.');
       }
-      const formattedText: string = this.textControl.cleanUpContent(
-        content,
-        theName
-      );
+      const formattedText: string = this.textControl.cleanUpContent(content, theName);
       const contentToAdd = new PageModule(
         theName,
         obj.filename,
-        this.sanitizer.bypassSecurityTrustHtml(formattedText)
+        this.sanitizer.bypassSecurityTrustHtml(formattedText),
       );
       const curAmount = this.book.pages.length;
       contentToAdd.index = curAmount;
       this.book.pages.push(contentToAdd);
+      this.pendingContentLoads = Math.max(0, this.pendingContentLoads - 1);
       this.checkIfFinishLoadingContent();
+      this.emitBookReady();
     });
   }
   //Check if it should finish loading content
@@ -192,14 +210,8 @@ export class EpubLoaderService {
     } catch (e) {
       console.error('Failed to emit load progress', e);
     }
-    if (this.currentFiles == this.currentMaxFiles) {
-      this.book.Init();
-
-      this.book.usePagesAsMenu = this.book.index == null || this.book.index === '';
-      console.log(this.book.index);
-      console.log('Finished loading content, emitting book:', this.book);
-
-      this.epubService.callOnOpenEpub(this.book);
+    if (this.currentFiles === this.currentMaxFiles) {
+      this.emitBookReady();
     }
   }
   //#endregion
@@ -212,13 +224,42 @@ export class EpubLoaderService {
       if (obj.filename.includes('nav.xhtml')) {
         //Get name from original text
         this.book.name = this.textControl.getFileNameFromIndex(content);
-        formattedText = this.textControl.replaceAllTextBetween(
-          content,
-          navOptions
-        );
+        formattedText = this.textControl.replaceAllTextBetween(content, navOptions);
       }
       this.book.index = this.sanitizer.bypassSecurityTrustHtml(formattedText);
+      this.pendingMetadataLoads = Math.max(0, this.pendingMetadataLoads - 1);
+      this.emitBookReady();
     });
+    console.log('Finished loadIndex for', obj.filename);
+  }
+
+  private emitBookReady(): void {
+    if (this.hasEmittedBook) {
+      return;
+    }
+    if (this.pendingContentLoads > 0 || this.pendingMetadataLoads > 0) {
+      return;
+    }
+    if (this.currentFiles !== this.currentMaxFiles) {
+      return;
+    }
+    this.book.Init();
+    this.book.usePagesAsMenu = this.book.index == null || this.book.index === '';
+    console.log(this.book.index);
+    this.hasEmittedBook = true;
+    this.epubService.callOnOpenEpub(this.book);
+    if(this.book.name == null || this.book.name.trim() === '') {
+      this.useFileNameAsTitle();
+    }
+    setTimeout(() => {
+      // open the menu once a book is loaded so controls are visible
+      console.log('..........EpubOptionsComponent received book:', this.book);
+      this.epubService.onEpubReady.emit(this.book);
+    }, 5);
+  }
+
+  useFileNameAsTitle() : void{
+    this.book.name = this.zipService.lastFileName.replace('.epub', '');
   }
 
   //Returns if should use the content as menu

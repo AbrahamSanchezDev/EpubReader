@@ -19,6 +19,7 @@
 .book-content {
   margin-left: 1%;
   width: 98%;
+  max-width: 93%;
 }
 
 /* Internal loading overlay (component-scoped) */

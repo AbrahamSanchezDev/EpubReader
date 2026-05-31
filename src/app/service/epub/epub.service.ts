@@ -5,9 +5,7 @@ import { BookObjModule } from '../../../app/model/epub/page/book-obj.module';
   providedIn: 'root',
 })
 export class EpubService {
-  public onOpenEpub: EventEmitter<BookObjModule> = new EventEmitter<
-    BookObjModule
-  >();
+  public onOpenEpub: EventEmitter<BookObjModule> = new EventEmitter<BookObjModule>();
   // Emits loading progress: { current, total, done }
   public onLoadProgress: EventEmitter<{ current: number; total: number; done?: boolean }> =
     new EventEmitter<{ current: number; total: number; done?: boolean }>();
@@ -16,6 +14,8 @@ export class EpubService {
   public OnFileSelected: EventEmitter<File> = new EventEmitter<File>();
   public OnShowChapters: EventEmitter<boolean> = new EventEmitter<boolean>();
   public OnToggleChapters: EventEmitter<void> = new EventEmitter<void>();
+
+  public onEpubReady: EventEmitter<BookObjModule> = new EventEmitter<BookObjModule>();
 
   private ids: string[] = [];
 

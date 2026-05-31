@@ -37,12 +37,13 @@ export class EpubOptionsComponent{
   }
 
   onOpenEpub(epub: BookObjModule) {
+    console.log('EpubOptionsComponent received onOpenEpub event for book:', epub.name);
     // set book signal so template updates reactively
     setTimeout(() => {
       this.book.set(epub);
       // open the menu once a book is loaded so controls are visible
       this.showMenu.set(true);
-
+      this.epubService.onEpubReady.emit(epub);
     }, 5);
   }
 

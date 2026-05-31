@@ -1,45 +1,55 @@
-import { Component, ViewChild, ElementRef, inject } from '@angular/core';
+import { Component, ViewChild, ElementRef, inject, signal, computed } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule } from 'src/app/model/epub/page/page.module';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { EpubLoaderService } from 'src/app/service/epub/epub-loader.service';
-
-// 2. Importa tus componentes locales que se ven en el HTML
-import { EpubOptionsComponent } from '../epub/epub-options/epub-options.component';
-import { EpubReaderComponent } from '../epub/text-to-speech/epub-reader/epub-reader.component';
+import { TextToSpeechService } from 'src/app/service/text-to-speech/text-to-speech.service';
 import { EpubDisplayComponent } from '../epub/epub-display/epub-display.component';
-import { EpubReaderOptionsComponent } from '../epub/text-to-speech/epub-reader-options/epub-reader-options.component';
 
 @Component({
   selector: 'app-reader',
-  standalone: true, // <-- 1. Componente Moderno Standalone
+  standalone: true,
   templateUrl: './reader.component.html',
   styleUrls: ['./reader.component.css'],
-  imports: [
-    HttpClientModule,
-    EpubOptionsComponent,
-    EpubReaderComponent,
-    EpubDisplayComponent,
-    EpubReaderOptionsComponent,
-  ], // <-- Necesario si usas HttpClient localmente
+  imports: [EpubDisplayComponent],
 })
 export class ReaderComponent {
   @ViewChild('indexMenu') elementRef: ElementRef | null = null;
 
   filePath = 'assets/TheDefeatedDragon.epub';
-  book: BookObjModule | null = null;
+
+  // Signals managed cleanly by Angular reactive context
+  book = signal<BookObjModule | null>(null);
+  readingAtm = signal<boolean>(false);
 
   opened = false;
   addedImages = false;
   loadTesting = true;
+  showAudioOptions = false;
+  pitch = 1.5;
+  rate = 1.5;
+  volume = 1;
 
-  // 2. Modern Dependency Injection usando inject()
-  private http = inject(HttpClient);
   public epubService = inject(EpubService);
   public loader = inject(EpubLoaderService);
+  public textToSpeech = inject(TextToSpeechService);
+
+  // Computed states tracking reactive changes safely
+  bookTitle = computed(() => {
+    const currentBook = this.book();
+    return currentBook?.name?.trim().length ? currentBook.name : 'No book loaded';
+  });
+
+  readText = computed(() => {
+    return this.readingAtm() ? 'Stop Read aloud' : 'Read aloud';
+  });
+
+  indexText = computed(() => {
+    return this.book() ? 'Chapters' : 'No book';
+  });
 
   constructor() {
+    this.initializeAudioOptions();
     this.registerEvents();
   }
 
@@ -50,18 +60,41 @@ export class ReaderComponent {
     this.epubService.OnToggleChapters.subscribe(() => {
       this.toggleIndex();
     });
+    this.epubService.OnRead.subscribe((read) => {
+      this.readingAtm.set(read);
+    });
+    this.epubService.onLoadProgress.subscribe((progress) => {
+      if (progress.done || progress.current >= 90) {
+        this.showAudioOptions = true;
+      }
+    });
     this.epubService.onOpenEpub.subscribe((book) => {
+      this.onBookLoaded(book);
+    });
+    this.epubService.onEpubReady.subscribe((book) => {
       this.onBookLoaded(book);
     });
   }
 
-  onBookLoaded(book: BookObjModule): void {
-    this.resetData();
-    this.book = book;
-    this.setupButtonsIds();
+  initializeAudioOptions(): void {
+    this.textToSpeech.getAllVoices();
+    setTimeout(() => {
+      this.textToSpeech.getVoices();
+      this.textToSpeech.setEnglishVoice();
+    }, 200);
   }
 
-  // 3. Tipado estricto para eventos nativos del DOM
+  onBookLoaded(book: BookObjModule): void {
+    if (book == null) {
+      console.warn('onBookLoaded called with null book');
+      return;
+    }
+    this.resetData();
+    this.book.set(book);
+    this.setupButtonsIds();
+    this.showAudioOptions = true;
+  }
+
   onFileSelected(event: Event) {
     const element = event.target as HTMLInputElement;
     if (element.files && element.files.length > 0) {
@@ -75,20 +108,20 @@ export class ReaderComponent {
       return;
     }
     this.resetData();
-    console.log('Loading EPUB file:', file.name);
     this.loader.loadEpub(file);
   }
 
   resetData(): void {
-    this.book = null;
+    this.book.set(null);
     this.addedImages = false;
     this.epubService.clearIds();
+    this.showAudioOptions = false;
   }
 
   //#region Index Formatting
   setupButtonsIds(): void {
-    // Protección estricta: Validamos que el libro y la referencia existan
-    if (this.book == null || this.book.index == null) {
+    // CORRECTION: Read signal data using `this.book()` instead of checking the signal class object
+    if (this.book() == null || this.book()?.index == null) {
       return;
     }
     if (!this.elementRef) return;
@@ -101,12 +134,13 @@ export class ReaderComponent {
   }
 
   getButtonsAndSetThem(): void {
-    if (!this.elementRef || !this.book) return;
+    const currentBook = this.book();
+    if (!this.elementRef || !currentBook) return;
 
     const buttons = this.elementRef.nativeElement.querySelectorAll('button') as HTMLButtonElement[];
     buttons.forEach((button: HTMLButtonElement) => {
       let id = '';
-      if (this.book!.usePagesAsMenu) {
+      if (currentBook.usePagesAsMenu) {
         id = button.innerText;
       } else {
         id = button.id;
@@ -128,8 +162,8 @@ export class ReaderComponent {
   }
 
   setElementToIndexSaveHtml() {
-    if (this.elementRef && this.book) {
-      this.elementRef.nativeElement.innerHTML = this.book.index;
+    if (this.elementRef && this.book()) {
+      this.elementRef.nativeElement.innerHTML = this.book()?.index ?? '';
     }
   }
 
@@ -141,44 +175,104 @@ export class ReaderComponent {
   }
   //#endregion
 
-  //#region Html callback
+  //#region Html callbacks
 
-  // Ajuste de firma: Puede retornar null si no hay libro cargado
   getBook(): BookObjModule | null {
-    return this.book;
+    return this.book();
   }
 
   useContentAsMenu(): boolean {
-    if (this.book) {
-      return this.book.usePagesAsMenu;
-    }
-    return false;
+    return this.book()?.usePagesAsMenu ?? false;
   }
 
-  // Ajuste de firma: Agregamos '| null' para que coincida con el return null defensivo
   getContent(): PageModule[] | null {
-    if (this.book == null) {
+    // CORRECTION: Check signal evaluation condition `this.book() == null`
+    if (this.book() == null) {
       console.warn('getContent called but no book is loaded');
       return null;
     }
-    console.log('getContent called, returning pages:', this.book.pages);
-    return this.book.pages;
+    return this.book()!.pages;
   }
 
   getContentName(page: PageModule | null) {
-    if (page == null) {
-      return '';
+    return page ? page.name : '';
+  }
+
+  // Accessing calculated signals safely
+  getBookTitle(): string {
+    return this.bookTitle();
+  }
+
+  getReadText(): string {
+    return this.readText();
+  }
+
+  getIndexText(): string {
+    return this.indexText();
+  }
+
+  toggleRead(): void {
+    // CORRECTION: Check signal evaluation condition `this.book() == null`
+    if (this.book() == null) {
+      console.warn('toggleRead called but no book is loaded');
+      return;
     }
-    return page.name;
+    this.readingAtm.update((state) => !state);
+    this.epubService.OnRead.emit(this.readingAtm());
+  }
+
+  showChapters(): void {
+    // CORRECTION: Check signal evaluation condition `this.book() == null`
+    if (this.book() == null) {
+      return;
+    }
+    this.epubService.toggleChapters();
+  }
+
+  readNext(): void {
+    // CORRECTION: Check signal evaluation condition `this.book() == null`
+    if (this.book() == null) {
+      return;
+    }
+    this.epubService.OnReadNext.emit(true);
+  }
+
+  readPreviews(): void {
+    // CORRECTION: Check signal evaluation condition `this.book() == null`
+    if (this.book() == null) {
+      return;
+    }
+    this.epubService.OnReadNext.emit(false);
+  }
+
+  onChangeVoice(voiceName: string) {
+    this.textToSpeech.setVoice(voiceName);
+  }
+
+  onPitch(value: number) {
+    this.pitch = value;
+    this.textToSpeech.setPitch(value);
+  }
+
+  onRate(value: number) {
+    this.rate = value;
+    this.textToSpeech.setRate(value);
+  }
+
+  onVolume(value: number) {
+    this.volume = value;
+    this.textToSpeech.setVolume(value);
+  }
+
+  getCurrentVoice(): string {
+    return this.textToSpeech.selectedValue;
   }
   //#endregion
 
   toggleIndex(): void {
     this.opened = !this.opened;
     this.epubService.OnShowChapters.emit(this.opened);
-    // If the index panel was opened, populate its HTML and wire the chapter buttons
     if (this.opened) {
-      // Ensure the element exists in the DOM then set HTML and bind buttons
       setTimeout(() => {
         this.setElementToIndexSaveHtml();
         this.getButtonsAndSetThem();

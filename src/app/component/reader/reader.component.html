@@ -1,33 +1,150 @@
-<div class="render-parent">
-  <div class="example-container">
-    @if (opened) {
-      <div #sidenav class="menu-content">
+<div class="reader-shell">
+  <aside class="reader-sidebar">
+    <div class="control-card">
+      <div class="panel-header">
         <div>
-          <button (click)="toggleIndex()" class="file-selector">Close</button>
-
-          <div #indexMenu class="book-index"></div>
-
-          @if (useContentAsMenu()) {
-            <div class="book-index">
-              <h1 class="index-title">Chapters:</h1>
-              @for (obj of getContent(); track obj.name || $index) {
-                <button type="button" (click)="skipTo(getContentName(obj))" class="index-obj">
-                  {{ getContentName(obj) }}
-                </button>
-              }
-            </div>
-          } @else {
-            <h1 class="index-title">Welcome to the Book!</h1>
-          }
+          <h1>EPUB Central Control</h1>
+          <p class="panel-subtitle">
+            One place for loading, chapter navigation, and speech settings.
+          </p>
         </div>
       </div>
-    }
 
-    <div class="sidenav-content">
-      <app-epub-options class="epub-options"></app-epub-options>
-      <app-epub-reader></app-epub-reader>
-      <app-epub-display [book]="getBook()"></app-epub-display>
-      <app-epub-reader-options></app-epub-reader-options>
+      <div class="panel-section">
+        <label class="file-upload btn primary">
+          Select EPUB
+          <input type="file" accept=".epub" hidden (change)="onFileSelected($event)" />
+        </label>
+
+        <div class="book-info">
+          <div class="book-title">{{ bookTitle() }}</div>
+          <div class="book-meta">
+            @if (book() && book()?.pages?.length) {
+              {{ book()!.pages.length }} pages loaded
+            } @else {
+              Upload an EPUB to begin reading
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section action-grid">
+        <button class="btn primary" (click)="toggleRead()">
+          {{ readText() }}
+        </button>
+        <button class="btn outline" (click)="showChapters()">
+          {{ indexText() }}
+        </button>
+        <button class="btn outline" (click)="showAudioOptions = !showAudioOptions">
+          {{ showAudioOptions ? 'Hide Audio Options' : 'Audio Options' }}
+        </button>
+      </div>
+
+      @if (showAudioOptions) {
+        <div class="panel-section audio-card">
+          <div class="section-title">Speech settings</div>
+
+          <div class="field-group">
+            <label for="speechVoices">Voice</label>
+            <select
+              id="speechVoices"
+              (change)="onChangeVoice($any($event.target).value)"
+              [value]="getCurrentVoice()"
+            >
+              @for (voice of textToSpeech.voices; track voice) {
+                <option [value]="voice">{{ voice }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field-group">
+            <div class="label-row">
+              <span>Pitch</span>
+              <span class="field-value">{{ pitch.toFixed(1) }}</span>
+            </div>
+            <input
+              type="range"
+              min="0.5"
+              max="2"
+              step="0.1"
+              [value]="pitch"
+              (input)="onPitch(+$any($event.target).value)"
+              aria-label="Pitch"
+              title="Pitch"
+            />
+          </div>
+
+          <div class="field-group">
+            <div class="label-row">
+              <span>Rate</span>
+              <span class="field-value">{{ rate.toFixed(1) }}</span>
+            </div>
+            <input
+              type="range"
+              min="0.5"
+              max="2"
+              step="0.1"
+              [value]="rate"
+              (input)="onRate(+$any($event.target).value)"
+              aria-label="Rate"
+              title="Rate"
+            />
+          </div>
+
+          <div class="field-group">
+            <div class="label-row">
+              <span>Volume</span>
+              <span class="field-value">{{ volume.toFixed(1) }}</span>
+            </div>
+            <input
+              type="range"
+              min="0.1"
+              max="1"
+              step="0.1"
+              [value]="volume"
+              (input)="onVolume(+$any($event.target).value)"
+              aria-label="Volume"
+              title="Volume"
+            />
+          </div>
+
+          <div class="audio-actions">
+            <button class="btn outline" [disabled]="!book()" (click)="readPreviews()">Prev</button>
+            <button class="btn outline" [disabled]="!book()" (click)="readNext()">Next</button>
+          </div>
+        </div>
+      }
     </div>
-  </div>
+  </aside>
+
+  <main class="reader-main">
+    <app-epub-display [book]="getBook()"></app-epub-display>
+  </main>
+
+  @if (opened) {
+    <div #sidenav class="menu-content">
+      <div class="menu-header">
+        <h2>Chapters</h2>
+        <button class="btn close-btn" (click)="toggleIndex()">Close</button>
+      </div>
+
+      <div #indexMenu class="book-index"></div>
+
+      @if (useContentAsMenu()) {
+        <div class="book-index auto-menu">
+          <h3 class="index-title">Chapter navigation</h3>
+          @for (obj of getContent(); track obj.name || $index) {
+            <button type="button" (click)="skipTo(getContentName(obj))" class="index-obj">
+              {{ getContentName(obj) }}
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="empty-message">
+          <h3>Welcome to the Book!</h3>
+          <p>Chapter controls will appear after a book is loaded.</p>
+        </div>
+      }
+    </div>
+  }
 </div>
