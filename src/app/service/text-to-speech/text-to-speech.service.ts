@@ -51,6 +51,7 @@ export class TextToSpeechService {
     this.speechOptions.pitch = 1.5;
     this.speechOptions.rate = 1.5;
     this.speechOptions.volume = 1;
+    this.setEnglishVoice();
   }
 
   // Get the voices now that they are available

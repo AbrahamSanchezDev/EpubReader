@@ -12,12 +12,9 @@
 
   <div #content class="pages-parent">
     @for (obj of getContent(); track obj.name || $index) {
-      <div
-        [innerHTML]="obj.content"
-        class="book-content"
-      ></div>
+      <div [innerHTML]="obj.content" class="book-content"></div>
     } @empty {
-      <p class="loading-text">Loading book content...</p>
+      <p class="loading-text">Upload an EPUB to begin reading...</p>
     }
   </div>
 </div>

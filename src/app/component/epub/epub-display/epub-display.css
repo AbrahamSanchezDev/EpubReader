@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  background-color: beige;
+  /* background-color: beige; */
 }
 
 .book-title {
@@ -15,6 +15,7 @@
   flex-direction: column;
   overflow: auto;
   padding: 0.5rem;
+  align-items: center;
 }
 .book-content {
   margin-left: 1%;
