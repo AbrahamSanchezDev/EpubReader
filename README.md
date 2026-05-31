@@ -113,3 +113,12 @@ npm run lint
 - `src/app/service/text-to-speech` — browser speech playback controls
 - `src/app/service/save-to-local-storage` — save/load support for browser storage
 - `src/app/service/zip` — ZIP/EPUB archive extraction
+
+ 
+
+
+## To do builds for the github pages I use the follow command:
+```bash
+ng build --base-href "https://abrahamsanchezdev.github.io/EpubReader/"
+
+```
