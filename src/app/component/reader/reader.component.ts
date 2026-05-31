@@ -4,15 +4,15 @@ import { PageModule } from 'src/app/model/epub/page/page.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { EpubLoaderService } from 'src/app/service/epub/epub-loader.service';
 import { TextToSpeechService } from 'src/app/service/text-to-speech/text-to-speech.service';
-import { EpubDisplayComponent } from '../epub/epub-display/epub-display.component';
-import { EpubReaderComponent } from '../epub/text-to-speech/epub-reader/epub-reader.component';
+import { EpubDisplay } from '../epub/epub-display/epub-display';
+import { EpubReader } from '../epub/text-to-speech/epub-reade';
 
 @Component({
   selector: 'app-reader',
   standalone: true,
   templateUrl: './reader.component.html',
   styleUrls: ['./reader.component.css'],
-  imports: [EpubDisplayComponent, EpubReaderComponent],
+  imports: [EpubDisplay, EpubReader],
 })
 export class ReaderComponent {
   @ViewChild('indexMenu') elementRef: ElementRef | null = null;

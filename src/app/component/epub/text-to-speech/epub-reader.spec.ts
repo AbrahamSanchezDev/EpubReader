@@ -1,6 +1,6 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EpubReaderComponent } from './epub-reader.component';
+import { EpubReaderComponent } from './epub-reade';
 
 describe('EpubReaderComponent', () => {
   let component: EpubReaderComponent;

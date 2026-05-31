@@ -13,11 +13,11 @@ export class ReadData {
 
 @Component({
   selector: 'app-epub-reader',
-  standalone: true, // <-- Crucial for Angular 21
-  templateUrl: './epub-reader.component.html',
-  styleUrls: ['./epub-reader.component.css'],
+  standalone: true,
+  templateUrl: './epub-reader.html',
+  styleUrls: ['./epub-reader.css'],
 })
-export class EpubReaderComponent implements OnDestroy {
+export class EpubReader implements OnDestroy {
   // 1. Definite Assignment Assertions (!) or safe initial values
   epub!: BookObjModule;
   textToRead!: FormateadParagraph | null;

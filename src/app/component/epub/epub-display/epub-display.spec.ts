@@ -1,22 +1,22 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EpubDisplayComponent } from './epub-display.component';
+import { EpubDisplay } from './epub-display';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule } from 'src/app/model/epub/page/page.module';
 
 describe('EpubDisplayComponent', () => {
-  let component: EpubDisplayComponent;
-  let fixture: ComponentFixture<EpubDisplayComponent>;
+  let component: EpubDisplay;
+  let fixture: ComponentFixture<EpubDisplay>;
   let book: BookObjModule;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [EpubDisplayComponent],
+      declarations: [EpubDisplay],
     }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EpubDisplayComponent);
+    fixture = TestBed.createComponent(EpubDisplay);
     component = fixture.componentInstance;
     fixture.detectChanges();
     book = new BookObjModule();

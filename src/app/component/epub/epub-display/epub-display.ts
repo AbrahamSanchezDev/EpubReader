@@ -7,10 +7,10 @@ import { EpubService } from 'src/app/service/epub/epub.service';
   selector: 'app-epub-display',
   standalone: true,
   imports: [],
-  templateUrl: './epub-display.component.html',
-  styleUrls: ['./epub-display.component.css'],
+  templateUrl: './epub-display.html',
+  styleUrls: ['./epub-display.css'],
 })
-export class EpubDisplayComponent {
+export class EpubDisplay {
   @Input() book: BookObjModule | null = null;
   @ViewChild('content') content: ElementRef = new ElementRef(null);
 
