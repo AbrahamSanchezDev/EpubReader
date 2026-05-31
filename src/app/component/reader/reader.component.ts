@@ -5,13 +5,14 @@ import { EpubService } from 'src/app/service/epub/epub.service';
 import { EpubLoaderService } from 'src/app/service/epub/epub-loader.service';
 import { TextToSpeechService } from 'src/app/service/text-to-speech/text-to-speech.service';
 import { EpubDisplayComponent } from '../epub/epub-display/epub-display.component';
+import { EpubReaderComponent } from '../epub/text-to-speech/epub-reader/epub-reader.component';
 
 @Component({
   selector: 'app-reader',
   standalone: true,
   templateUrl: './reader.component.html',
   styleUrls: ['./reader.component.css'],
-  imports: [EpubDisplayComponent],
+  imports: [EpubDisplayComponent, EpubReaderComponent],
 })
 export class ReaderComponent {
   @ViewChild('indexMenu') elementRef: ElementRef | null = null;
@@ -120,7 +121,6 @@ export class ReaderComponent {
 
   //#region Index Formatting
   setupButtonsIds(): void {
-    // CORRECTION: Read signal data using `this.book()` instead of checking the signal class object
     if (this.book() == null || this.book()?.index == null) {
       return;
     }
@@ -186,7 +186,6 @@ export class ReaderComponent {
   }
 
   getContent(): PageModule[] | null {
-    // CORRECTION: Check signal evaluation condition `this.book() == null`
     if (this.book() == null) {
       console.warn('getContent called but no book is loaded');
       return null;
@@ -212,17 +211,16 @@ export class ReaderComponent {
   }
 
   toggleRead(): void {
-    // CORRECTION: Check signal evaluation condition `this.book() == null`
     if (this.book() == null) {
       console.warn('toggleRead called but no book is loaded');
       return;
     }
     this.readingAtm.update((state) => !state);
+    console.log('Reading state toggled:', this.readingAtm());
     this.epubService.OnRead.emit(this.readingAtm());
   }
 
   showChapters(): void {
-    // CORRECTION: Check signal evaluation condition `this.book() == null`
     if (this.book() == null) {
       return;
     }
@@ -230,7 +228,6 @@ export class ReaderComponent {
   }
 
   readNext(): void {
-    // CORRECTION: Check signal evaluation condition `this.book() == null`
     if (this.book() == null) {
       return;
     }
@@ -238,7 +235,6 @@ export class ReaderComponent {
   }
 
   readPreviews(): void {
-    // CORRECTION: Check signal evaluation condition `this.book() == null`
     if (this.book() == null) {
       return;
     }
