@@ -8,6 +8,9 @@ export class EpubService {
   public onOpenEpub: EventEmitter<BookObjModule> = new EventEmitter<
     BookObjModule
   >();
+  // Emits loading progress: { current, total, done }
+  public onLoadProgress: EventEmitter<{ current: number; total: number; done?: boolean }> =
+    new EventEmitter<{ current: number; total: number; done?: boolean }>();
   public OnRead: EventEmitter<boolean> = new EventEmitter<boolean>();
   public OnReadNext: EventEmitter<boolean> = new EventEmitter<boolean>();
   public OnFileSelected: EventEmitter<File> = new EventEmitter<File>();

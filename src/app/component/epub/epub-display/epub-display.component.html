@@ -1,6 +1,15 @@
 <div class="book">
   <h1 class="book-title">{{ getBookName() }}</h1>
 
+  @if (loading()) {
+    <div class="epub-loading-overlay" role="status" aria-live="polite">
+      <div class="epub-loading-box">
+        <div class="epub-spinner" aria-hidden="true"></div>
+        <div class="epub-loading-text">Cargando capítulos {{ progressPercent() }}%</div>
+      </div>
+    </div>
+  }
+
   <div #content class="pages-parent">
     @for (obj of getContent(); track obj.name || $index) {
       <div

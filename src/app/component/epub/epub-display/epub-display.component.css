@@ -9,10 +9,48 @@
   text-align: center;
 }
 .pages-parent {
+  width: 100%;
+  max-height: calc(100vh - 56px);
   display: flex;
   flex-direction: column;
+  overflow: auto;
+  padding: 0.5rem;
 }
 .book-content {
   margin-left: 1%;
   width: 98%;
 }
+
+/* Internal loading overlay (component-scoped) */
+.epub-loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 20;
+}
+.epub-loading-box {
+  background: #ffffffee;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+.epub-loading-text {
+  font-weight: 600;
+  color: #222;
+}
+.epub-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 4px solid rgba(0, 0, 0, 0.08);
+  border-top-color: #0b63ff;
+  animation: epub-spin 1s linear infinite;
+}
+@keyframes epub-spin { to { transform: rotate(360deg); } }
+

@@ -182,6 +182,16 @@ export class EpubLoaderService {
   //Check if it should finish loading content
   checkIfFinishLoadingContent(): void {
     this.currentFiles++;
+    // emit progress after incrementing
+    try {
+      this.epubService.onLoadProgress.emit({
+        current: this.currentFiles,
+        total: this.currentMaxFiles,
+        done: this.currentFiles === this.currentMaxFiles,
+      });
+    } catch (e) {
+      console.error('Failed to emit load progress', e);
+    }
     if (this.currentFiles == this.currentMaxFiles) {
       this.book.Init();
       this.book.usePagesAsMenu = this.book.index == null;
