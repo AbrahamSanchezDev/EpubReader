@@ -1,33 +1,39 @@
 <div class="epub-options-parent">
   <div class="menu">
-    <button type="button" aria-label="Open options menu">
-      &#8942; </button>
+    <button type="button" aria-label="Open options menu" class="menu-trigger" (click)="toggleMenu()">
+      &#8942;
+    </button>
 
-    <div class="menu-list">
-      @if (hasBook()) {
-        <button type="button" (click)="toggleRead()">
-          {{ getReadText() }}
-        </button>
+    @if (showMenu()) {
+      <div class="menu-list">
+      <div class="menu-header">
+        @if (hasBook()) {
+          <div class="book-info">
+            <div class="book-name">{{ book()?.name }}</div>
+            <div class="book-controls">
+              <button type="button" class="btn small" (click)="readPreviews(); closeMenu()">Prev</button>
+              <button type="button" class="btn small" (click)="readNext(); closeMenu()">Next</button>
+            </div>
+          </div>
+        } @else {
+          <div class="book-name muted">No book loaded</div>
+        }
+      </div>
 
-        <button type="button" (click)="showChapters()">
-          {{ getIndexText() }}
-        </button>
-      }
+      <div class="menu-actions">
+          @if (hasBook()) {
+            <button type="button" class="btn" (click)="toggleRead(); closeMenu()">{{ getReadText() }}</button>
+            <button type="button" class="btn" (click)="showChapters(); closeMenu()">{{ getIndexText() }}</button>
+          }
 
-      <button type="button" (click)="fileInput.click()" class="file-selector">
-        Upload
-        <input
-          #fileInput
-          type="file"
-          (change)="onFileSelected($event)"
-          class="file-selector"
-          style="display: none;"
-        />
-      </button>
+          <label class="file-btn btn">
+            Upload
+            <input #fileInput type="file" (change)="onFileSelected($event); closeMenu()" style="display:none" />
+          </label>
 
-      <button type="button" (click)="showReadOptions()">
-        Read aloud Options
-      </button>
-    </div>
+          <button type="button" class="btn outline" (click)="showReadOptions(); closeMenu()">Read aloud Options</button>
+      </div>
+      </div>
+    }
   </div>
 </div>

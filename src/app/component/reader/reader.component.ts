@@ -71,9 +71,11 @@ export class ReaderComponent {
 
   loadEpub(file: File) {
     if (file == null) {
+      console.warn('No file selected for loading');
       return;
     }
     this.resetData();
+    console.log('Loading EPUB file:', file.name);
     this.loader.loadEpub(file);
   }
 
@@ -156,8 +158,10 @@ export class ReaderComponent {
   // Ajuste de firma: Agregamos '| null' para que coincida con el return null defensivo
   getContent(): PageModule[] | null {
     if (this.book == null) {
+      console.warn('getContent called but no book is loaded');
       return null;
     }
+    console.log('getContent called, returning pages:', this.book.pages);
     return this.book.pages;
   }
 
@@ -172,5 +176,13 @@ export class ReaderComponent {
   toggleIndex(): void {
     this.opened = !this.opened;
     this.epubService.OnShowChapters.emit(this.opened);
+    // If the index panel was opened, populate its HTML and wire the chapter buttons
+    if (this.opened) {
+      // Ensure the element exists in the DOM then set HTML and bind buttons
+      setTimeout(() => {
+        this.setElementToIndexSaveHtml();
+        this.getButtonsAndSetThem();
+      }, 30);
+    }
   }
 }

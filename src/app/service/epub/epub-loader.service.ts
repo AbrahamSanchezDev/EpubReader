@@ -194,7 +194,11 @@ export class EpubLoaderService {
     }
     if (this.currentFiles == this.currentMaxFiles) {
       this.book.Init();
-      this.book.usePagesAsMenu = this.book.index == null;
+
+      this.book.usePagesAsMenu = this.book.index == null || this.book.index === '';
+      console.log(this.book.index);
+      console.log('Finished loading content, emitting book:', this.book);
+
       this.epubService.callOnOpenEpub(this.book);
     }
   }

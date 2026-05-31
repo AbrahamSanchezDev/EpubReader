@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ChangeDetectorRef, inject, signal } from '@angular/core';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 
@@ -10,40 +10,48 @@ import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 })
 export class EpubReaderOptionsComponent {
   // 2. Give these fields clean default starting values to satisfy strict checks
-  readingAtm = false;
-  hasBook = false;
+  readingAtm = signal(false);
+  optionVisible = signal(false);
 
   // 3. Modern Angular best practice: Use `inject()` for cleaner architecture
   public epubService = inject(EpubService);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.epubService.OnRead.subscribe((read: boolean) => {
       this.onRead(read);
     });
     this.epubService.onOpenEpub.subscribe((book: BookObjModule) => {
-      this.hasBook = book != null;
+      this.optionVisible.set(book != null);
+      this.cdr.markForCheck();
+    });
+    this.epubService.onLoadProgress.subscribe((progress) => {
+      if (progress.done) {
+        this.optionVisible.set(true);
+        this.cdr.markForCheck();
+      }
     });
   }
 
   //Set reading atm
   onRead(read: boolean) {
-    this.readingAtm = read;
+    this.readingAtm.set(read);
   }
 
   //Check if its reading
   reading(): boolean {
-    return this.readingAtm;
+    return this.readingAtm();
   }
 
   //#region HTML Calls
   //Toggle the reading of the text
   toggleRead(): void {
-    this.readingAtm = !this.readingAtm;
-    this.epubService.OnRead.emit(this.readingAtm);
+    this.readingAtm.set(!this.readingAtm());
+    this.epubService.OnRead.emit(this.readingAtm());
   }
   //Returns true if the loaded book is not null
   showOptions(): boolean {
-    return this.hasBook;
+    return this.optionVisible();
   }
   //Read Next Paragraph
   readNext(): void {
@@ -59,7 +67,7 @@ export class EpubReaderOptionsComponent {
   }
   //Returns the correct text to be display int he read button
   getReadText(): string {
-    if (this.readingAtm) {
+    if (this.readingAtm()) {
       return 'Stop Read aloud';
     }
     return 'Read aloud';

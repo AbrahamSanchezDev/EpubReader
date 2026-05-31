@@ -3,24 +3,21 @@
     @if (opened) {
       <div #sidenav class="menu-content">
         <div>
-          <button (click)="toggleIndex()" class="file-selector">
-            Close
-          </button>
+          <button (click)="toggleIndex()" class="file-selector">Close</button>
 
           <div #indexMenu class="book-index"></div>
 
           @if (useContentAsMenu()) {
             <div class="book-index">
+              <h1 class="index-title">Chapters:</h1>
               @for (obj of getContent(); track obj.name || $index) {
-                <button
-                  type="button"
-                  (click)="skipTo(getContentName(obj))"
-                  class="index-obj"
-                >
+                <button type="button" (click)="skipTo(getContentName(obj))" class="index-obj">
                   {{ getContentName(obj) }}
                 </button>
               }
             </div>
+          } @else {
+            <h1 class="index-title">Welcome to the Book!</h1>
           }
         </div>
       </div>

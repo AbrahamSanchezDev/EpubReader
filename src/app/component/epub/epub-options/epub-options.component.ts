@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,9 +11,10 @@ import { TextToSpeechOptionsComponent } from '../text-to-speech/text-to-speech-o
   styleUrls: ['./epub-options.component.css'],
 })
 export class EpubOptionsComponent{
-  book: BookObjModule | null = null;
+  book = signal<BookObjModule | null>(null);
   selectedId = '';
-  readingAtm = false;
+  readingAtm = signal(false);
+  showMenu = signal(false);
 
   public epubService = inject(EpubService);
   public dialog = inject(MatDialog);
@@ -27,18 +28,29 @@ export class EpubOptionsComponent{
     });
   }
 
+  toggleMenu(): void {
+    this.showMenu.set(!this.showMenu());
+  }
+
+  closeMenu(): void {
+    this.showMenu.set(false);
+  }
+
   onOpenEpub(epub: BookObjModule) {
+    // set book signal so template updates reactively
     setTimeout(() => {
-      this.book = epub;
+      this.book.set(epub);
+      // open the menu once a book is loaded so controls are visible
+      this.showMenu.set(true);
     }, 5);
   }
 
   hasBook(): boolean {
-    return this.book != null;
+    return this.book() != null;
   }
 
   onRead(read: boolean): void {
-    this.readingAtm = read;
+    this.readingAtm.set(read);
   }
 
   readNext(): void {
@@ -59,11 +71,11 @@ export class EpubOptionsComponent{
   }
 
   toggleRead(): void {
-    if (this.book == null) {
+    if (this.book() == null) {
       return;
     }
-    this.readingAtm = !this.readingAtm;
-    this.epubService.OnRead.emit(this.readingAtm);
+    this.readingAtm.set(!this.readingAtm());
+    this.epubService.OnRead.emit(this.readingAtm());
   }
 
   showChapters(): void {
@@ -79,17 +91,17 @@ export class EpubOptionsComponent{
   //#endregion
 
   getIndexText(): string {
-    if (this.book == null) {
+    if (this.book() == null) {
       return '';
     }
     return 'Chapters';
   }
 
   getReadText(): string {
-    if (this.book == null) {
+    if (this.book() == null) {
       return '';
     }
-    if (this.readingAtm) {
+    if (this.readingAtm()) {
       return 'Stop Read aloud';
     }
     return 'Read aloud';
