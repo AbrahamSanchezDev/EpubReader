@@ -42,6 +42,7 @@ export class EpubOptionsComponent{
       this.book.set(epub);
       // open the menu once a book is loaded so controls are visible
       this.showMenu.set(true);
+
     }, 5);
   }
 

@@ -12,7 +12,11 @@ export class TextToSpeechService {
   selectedValue = '';
 
   constructor() {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined') {
+    if (
+      typeof window !== 'undefined' &&
+      'speechSynthesis' in window &&
+      typeof SpeechSynthesisUtterance !== 'undefined'
+    ) {
       this.getAllVoices();
       this.registerToOnUnload();
     }
@@ -56,7 +60,23 @@ export class TextToSpeechService {
     }
     this.allVoices = this.speech.getVoices();
     this.voices = this.allVoices.map((voice) => voice.name.toString());
-    this.selectedValue = this.voices[2] ?? '';
+    this.selectedValue = this.voices[3] ?? '';
+  }
+
+  setEnglishVoice(): void {
+    if (!this.speechOptions || !this.allVoices) {
+      return;
+    }
+    for (const voice of this.allVoices) {
+      // console.log('Voice:', voice.name, 'Lang:', voice.lang);
+      if (voice.lang.startsWith('en')) {
+        console.log('Setting English voice:', voice.name);
+        this.speechOptions.voice = voice;
+        this.selectedValue = voice.name.toString();
+        this.setVoice(this.selectedValue);
+        break;
+      }
+    }
   }
 
   // Cancel speech

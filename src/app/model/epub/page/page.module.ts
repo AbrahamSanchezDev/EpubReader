@@ -59,8 +59,9 @@ export class PageModule {
     this.fullName = fullName;
     this.content = content;
   }
+
   getContentData(): void {
-    if (this.formateadParagraphs) {
+    if (this.formateadParagraphs && this.formateadParagraphs.length > 0) {
       return;
     }
     this.formateadParagraphs = [];
@@ -155,9 +156,9 @@ export class PageModule {
     }
     return this.isInFullView(this.formateadParagraphs[index].element);
   }
-  getParagraphElement(index: number): HTMLElement | null {
+  getParagraphElement(index: number): HTMLElement {
     if (index >= this.formateadParagraphs.length) {
-      return null;
+      throw new Error('Index out of bounds');
     }
     return this.formateadParagraphs[index].element;
   }

@@ -59,7 +59,6 @@ export class EpubDisplayComponent {
     setTimeout(() => {
       this.addEvents();
     }, 5);
-    console.log(epub);
   }
   //Should add images
   addEvents(): void {

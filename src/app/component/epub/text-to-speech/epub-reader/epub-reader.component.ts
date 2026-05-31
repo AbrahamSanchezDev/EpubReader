@@ -37,6 +37,7 @@ export class EpubReaderComponent implements OnDestroy {
 
   constructor() {
     this.registerToEvents();
+    this.setReadingSettings();
   }
 
   @HostListener('window:beforeunload', ['$event'])
@@ -86,6 +87,14 @@ export class EpubReaderComponent implements OnDestroy {
     this.epubService.OnReadNext.subscribe((next) => {
       this.readNextParagraph(next);
     });
+  }
+
+  setReadingSettings(){
+    this.textToSpeech.getVoices();
+    this.textToSpeech.setPitch(1);
+    this.textToSpeech.setRate(1.2);
+    this.textToSpeech.setVolume(1);
+    this.textToSpeech.setEnglishVoice();
   }
 
   cancelRead(): void {
@@ -203,7 +212,8 @@ export class EpubReaderComponent implements OnDestroy {
       this.textToRead.resetValues();
     }
     if (this.curContent) {
-      this.setElementToSelected(this.curContent.getParagraphElement(this.curParagraph)!, focus);
+      const theElement = this.curContent.getParagraphElement(this.curParagraph);
+      this.setElementToSelected(theElement, focus);
     }
   }
 
@@ -211,7 +221,7 @@ export class EpubReaderComponent implements OnDestroy {
     const index = this.curParagraph;
     const content = this.curContent;
     if (!content.isValidIndex(index)) {
-      console.log('no content');
+      console.log('no content on setFocusOnCurrentParagraph');
       return;
     }
     if (!content.isParagraphInFullView(index)) {
@@ -228,8 +238,9 @@ export class EpubReaderComponent implements OnDestroy {
     return content.isParagraphInFullView(index);
   }
 
-  setElementToSelected(element: HTMLElement | null, selected: boolean): void {
+  setElementToSelected(element: HTMLElement, selected: boolean): void {
     if (element == null) {
+      console.log('No element to set as selected');
       return;
     }
     this.render.setAttribute(element, 'class', selected ? 'selected' : 'text-obj');

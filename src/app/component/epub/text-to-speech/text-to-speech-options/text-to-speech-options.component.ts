@@ -16,6 +16,11 @@ export class TextToSpeechOptionsComponent implements OnInit {
 
   ngOnInit(): void {
     console.log(this.textToSpeech);
+    this.textToSpeech.getAllVoices();
+    this.onPitch(1);
+    this.onRate(1);
+    this.onVolume(1);
+    console.log('Voices available:', this.textToSpeech.voices);
   }
 
   getVoices(): string[] {

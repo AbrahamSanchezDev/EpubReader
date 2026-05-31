@@ -53,4 +53,3 @@
   animation: epub-spin 1s linear infinite;
 }
 @keyframes epub-spin { to { transform: rotate(360deg); } }
-
