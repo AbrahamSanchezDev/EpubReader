@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TextToSpeechOptionsComponent } from './text-to-speech-options.component';
 
@@ -12,7 +12,7 @@ describe('TextToSpeechOptionsComponent', () => {
     close: jasmine.createSpy('close'),
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [TextToSpeechOptionsComponent],
       providers: [

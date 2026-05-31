@@ -1,40 +1,43 @@
-import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, ElementRef, ViewChild, inject } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule } from 'src/app/model/epub/page/page.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
 
 @Component({
   selector: 'app-epub-display',
+  standalone: true,
+  imports: [],
   templateUrl: './epub-display.component.html',
   styleUrls: ['./epub-display.component.css'],
 })
-export class EpubDisplayComponent implements OnInit {
-  @Input() book: BookObjModule;
-  @ViewChild('content') content: ElementRef;
+export class EpubDisplayComponent {
+  @Input() book: BookObjModule | null = null;
+  @ViewChild('content') content: ElementRef = new ElementRef(null);
 
-  addedImages: boolean = false;
-  notFoundImg: string =
+  addedImages = false;
+  notFoundImg =
     'https://c.wallhere.com/photos/b0/78/nozomu_itoshiki_Sayonara_Zetsubou_Sensei_Kafuka_Fuura_anime-231302.jpg!d';
 
-  constructor(public epubService: EpubService) {
-    epubService.onOpenEpub.subscribe((epub: BookObjModule) => {
+  public epubService = inject(EpubService);
+  constructor() {
+    this.epubService.onOpenEpub.subscribe((epub: BookObjModule) => {
       this.onOpenEpub(epub);
     });
   }
 
-  ngOnInit(): void {}
   //Call the add events on book loaded after delay
   onOpenEpub(epub: BookObjModule) {
     setTimeout(() => {
       this.addEvents();
     }, 5);
+    console.log(epub);
   }
   //Should add images
   addEvents(): void {
     if (this.addedImages == false) {
-      let images = this.content.nativeElement.querySelectorAll('img');
+      const images = this.content.nativeElement.querySelectorAll('img');
 
-      images.forEach((img) => {
+      images.forEach((img: HTMLImageElement) => {
         img.src = this.getImg(img.id);
         this.addedImages = true;
       });
@@ -46,9 +49,9 @@ export class EpubDisplayComponent implements OnInit {
       return id;
     }
     if (this.book) {
-      for (let i = 0; i < this.book.images.length; i++) {
-        if (this.book.images[i].name.includes(id)) {
-          return this.book.images[i].url;
+      for (const images of this.book.images) {
+        if (images.name.includes(id)) {
+          return images.url;
         }
       }
     }
@@ -61,7 +64,7 @@ export class EpubDisplayComponent implements OnInit {
   //Get content from the book
   getContent(): PageModule[] {
     if (this.book == null) {
-      return null;
+      return [];
     }
     return this.book.pages;
   }

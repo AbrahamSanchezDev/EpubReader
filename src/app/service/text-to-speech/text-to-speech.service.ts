@@ -6,25 +6,39 @@ import { Injectable } from '@angular/core';
 export class TextToSpeechService {
   voices: string[] = [];
   allVoices: SpeechSynthesisVoice[] = [];
-  speechOptions: SpeechSynthesisUtterance;
-  speech: SpeechSynthesis;
-  reading: boolean;
-  selectedValue: string;
+  speechOptions: SpeechSynthesisUtterance | null = null;
+  speech: SpeechSynthesis | null = null;
+  reading = false;
+  selectedValue = '';
 
   constructor() {
-    this.getAllVoices();
-    this.registerToOnUnload();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined') {
+      this.getAllVoices();
+      this.registerToOnUnload();
+    }
   }
-  //Register to the  on unload
+
+  private isBrowser(): boolean {
+    return typeof window !== 'undefined';
+  }
+
+  // Register to the on unload
   registerToOnUnload(): void {
+    if (!this.isBrowser() || !this.speech) {
+      return;
+    }
     window.onbeforeunload = () => {
       if (this.reading) {
-        this.speech.cancel();
+        this.speech?.cancel();
       }
     };
   }
-  //Get the voices from the speechSynthesis
+
+  // Get the voices from the speechSynthesis
   getAllVoices(): void {
+    if (!this.isBrowser() || typeof SpeechSynthesisUtterance === 'undefined') {
+      return;
+    }
     this.speech = window.speechSynthesis;
     this.speech.addEventListener('voiceschanged', () => {
       this.getVoices();
@@ -34,44 +48,64 @@ export class TextToSpeechService {
     this.speechOptions.rate = 1.5;
     this.speechOptions.volume = 1;
   }
-  //Get the voices now that they are available
+
+  // Get the voices now that they are available
   getVoices(): void {
-    this.allVoices = this.speech.getVoices();
-    for (let i = 0; i < this.allVoices.length; i++) {
-      this.voices.push(this.allVoices[i].name.toString());
+    if (!this.speech) {
+      return;
     }
-    this.selectedValue = this.voices[2];
+    this.allVoices = this.speech.getVoices();
+    this.voices = this.allVoices.map((voice) => voice.name.toString());
+    this.selectedValue = this.voices[2] ?? '';
   }
-  //Cancel speech
-  cancelSpeech() {
+
+  // Cancel speech
+  cancelSpeech(): void {
     this.reading = false;
-    this.speech.cancel();
+    this.speech?.cancel();
   }
-  //Read the text
-  read(text: string) {
+
+  // Read the text
+  read(text: string): void {
+    if (!this.speech || !this.speechOptions) {
+      return;
+    }
     this.speechOptions.text = text;
-    for (let i = 0; i < this.allVoices.length; i++) {
-      if (this.allVoices[i].name.toString() == this.selectedValue) {
-        this.speechOptions.voice = this.allVoices[i];
+    for (const voice of this.allVoices) {
+      if (voice.name.toString() === this.selectedValue) {
+        this.speechOptions.voice = voice;
         break;
       }
     }
     this.speech.speak(this.speechOptions);
   }
-  //Set the voice to read with
-  setVoice(voice: string) {
+
+  // Set the voice to read with
+  setVoice(voice: string): void {
     this.selectedValue = voice;
   }
-  //Set voice pitch
-  setPitch(value: number) {
+
+  // Set voice pitch
+  setPitch(value: number): void {
+    if (!this.speechOptions) {
+      return;
+    }
     this.speechOptions.pitch = value;
   }
-  //Set voice rate
-  setRate(value: number) {
+
+  // Set voice rate
+  setRate(value: number): void {
+    if (!this.speechOptions) {
+      return;
+    }
     this.speechOptions.rate = value;
   }
-  //Set voice volume
-  setVolume(value: number) {
+
+  // Set voice volume
+  setVolume(value: number): void {
+    if (!this.speechOptions) {
+      return;
+    }
     this.speechOptions.volume = value;
   }
 }

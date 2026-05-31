@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EpubDisplayComponent } from './epub-display.component';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
@@ -9,7 +9,7 @@ describe('EpubDisplayComponent', () => {
   let fixture: ComponentFixture<EpubDisplayComponent>;
   let book: BookObjModule;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [EpubDisplayComponent],
     }).compileComponents();
@@ -30,7 +30,7 @@ describe('EpubDisplayComponent', () => {
     component.epubService.onOpenEpub.emit(book);
     expect(component.onOpenEpub).toHaveBeenCalled();
   });
-  it('should on open epub call on delay', async(() => {
+  it('should on open epub call on delay', waitForAsync(() => {
     spyOn(component, 'addEvents');
     component.onOpenEpub(book);
     setTimeout(() => {
@@ -39,7 +39,7 @@ describe('EpubDisplayComponent', () => {
   }));
 
   it('should add images src', () => {
-    var imgObj = document.createElement('img');
+    const imgObj = document.createElement('img');
     imgObj.id = 'https://www.google.com';
     component.content.nativeElement.appendChild(imgObj);
     component.addedImages = false;
@@ -62,7 +62,7 @@ describe('EpubDisplayComponent', () => {
     expect(imageId).not.toContain('www.google.com');
   });
   it('should get Image src and return default image', () => {
-    let imageId = component.getImg('youtube');
+    const imageId = component.getImg('youtube');
     expect(imageId).toContain('anime');
   });
   it('should get the book name', () => {
@@ -70,7 +70,7 @@ describe('EpubDisplayComponent', () => {
     let theName = component.getBookName();
     expect(theName).toBe('');
 
-    book.name = null;
+    book.name = '';
     component.book = book;
     theName = component.getBookName();
     expect(theName).toBe('');
@@ -82,7 +82,7 @@ describe('EpubDisplayComponent', () => {
   it('should return the content', () => {
     component.book = null;
     let content = component.getContent();
-    expect(content).toBe(null);
+    expect(content).toBeNull();
     book.pages = [new PageModule('model Name', 'file name', 'some save html')];
     component.book = book;
     content = component.getContent();

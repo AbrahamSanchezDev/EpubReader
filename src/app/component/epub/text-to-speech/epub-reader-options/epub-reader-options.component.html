@@ -1,10 +1,19 @@
-<div class="reader-options" *ngIf="showOptions()">
-  <div class="lowerMenu">
-    <button (click)="readPreviews()" *ngIf="reading()"><</button>
-    <button (click)="toggleRead()">{{ getReadText() }}</button>
-    <button (click)="readNext()" *ngIf="reading()">></button>
+@if (showOptions()) {
+  <div class="reader-options">
+    <div class="lowerMenu">
+      @if (reading()) {
+        <button (click)="readPreviews()">&lt;</button>
+      }
+
+      <button (click)="toggleRead()">{{ getReadText() }}</button>
+
+      @if (reading()) {
+        <button (click)="readNext()">&gt;</button>
+      }
+    </div>
+
+    <div class="chapters">
+      <button (click)="showChapters()">Chapters</button>
+    </div>
   </div>
-  <div class="chapters">
-    <button (click)="showChapters()">Chapters</button>
-  </div>
-</div>
+}

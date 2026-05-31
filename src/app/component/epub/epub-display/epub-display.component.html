@@ -1,12 +1,14 @@
 <div class="book">
   <h1 class="book-title">{{ getBookName() }}</h1>
 
-  <!-- Main content -->
   <div #content class="pages-parent">
-    <div
-      *ngFor="let obj of getContent()"
-      [innerHTML]="obj.content"
-      class="book-content"
-    ></div>
+    @for (obj of getContent(); track obj.name || $index) {
+      <div
+        [innerHTML]="obj.content"
+        class="book-content"
+      ></div>
+    } @empty {
+      <p class="loading-text">Loading book content...</p>
+    }
   </div>
 </div>

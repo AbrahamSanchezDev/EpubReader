@@ -1,24 +1,24 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ReaderComponent } from './reader.component';
 
 import { HttpClientModule } from '@angular/common/http';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
-import { DomSanitizer, By } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { PageModule } from 'src/app/model/epub/page/page.module';
 
 describe('ReaderComponent', () => {
   let component: ReaderComponent;
   let fixture: ComponentFixture<ReaderComponent>;
   const mockFile = new File([''], 'filename', { type: 'text/html' });
-  const mockEvt = { target: { files: [mockFile] } };
+  const mockEvt = { target: { files: [mockFile] } } as unknown as Event;
   let sanitized: DomSanitizer;
 
   const setBook = () => {
     component.book = new BookObjModule();
   };
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ReaderComponent],
       imports: [HttpClientModule],
@@ -27,7 +27,7 @@ describe('ReaderComponent', () => {
         {
           provide: DomSanitizer,
           useValue: {
-            sanitize: (ctx: any, val: string) => val,
+            sanitize: (_ctx: unknown, val: string) => val,
             bypassSecurityTrustResourceUrl: (val: string) => val,
             bypassSecurityTrustHtml: (val: string) => val,
           },
@@ -43,7 +43,7 @@ describe('ReaderComponent', () => {
     component.loadTesting = false;
     fixture.detectChanges();
     component.loadTesting = false;
-    spyOn(component.loader, 'loadEpub').and.callFake((file) => {
+    spyOn(component.loader, 'loadEpub').and.callFake(() => {
       console.log('On loadEpub');
     });
   });
@@ -60,9 +60,9 @@ describe('ReaderComponent', () => {
     spyOn(component, 'toggleIndex');
     spyOn(component, 'onBookLoaded');
 
-    component.epubService.OnFileSelected.emit(null);
-    component.epubService.OnToggleChapters.emit(null);
-    component.epubService.onOpenEpub.emit(null);
+    component.epubService.OnFileSelected.emit(mockFile);
+    component.epubService.OnToggleChapters.emit();
+    component.epubService.onOpenEpub.emit(new BookObjModule());
 
     expect(component.loadEpub).toHaveBeenCalled();
     expect(component.toggleIndex).toHaveBeenCalled();
@@ -72,7 +72,7 @@ describe('ReaderComponent', () => {
   it('should setup the book to load', () => {
     spyOn(component, 'resetData');
     spyOn(component, 'setupButtonsIds');
-    component.onBookLoaded(null);
+    component.onBookLoaded(new BookObjModule());
     expect(component.resetData).toHaveBeenCalled();
     expect(component.setupButtonsIds).toHaveBeenCalled();
   });
@@ -83,7 +83,7 @@ describe('ReaderComponent', () => {
   });
   it('should load epub', () => {
     spyOn(component, 'resetData');
-    component.loadEpub(null);
+    component.loadEpub(null as unknown as File);
     expect(component.resetData).not.toHaveBeenCalled();
     component.loadEpub(mockFile);
     expect(component.resetData).toHaveBeenCalled();
@@ -99,25 +99,25 @@ describe('ReaderComponent', () => {
 
     component.elementRef = null;
     setBook();
-    component.book.index = sanitized.bypassSecurityTrustHtml(
+    component.book!.index = sanitized.bypassSecurityTrustHtml(
       'some text <div> more </div>'
     );
     component.setupButtonsIds();
     expect(component.setElementToIndexSaveHtml).not.toHaveBeenCalled();
   });
 
-  it('should setup buttons from the index', async(() => {
+  it('should setup buttons from the index', waitForAsync(() => {
     spyOn(component, 'addContentId');
     setBook();
-    component.book.index = sanitized.bypassSecurityTrustHtml(
+    component.book!.index = sanitized.bypassSecurityTrustHtml(
       'some text <button> more </button>'
     );
     component.setupButtonsIds();
-    expect(component.elementRef.nativeElement.innerHTML).not.toBe('');
-    console.log(component.elementRef.nativeElement.innerHTML);
+    expect(component.elementRef!.nativeElement.innerHTML).not.toBe('');
+    console.log(component.elementRef!.nativeElement.innerHTML);
 
-    var but = document.createElement('button');
-    component.elementRef.nativeElement.appendChild(but);
+    const but = document.createElement('button');
+    component.elementRef!.nativeElement.appendChild(but);
 
     setTimeout(() => {
       component.getButtonsAndSetThem();
@@ -133,17 +133,17 @@ describe('ReaderComponent', () => {
   it('should setup buttons ids', () => {
     spyOn(component, 'addContentId');
     setBook();
-    component.book.usePagesAsMenu = true;
-    component.elementRef.nativeElement.innerHTML = sanitized.bypassSecurityTrustHtml(
+    component.book!.usePagesAsMenu = true;
+    component.elementRef!.nativeElement.innerHTML = sanitized.bypassSecurityTrustHtml(
       'some text <button> more </button>'
     );
-    var but = document.createElement('button');
-    component.elementRef.nativeElement.appendChild(but);
+    const but = document.createElement('button');
+    component.elementRef!.nativeElement.appendChild(but);
     component.getButtonsAndSetThem();
 
     expect(component.addContentId).toHaveBeenCalled();
 
-    component.book.usePagesAsMenu = false;
+    component.book!.usePagesAsMenu = false;
     component.getButtonsAndSetThem();
     expect(component.addContentId).toHaveBeenCalled();
     spyOn(component, 'skipTo');
@@ -157,7 +157,7 @@ describe('ReaderComponent', () => {
   });
   it('should not skip to the element', () => {
     const testId = 'someID';
-    var div = document.createElement('div');
+    const div = document.createElement('div');
     div.id = 'some other';
     spyOn(div, 'scrollIntoView');
     component.skipTo(testId);
@@ -165,7 +165,7 @@ describe('ReaderComponent', () => {
   });
   it('should skip to the element', () => {
     const testId = 'someID123';
-    var div = document.createElement('div');
+    const div = document.createElement('div');
     div.id = testId;
     fixture.debugElement.nativeElement.appendChild(div);
     spyOn(div, 'scrollIntoView');
@@ -178,7 +178,7 @@ describe('ReaderComponent', () => {
     setBook();
     cur = component.useContentAsMenu();
     expect(cur).toBeFalse();
-    component.book.usePagesAsMenu = true;
+    component.book!.usePagesAsMenu = true;
     cur = component.useContentAsMenu();
     expect(cur).toBeTrue();
   });
@@ -191,7 +191,11 @@ describe('ReaderComponent', () => {
     expect(curValue).not.toBeNull();
   });
   it('should return the name of the page', () => {
-    const testingPage = new PageModule('someName', 'fullName', null);
+    const testingPage = new PageModule(
+      'someName',
+      'fullName',
+      sanitized.bypassSecurityTrustHtml('') as unknown as SafeHtml,
+    );
     let curValue = component.getContentName(null);
     expect(curValue).toBe('');
     //With valid values

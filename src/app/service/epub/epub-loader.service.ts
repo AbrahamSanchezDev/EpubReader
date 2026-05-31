@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ZipService } from '../zip/zip.service';
 import { EpubTextFormatService } from './epub-text-format.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { EpubService } from './epub.service';
 import { ZipEntry } from '../zip/ZipEntry';
-import { PageModule } from 'src/app/model/epub/page/page.module';
-import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
-import { TextReplaceData } from 'src/app/interface/text-replace-data';
+import { PageModule } from '@models/epub/page/page.module';
+import { BookObjModule } from '@models/epub/page/book-obj.module';
+import { TextReplaceData } from '@interfaces/text-replace-data';
 
 const navOptions: TextReplaceData = {
   beginString: 'href="',
@@ -38,16 +38,14 @@ const navOptions: TextReplaceData = {
   providedIn: 'root',
 })
 export class EpubLoaderService {
-  book: BookObjModule;
-  currentFiles: number;
-  currentMaxFiles: number;
+  book: BookObjModule = new BookObjModule();
+  currentFiles = 0;
+  currentMaxFiles = 0;
 
-  constructor(
-    public zipService: ZipService,
-    private textControl: EpubTextFormatService,
-    private sanitizer: DomSanitizer,
-    public epubService: EpubService
-  ) {}
+  public zipService = inject(ZipService);
+  private textControl = inject(EpubTextFormatService);
+  private sanitizer = inject(DomSanitizer);
+  public epubService = inject(EpubService);
 
   //Called when adding a new file from selector
   loadEpub(file: File) {
@@ -55,7 +53,7 @@ export class EpubLoaderService {
     this.currentFiles = 0;
     this.currentMaxFiles = 0;
     this.book = new BookObjModule();
-    var observable = this.zipService.getEntries(file);
+    const observable = this.zipService.getEntries(file);
     observable.subscribe((data: ZipEntry[]) => {
       //Load File Name
       this.lookForFileName(data);
@@ -65,22 +63,23 @@ export class EpubLoaderService {
       this.getContentFromData(data);
     });
   }
-  readZipEntryAsText(obj: ZipEntry, onLoad: Function) {
+  readZipEntryAsText(obj: ZipEntry, onLoad: (content: string) => void) {
     const data = this.zipService.getData(obj);
     data.data.subscribe((o) => {
       const reader = new FileReader();
       reader.onload = () => {
-        onLoad(reader.result.toString());
+        const result = reader.result;
+        onLoad(result != null ? result.toString() : '');
       };
       reader.readAsText(o);
     });
   }
   //#region File name
   lookForFileName(data: ZipEntry[]): void {
-    for (let i = 0; i < data.length; i++) {
-      const name = data[i].filename;
+    for (const entry of data) {
+      const name = entry.filename;
       if (name.includes('book.opf')) {
-        this.loadFileName(data[i]);
+        this.loadFileName(entry);
         break;
       }
     }
@@ -107,8 +106,8 @@ export class EpubLoaderService {
   //#region  Images
   //Load the images using the datas
   loadImages(datas: ZipEntry[]) {
-    for (let i = 0; i < datas.length; i++) {
-      this.loadImage(datas[i]);
+    for (const data of datas) {
+      this.loadImage(data);
     }
   }
   //Load the given file
@@ -139,13 +138,13 @@ export class EpubLoaderService {
   //#region Content
   //Load files with .xhtml in there full name
   getContentFromData(data: ZipEntry[]): void {
-    for (let i = 0; i < data.length; i++) {
-      const name = data[i].filename;
+    for (const entry of data) {
+      const name = entry.filename;
       if (!name.includes('.xhtml')) continue;
       //If is not an indexer then is Content
       if (this.isAnIndexer(name) == false) {
         this.currentMaxFiles++;
-        this.loadContent(data[i]);
+        this.loadContent(entry);
       }
     }
   }
@@ -165,16 +164,16 @@ export class EpubLoaderService {
       if (theName == null || theName == '') {
         theName = this.textControl.getTextBetween(obj.filename, '/', '.');
       }
-      let formattedText: string = this.textControl.cleanUpContent(
+      const formattedText: string = this.textControl.cleanUpContent(
         content,
         theName
       );
-      let contentToAdd = new PageModule(
+      const contentToAdd = new PageModule(
         theName,
         obj.filename,
         this.sanitizer.bypassSecurityTrustHtml(formattedText)
       );
-      let curAmount = this.book.pages.length;
+      const curAmount = this.book.pages.length;
       contentToAdd.index = curAmount;
       this.book.pages.push(contentToAdd);
       this.checkIfFinishLoadingContent();

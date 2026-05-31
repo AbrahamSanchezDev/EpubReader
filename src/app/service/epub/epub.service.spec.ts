@@ -14,7 +14,7 @@ describe('EpubService', () => {
   });
   it('should call on Open', () => {
     spyOn(service.onOpenEpub, 'emit');
-    service.callOnOpenEpub(null);
+    service.callOnOpenEpub({} as Parameters<EpubService['callOnOpenEpub']>[0]);
     expect(service.onOpenEpub.emit).toHaveBeenCalled();
   });
 

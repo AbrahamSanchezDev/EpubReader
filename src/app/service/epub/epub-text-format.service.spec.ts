@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { EpubTextFormatService } from './epub-text-format.service';
-import { TextReplaceData } from 'src/app/interface/text-replace-data';
+import { TextReplaceData } from '../../../app/interface/text-replace-data';
 
 describe('EpubTextFormatService', () => {
   let service: EpubTextFormatService;
@@ -17,7 +17,7 @@ describe('EpubTextFormatService', () => {
   </body>
   `;
 
-  let textName: string = 'Book';
+  const textName = 'Book';
   let titleText: string;
 
   beforeEach(() => {
@@ -154,12 +154,12 @@ end text
     expect(text).toContain('<body>');
   });
   it('should get the title from the text', () => {
-    let title = service.getTitleName(titleText);
+    const title = service.getTitleName(titleText);
     expect(title).toBe('Title Name');
   });
 
   it('should format the text to be content text', () => {
-    let text = service.replaceAllTextBetween(testingText, options);
+    const text = service.replaceAllTextBetween(testingText, options);
     expect(text).not.toContain('some text');
     expect(text).not.toContain('end text');
     expect(text).not.toContain('SomeTitle');

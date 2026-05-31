@@ -1,27 +1,21 @@
 <div class="epub-options-parent">
   <div class="menu">
-    <button
-      mat-icon-button
-      [matMenuTriggerFor]="menu"
-      aria-label="Example icon-button with a menu"
-    >
-      <mat-icon>more_vert</mat-icon>
-    </button>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="toggleRead()">
-        <span>{{ getReadText() }}</span>
-      </button>
+    <button type="button" aria-label="Open options menu">
+      &#8942; </button>
 
-      <button mat-menu-item (click)="showChapters()">
-        <span>{{ getIndexText() }}</span>
-      </button>
-      <button
-        mat-menu-item
-        type="button"
-        (click)="fileInput.click()"
-        class="file-selector"
-      >
-        <span>Upload</span>
+    <div class="menu-list">
+      @if (hasBook()) {
+        <button type="button" (click)="toggleRead()">
+          {{ getReadText() }}
+        </button>
+
+        <button type="button" (click)="showChapters()">
+          {{ getIndexText() }}
+        </button>
+      }
+
+      <button type="button" (click)="fileInput.click()" class="file-selector">
+        Upload
         <input
           #fileInput
           type="file"
@@ -31,9 +25,9 @@
         />
       </button>
 
-      <button mat-menu-item (click)="showReadOptions()">
-        <span>Read aloud Options</span>
+      <button type="button" (click)="showReadOptions()">
+        Read aloud Options
       </button>
-    </mat-menu>
+    </div>
   </div>
 </div>

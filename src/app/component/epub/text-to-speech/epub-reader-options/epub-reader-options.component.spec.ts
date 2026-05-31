@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EpubReaderOptionsComponent } from './epub-reader-options.component';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
@@ -8,7 +8,7 @@ describe('EpubReaderOptionsComponent', () => {
   let fixture: ComponentFixture<EpubReaderOptionsComponent>;
 
   let book: BookObjModule;
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [EpubReaderOptionsComponent],
     }).compileComponents();
@@ -35,7 +35,7 @@ describe('EpubReaderOptionsComponent', () => {
   it('should set reading atm', () => {
     component.onRead(true);
     expect(component.readingAtm).toBeTrue();
-    let reading = component.reading();
+    const reading = component.reading();
     expect(reading).toBeTrue();
   });
   it('should Toggle Read', () => {

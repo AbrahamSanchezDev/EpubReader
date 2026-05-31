@@ -1,36 +1,48 @@
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, inject } from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule } from 'src/app/model/epub/page/page.module';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { EpubLoaderService } from 'src/app/service/epub/epub-loader.service';
 
+// 2. Importa tus componentes locales que se ven en el HTML
+import { EpubOptionsComponent } from '../epub/epub-options/epub-options.component';
+import { EpubReaderComponent } from '../epub/text-to-speech/epub-reader/epub-reader.component';
+import { EpubDisplayComponent } from '../epub/epub-display/epub-display.component';
+import { EpubReaderOptionsComponent } from '../epub/text-to-speech/epub-reader-options/epub-reader-options.component';
+
 @Component({
   selector: 'app-reader',
+  standalone: true, // <-- 1. Componente Moderno Standalone
   templateUrl: './reader.component.html',
   styleUrls: ['./reader.component.css'],
+  imports: [
+    HttpClientModule,
+    EpubOptionsComponent,
+    EpubReaderComponent,
+    EpubDisplayComponent,
+    EpubReaderOptionsComponent,
+  ], // <-- Necesario si usas HttpClient localmente
 })
-export class ReaderComponent implements OnInit {
-  @ViewChild('indexMenu') elementRef: ElementRef;
+export class ReaderComponent {
+  @ViewChild('indexMenu') elementRef: ElementRef | null = null;
 
   filePath = 'assets/TheDefeatedDragon.epub';
+  book: BookObjModule | null = null;
 
-  book: BookObjModule;
+  opened = false;
+  addedImages = false;
+  loadTesting = true;
 
-  opened: boolean = false;
+  // 2. Modern Dependency Injection usando inject()
+  private http = inject(HttpClient);
+  public epubService = inject(EpubService);
+  public loader = inject(EpubLoaderService);
 
-  addedImages: boolean = false;
-
-  loadTesting: boolean = true;
-  constructor(
-    private http: HttpClient,
-    public epubService: EpubService,
-    public loader: EpubLoaderService
-  ) {
+  constructor() {
     this.registerEvents();
-    // this.loadTestingFile();
   }
-  //Register for the events
+
   registerEvents(): void {
     this.epubService.OnFileSelected.subscribe((file) => {
       this.loadEpub(file);
@@ -42,37 +54,21 @@ export class ReaderComponent implements OnInit {
       this.onBookLoaded(book);
     });
   }
-  ngOnInit(): void {}
-  //For Testing purposes
-  loadTestingFile() {
-    // setTimeout(() => {
-    //   if (this.loadTesting == false) return;
-    //   let filePath = 'assets/epub/';
-    //   let dragons = 'The Defeated Dragon 1 - 100.epub';
-    //   let alchemist = 'The Alchemist God.epub';
-    //   let devils = 'Devils Son in Law.epub';
-    //   let fileName = alchemist;
-    //   this.http
-    //     .get(filePath + fileName, { responseType: 'blob' })
-    //     .subscribe((data) => {
-    //       if (data != null) {
-    //         this.loadEpub(<File>data);
-    //       }
-    //     });
-    // }, 100);
-  }
 
-  //Called when a book is loaded
   onBookLoaded(book: BookObjModule): void {
     this.resetData();
     this.book = book;
     this.setupButtonsIds();
   }
-  //Called from the html input element
-  onFileSelected(event) {
-    this.loadEpub(event.target.files[0]);
+
+  // 3. Tipado estricto para eventos nativos del DOM
+  onFileSelected(event: Event) {
+    const element = event.target as HTMLInputElement;
+    if (element.files && element.files.length > 0) {
+      this.loadEpub(element.files[0]);
+    }
   }
-  //Called when adding a new file from selector
+
   loadEpub(file: File) {
     if (file == null) {
       return;
@@ -80,59 +76,63 @@ export class ReaderComponent implements OnInit {
     this.resetData();
     this.loader.loadEpub(file);
   }
-  //Reset the values to default
+
   resetData(): void {
     this.book = null;
     this.addedImages = false;
     this.epubService.clearIds();
   }
+
   //#region Index Formatting
-  //Chapters index is decided by the book data
   setupButtonsIds(): void {
-    if (this.book.index == null) {
+    // Protección estricta: Validamos que el libro y la referencia existan
+    if (this.book == null || this.book.index == null) {
       return;
     }
     if (!this.elementRef) return;
+
     this.setElementToIndexSaveHtml();
-    // //Remove old content
+
     setTimeout(() => {
       this.getButtonsAndSetThem();
     }, 20);
   }
+
   getButtonsAndSetThem(): void {
-    let buttons = this.elementRef.nativeElement.querySelectorAll(
-      'button'
-    ) as HTMLButtonElement[];
+    if (!this.elementRef || !this.book) return;
+
+    const buttons = this.elementRef.nativeElement.querySelectorAll('button') as HTMLButtonElement[];
     buttons.forEach((button: HTMLButtonElement) => {
       let id = '';
-      if (this.book.usePagesAsMenu) {
+      if (this.book!.usePagesAsMenu) {
         id = button.innerText;
       } else {
         id = button.id;
         button.addEventListener(
           'click',
           () => {
-            //call to skip to the same id as the element
             this.skipTo(id);
           },
-          false
+          false,
         );
         button.id = '';
       }
       this.addContentId(id);
     });
   }
-  //Add id to the list in epub service
+
   addContentId(id: string) {
     this.epubService.addContentId(id);
   }
-  //Set the book index as content
+
   setElementToIndexSaveHtml() {
-    this.elementRef.nativeElement.innerHTML = this.book.index;
+    if (this.elementRef && this.book) {
+      this.elementRef.nativeElement.innerHTML = this.book.index;
+    }
   }
-  //Skip to the given id
+
   skipTo(id: string) {
-    let element = document.getElementById(`${id}`) as HTMLElement;
+    const element = document.getElementById(`${id}`) as HTMLElement;
     if (element) {
       element.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
@@ -140,32 +140,33 @@ export class ReaderComponent implements OnInit {
   //#endregion
 
   //#region Html callback
-  //Get the book object
-  getBook(): BookObjModule {
+
+  // Ajuste de firma: Puede retornar null si no hay libro cargado
+  getBook(): BookObjModule | null {
     return this.book;
   }
-  //Check if should use the content as menu
+
   useContentAsMenu(): boolean {
     if (this.book) {
       return this.book.usePagesAsMenu;
     }
     return false;
   }
-  //Get the content in the book
-  getContent(): PageModule[] {
+
+  // Ajuste de firma: Agregamos '| null' para que coincida con el return null defensivo
+  getContent(): PageModule[] | null {
     if (this.book == null) {
       return null;
     }
     return this.book.pages;
   }
-  //Used to set the name of the button when using content as menu
-  getContentName(page: PageModule) {
+
+  getContentName(page: PageModule | null) {
     if (page == null) {
       return '';
     }
     return page.name;
   }
-
   //#endregion
 
   toggleIndex(): void {

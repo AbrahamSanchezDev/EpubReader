@@ -1,59 +1,55 @@
 <div>
-  <!-- Language -->
   <div>
-    <!-- <select (change)="onChangeVoice($event.target.value)" class="voices">
-      <option *ngFor="let voice of getVoices()" [value]="voice">
-        {{ voice }}</option
-      >
-    </select> -->
-    <mat-form-field appearance="fill">
-      <mat-label>Language</mat-label>
-
-      <mat-select
-        (selectionChange)="onChangeVoice($event.value)"
-        name="speechVoices"
-        [value]="getCurrentVoice()"
-      >
-        <mat-option *ngFor="let voice of getVoices()" [value]="voice">
+    <label for="speechVoices">Language</label>
+    <select
+      id="speechVoices"
+      name="speechVoices"
+      (change)="onChangeVoice($any($event.target).value)"
+      [value]="getCurrentVoice()"
+    >
+      @for (voice of getVoices(); track voice) {
+        <option [value]="voice">
           {{ voice }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+        </option>
+      }
+    </select>
   </div>
 
   <div>
-    <!-- Pitch -->
     <p>Pitch</p>
-    <mat-slider
-      thumbLabel
+    <label for="pitchRange">Pitch</label>
+    <input
+      id="pitchRange"
+      type="range"
       min="0.1"
       max="3"
       step="0.1"
       value="1.5"
-      tickInterval="1000"
-      (change)="onPitch($event.value)"
-    ></mat-slider>
-    <!-- Rate -->
+      (change)="onPitch(+$any($event.target).value)"
+    />
+
     <p>Rate</p>
-    <mat-slider
-      thumbLabel
+    <label for="rateRange">Rate</label>
+    <input
+      id="rateRange"
+      type="range"
       min="0.1"
       max="3"
       step="0.1"
       value="1.5"
-      tickInterval="1000"
-      (change)="onRate($event.value)"
-    ></mat-slider>
-    <!-- Volume -->
+      (change)="onRate(+$any($event.target).value)"
+    />
+
     <p>Volume</p>
-    <mat-slider
-      thumbLabel
+    <label for="volumeRange">Volume</label>
+    <input
+      id="volumeRange"
+      type="range"
       min="0.1"
       max="3"
       step="0.1"
       value="1"
-      tickInterval="1000"
-      (change)="onVolume($event.value)"
-    ></mat-slider>
+      (change)="onVolume(+$any($event.target).value)"
+    />
   </div>
 </div>

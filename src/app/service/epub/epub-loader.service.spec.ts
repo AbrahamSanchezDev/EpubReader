@@ -1,7 +1,7 @@
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 
 import { EpubLoaderService } from './epub-loader.service';
-import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
+import { BookObjModule } from '@models/epub/page/book-obj.module';
 import { ZipService } from '../zip/zip.service';
 import { ZipEntry } from '../zip/ZipEntry';
 import { ZipTask } from '../zip/ZipTask';
@@ -58,14 +58,14 @@ describe('EpubLoaderService', () => {
     expect(service).toBeTruthy();
   });
   it('should not load epub file', () => {
-    service.book = null;
-    service.loadEpub(null);
-    expect(service.book).toBe(null);
+    service.book = null as unknown as BookObjModule;
+    service.loadEpub(null as unknown as File);
+    expect(service.book).toBeNull();
   });
   it('should load epub file', () => {
-    var file = new File([''], 'test-file.jpg', { type: 'image/jpeg' });
-    var zipEntry: ZipEntry[] = [];
-    var observable = new Observable<Array<ZipEntry>>((subscriber) => {
+    const file = new File([''], 'test-file.jpg', { type: 'image/jpeg' });
+    const zipEntry: ZipEntry[] = [];
+    const observable = new Observable<ZipEntry[]>((subscriber) => {
       subscriber.next(zipEntry);
       subscriber.complete();
     });
@@ -74,7 +74,7 @@ describe('EpubLoaderService', () => {
     expect(service.zipService.getEntries).toHaveBeenCalled();
   });
 
-  it('should read Zip File as text', async(() => {
+  it('should read Zip File as text', waitForAsync(() => {
     spyOn(service.zipService, 'getData').and.returnValue(zipTaskData);
     spyOn(service, 'isImage');
     service.readZipEntryAsText(zipEntryTest, (result) => {
@@ -93,7 +93,7 @@ describe('EpubLoaderService', () => {
     service.book.name = 'Some title';
     service.loadFileName(zipEntryTest);
     expect(service.readZipEntryAsText).not.toHaveBeenCalled();
-    service.book.name = null;
+    service.book.name = '';
     service.loadFileName(zipEntryTest);
     expect(service.readZipEntryAsText).toHaveBeenCalled();
   });
@@ -102,7 +102,7 @@ describe('EpubLoaderService', () => {
     spyOn(service, 'loadFileName');
     service.lookForFileName(entryTests);
     expect(service.loadFileName).not.toHaveBeenCalled();
-    var zipEntry: ZipEntry = zipEntryTest;
+    const zipEntry: ZipEntry = zipEntryTest;
     zipEntry.filename = 'book.opf';
     entryTests.push(zipEntry);
     service.lookForFileName(entryTests);
@@ -110,13 +110,13 @@ describe('EpubLoaderService', () => {
   });
 
   it('should not load epub file', () => {
-    service.book = null;
-    service.loadEpub(null);
-    expect(service.book).toBe(null);
+    service.book = null as unknown as BookObjModule;
+    service.loadEpub(null as unknown as File);
+    expect(service.book).toBeNull();
   });
 
   it('should set file name', () => {
-    let result = '<dc:title>My title</dc:title>';
+    const result = '<dc:title>My title</dc:title>';
     service.setFileName(result);
     expect(service.book.name).toBe('My title');
   });
@@ -130,7 +130,7 @@ describe('EpubLoaderService', () => {
     spyOn(service.zipService, 'getData').and.returnValue(zipTaskData);
     service.loadImages(entryTests);
     expect(service.zipService.getData).not.toHaveBeenCalled();
-    var data = zipEntryTest;
+    const data = zipEntryTest;
     data.filename = 'image.png';
     entryTests.push(data);
     service.loadImages(entryTests);
@@ -209,7 +209,7 @@ describe('EpubLoaderService', () => {
     //Finish and should use content as index
     service.currentMaxFiles = 1;
     service.currentFiles = 0;
-    service.book.index = null;
+    service.book.index = null as unknown as string;
     service.checkIfFinishLoadingContent();
     expect(service.epubService.callOnOpenEpub).toHaveBeenCalled();
     expect(service.book.usePagesAsMenu).toBe(true);
@@ -227,7 +227,7 @@ describe('EpubLoaderService', () => {
         '<div>some content text <title>SomeName</title> name.<a>MyName</a> should be more</div>'
       );
     });
-    service.book.index = null;
+    service.book.index = null as unknown as string;
     zipEntryTest.filename = 'someName';
     service.loadIndex(zipEntryTest);
     expect(service.book.index).not.toBeNull();
@@ -238,7 +238,7 @@ describe('EpubLoaderService', () => {
   });
 
   it('should return if should use content as menu', () => {
-    service.book = null;
+    service.book = null as unknown as BookObjModule;
     let use = service.useContentAsMenu();
     expect(use).toBe(false);
 

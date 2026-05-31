@@ -1,4 +1,4 @@
-import { TestBed, async, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 
 import { TextToSpeechService } from './text-to-speech.service';
 
@@ -10,10 +10,10 @@ describe('TextToSpeechService', () => {
     TestBed.configureTestingModule({});
     service = TestBed.inject(TextToSpeechService);
   });
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     if (voices == null) {
       voices = [];
-      let awaitVoices = new Promise(
+      const awaitVoices = new Promise(
         (resolve) => (window.speechSynthesis.onvoiceschanged = resolve)
       );
       awaitVoices.then(() => {
@@ -43,7 +43,7 @@ describe('TextToSpeechService', () => {
     expect(service.reading).toBe(false);
   });
 
-  it('should read the given text', async(() => {
+  it('should read the given text', waitForAsync(() => {
     setTimeout(() => {
       service.speech = window.speechSynthesis;
       spyOn(service.speech, 'getVoices').and.returnValues(voices);

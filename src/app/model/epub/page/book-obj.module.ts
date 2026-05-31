@@ -1,28 +1,23 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { PageModule } from './page.module';
 import { SafeHtml } from '@angular/platform-browser';
-import { ImgUrlData } from 'src/app/interface/img-url-data';
+import { ImgUrlData } from '../../../interface/img-url-data';
 
-@NgModule({
-  declarations: [],
-  imports: [CommonModule],
-})
+// 1. Eliminamos por completo el decorador @NgModule
 export class BookObjModule {
-  name: string;
-  pages: PageModule[];
-  index: SafeHtml;
-  images: ImgUrlData[];
+  name = '';
+  // 2. Usamos el operador ! o inicializamos para cumplir con el modo estricto
+  pages: PageModule[] = [];
+  index: SafeHtml = '';
+  images: ImgUrlData[] = [];
+  usePagesAsMenu = false;
 
-  usePagesAsMenu: boolean;
   constructor() {
-    this.pages = [];
-    this.images = [];
-    this.usePagesAsMenu = false;
+    // Los valores ya se inicializan arriba de forma más limpia
   }
+
   Init(): void {
-    for (let i = 0; i < this.pages.length; i++) {
-      this.pages[i].getContentData();
+    for (const page of this.pages) {
+      page.getContentData();
     }
   }
 }

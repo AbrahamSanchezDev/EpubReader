@@ -4,10 +4,9 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class SaveDataInLocalStorageService<T> {
-  constructor() {}
 
   //Load the book data if there was any
-  loadDataFor(fileName: string): T {
+  loadDataFor(fileName: string): T | null {
     const dataObj = localStorage.getItem(fileName);
     if (dataObj == null) {
       return null;

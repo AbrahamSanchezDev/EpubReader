@@ -1,5 +1,5 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
+import { BookObjModule } from '../../../app/model/epub/page/book-obj.module';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +16,6 @@ export class EpubService {
 
   private ids: string[] = [];
 
-  constructor() {}
   //Call the on open
   callOnOpenEpub(epub: BookObjModule) {
     this.onOpenEpub.emit(epub);

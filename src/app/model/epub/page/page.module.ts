@@ -5,15 +5,15 @@ import { Inject } from '@angular/core';
 
 export class FormateadParagraph {
   element: HTMLElement;
-  text: string[];
-  index: number = 0;
-  finished: boolean = false;
+  text: string[] = [];
+  index = 0;
+  finished = false;
 
-  originalText: string;
+  originalText = '';
   constructor(para: HTMLElement) {
     this.element = para;
   }
-  createText(text): void {
+  createText(text: string): void {
     this.originalText = text;
     this.text = text.split('. ');
     if (this.text.length == 0) {
@@ -45,11 +45,11 @@ export class PageModule {
   name: string;
   fullName: string;
   content: SafeHtml;
-  index: number;
+  index = 0;
 
-  private parent: HTMLElement;
+  private parent: HTMLElement | null = null;
   // private paragraphs: HTMLElement[];
-  formateadParagraphs: FormateadParagraph[];
+  formateadParagraphs: FormateadParagraph[] = [];
   constructor(
     @Inject(String) name: string,
     @Inject(String) fullName: string,
@@ -67,25 +67,25 @@ export class PageModule {
     setTimeout(() => {
       this.parent = document.getElementById(this.name);
       if (this.parent) {
-        let all = this.parent.querySelectorAll('.text-obj');
+        const all = this.parent.querySelectorAll('.text-obj');
 
         // let strong = this.parent.querySelectorAll('strong');
-        let text = this.parent.innerText;
-        var letters = /((^[0-9]+[a-z]+)|(^[a-z]+[0-9]+))+[0-9a-z]+$/;
-        let textsLetter = /^[a-z0-9]+$/i;
-        let lettersText = /[a-z]/i;
-        for (let i = 0; i < all.length; i++) {
+        // const text = this.parent.innerText;
+        // const letters = /((^[0-9]+[a-z]+)|(^[a-z]+[0-9]+))+[0-9a-z]+$/;
+        // const textsLetter = /^[a-z0-9]+$/i;
+        const lettersText = /[a-z]/i;
+        for (const element of all) {
           if (
-            !all[i].textContent.match(lettersText) ||
-            all[i].textContent == '' ||
-            all[i].textContent == '&nbsp;' ||
-            all[i].textContent === ' '
+            !element.textContent.match(lettersText) ||
+            element.textContent == '' ||
+            element.textContent == '&nbsp;' ||
+            element.textContent === ' '
           ) {
             continue;
           }
 
-          let elementToAdd = new FormateadParagraph(all[i] as HTMLElement);
-          elementToAdd.createText(all[i].textContent);
+          const elementToAdd = new FormateadParagraph(element as HTMLElement);
+          elementToAdd.createText(element.textContent);
           this.formateadParagraphs.push(elementToAdd);
         }
         // console.log(this.formateadParagraphs);
@@ -95,16 +95,19 @@ export class PageModule {
     }, 5);
   }
 
-  isInFullView(element: HTMLElement): boolean {
-    if (element == null) {
+  isInFullView(element: HTMLElement | null): boolean {
+    if (!element) {
       return false;
     }
-    var position = element.getBoundingClientRect();
+    const position = element.getBoundingClientRect();
     // checking whether fully visible
     return position.top >= 0 && position.bottom <= window.innerHeight;
   }
-  isView(element: HTMLElement): boolean {
-    var position = element.getBoundingClientRect();
+  isView(element: HTMLElement | null): boolean {
+    if (!element) {
+      return false;
+    }
+    const position = element.getBoundingClientRect();
     // checking for partial visibility
     return position.top < window.innerHeight && position.bottom >= 0;
   }
@@ -116,29 +119,29 @@ export class PageModule {
     return this.isInFullView(this.parent);
   }
   focusOnParent(): void {
-    if (this.pageIsInFullView() == false) {
+    if (this.pageIsInFullView() == false && this.parent) {
       this.focusElement(this.parent);
     }
   }
-  getParent(): HTMLElement {
+  getParent(): HTMLElement | null {
     return this.parent;
   }
   protected focusElement(element: HTMLElement) {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  getFirstInView(): HTMLElement {
-    for (let i = 0; i < this.formateadParagraphs.length; i++) {
-      if (this.isInFullView(this.formateadParagraphs[i].element)) {
-        return this.formateadParagraphs[i].element;
+  getFirstInView(): HTMLElement | null {
+    for (const paragraph of this.formateadParagraphs) {
+      if (this.isInFullView(paragraph.element)) {
+        return paragraph.element;
       }
     }
     console.log('none is in full view');
     return null;
   }
   getFirstInViewIndex(): number {
-    for (let i = 0; i < this.formateadParagraphs.length; i++) {
-      if (this.isInFullView(this.formateadParagraphs[i].element)) {
-        return i;
+    for (const [index, paragraph] of this.formateadParagraphs.entries()) {
+      if (this.isInFullView(paragraph.element)) {
+        return index;
       }
     }
     return 0;
@@ -152,12 +155,13 @@ export class PageModule {
     }
     return this.isInFullView(this.formateadParagraphs[index].element);
   }
-  getParagraphElement(index: number): HTMLElement {
+  getParagraphElement(index: number): HTMLElement | null {
     if (index >= this.formateadParagraphs.length) {
       return null;
     }
     return this.formateadParagraphs[index].element;
   }
+
   // getParagraphElement(index: number): HTMLElement {
   //   if (index >= this.paragraphs.length) {
   //     console.log('Out of index only up to ' + this.paragraphs.length);
@@ -172,7 +176,7 @@ export class PageModule {
   getTotalParagraphs(): number {
     return this.formateadParagraphs.length;
   }
-  getTextFor(index: number): FormateadParagraph {
+  getTextFor(index: number): FormateadParagraph | null {
     if (index >= this.formateadParagraphs.length) {
       return null;
     }
