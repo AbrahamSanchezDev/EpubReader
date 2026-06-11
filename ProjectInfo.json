@@ -1,0 +1,14 @@
+{
+  "id": "epub-reader",
+  "title": "EpubReader",
+  "subtitle": "Angular EPUB reader with chapter navigation and speech playback.",
+  "techBadge": "Angular 21",
+  "gifUrl": "/games/epub-reader.gif",
+  "repoUrl": "https://github.com/abrahamsanchezdev/EpubReader",
+  "demoUrl": "https://abrahamsanchezdev.github.io/EpubReader/",
+  "challenge": "Built a browser EPUB reader that parses archive content, renders chapters and images, and integrates speech synthesis for read-aloud playback.",
+  "architecture": "Event-driven Angular app using service-based EPUB parsing, signals for UI state, and browser-native speech synthesis.",
+  "techStack": ["Angular 21", "TypeScript", "Angular SSR", "JSZip", "Web Speech API"],
+  "codeSnippetTitle": "EPUB load and parse flow",
+  "codeSnippet": "loadEpub(file: File) {\n  this.book = new BookObjModule();\n  this.zipService.getEntries(file).subscribe((entries) => {\n    this.loadFileMetadata(entries);\n    this.loadImages(entries);\n    this.getContentFromData(entries);\n  });\n}"
+}
