@@ -3,25 +3,24 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "paths": {
       "src/*": [
-        "src/*"
+        "./src/*"
       ],
       "@models/*": [
-        "src/app/model/*"
+        "./src/app/model/*"
       ],
       "@services/*": [
-        "src/app/service/*"
+        "./src/app/service/*"
       ],
       "@interfaces/*": [
-        "src/app/interface/*"
+        "./src/app/interface/*"
       ],
       "@components/*": [
-        "src/app/component/*"
+        "./src/app/component/*"
       ],
       "@worldsdev/tools": [
-        "node_modules/@worldsdev/tools/src/public-api.ts"
+        "./node_modules/@worldsdev/tools/src/public-api.ts"
       ]
     },
     "strict": true,

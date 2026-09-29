@@ -15,6 +15,8 @@ module.exports = defineConfig([
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      // ponytail: v22 migration pinned components to Eager to keep behavior; move to OnPush then re-enable.
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
       '@angular-eslint/directive-selector': [
         'error',
         {

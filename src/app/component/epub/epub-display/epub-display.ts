@@ -1,4 +1,12 @@
-import { Component, Input, ElementRef, ViewChild, inject, signal } from '@angular/core';
+import {
+  Component,
+  Input,
+  ElementRef,
+  ViewChild,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule } from 'src/app/model/epub/page/page.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
@@ -8,6 +16,7 @@ import { EpubService } from 'src/app/service/epub/epub.service';
   standalone: true,
   imports: [],
   templateUrl: './epub-display.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./epub-display.css'],
 })
 export class EpubDisplay {
@@ -49,7 +58,7 @@ export class EpubDisplay {
 
   //Call the add events on book loaded after delay
   onOpenEpub(epub: BookObjModule) {
-     // reset image-added flag so images will be processed for the new book
+    // reset image-added flag so images will be processed for the new book
     this.addedImages = false;
 
     // assign the loaded book so the template can render it

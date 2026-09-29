@@ -1,4 +1,12 @@
-import { Component, ViewChild, ElementRef, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule } from 'src/app/model/epub/page/page.module';
 import { EpubService } from 'src/app/service/epub/epub.service';
@@ -12,6 +20,7 @@ import { EpubReader } from '../epub/text-to-speech/epub-reade';
   standalone: true,
   templateUrl: './reader.component.html',
   styleUrls: ['./reader.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [EpubDisplay, EpubReader],
 })
 export class ReaderComponent {

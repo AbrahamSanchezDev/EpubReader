@@ -4,16 +4,16 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "include": [
-    "src/**/*.ts",
-    "node_modules/@worldsdev/tools/src/**/*.ts"
-  ],
-  "exclude": [
-    "src/**/*.spec.ts",
-    "node_modules/@worldsdev/tools/src/test.ts"
-  ]
+  "include": ["src/**/*.ts", "node_modules/@worldsdev/tools/src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts", "node_modules/@worldsdev/tools/src/test.ts"],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
 }

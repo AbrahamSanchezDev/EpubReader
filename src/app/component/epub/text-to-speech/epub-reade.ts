@@ -1,4 +1,11 @@
-import { Component, Renderer2, HostListener, inject, OnDestroy } from '@angular/core';
+import {
+  Component,
+  Renderer2,
+  HostListener,
+  inject,
+  OnDestroy,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { EpubService } from 'src/app/service/epub/epub.service';
 import { BookObjModule } from 'src/app/model/epub/page/book-obj.module';
 import { PageModule, FormateadParagraph } from 'src/app/model/epub/page/page.module';
@@ -15,6 +22,7 @@ export class ReadData {
   selector: 'app-epub-reader',
   standalone: true,
   templateUrl: './epub-reader.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./epub-reader.css'],
 })
 export class EpubReader implements OnDestroy {
@@ -89,7 +97,7 @@ export class EpubReader implements OnDestroy {
     });
   }
 
-  setReadingSettings(){
+  setReadingSettings() {
     this.textToSpeech.getVoices();
     this.textToSpeech.setPitch(1);
     this.textToSpeech.setRate(1.2);
