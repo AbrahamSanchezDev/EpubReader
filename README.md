@@ -1,6 +1,6 @@
 # EpubReader
 
-A browser-based EPUB reading experience built with Angular 21.2.11.
+A browser-based EPUB reading experience built with Angular 22.2.0.
 
 ## Project Summary
 
@@ -74,10 +74,10 @@ http://localhost:4000
 ### Deploy to GitHub Pages
 
 ```bash
-ng build --base-href "https://abrahamsanchezdev.github.io/EpubReader/"
+python deploy-gh-pages.py
 ```
 
-Deploy the contents of `dist/epub-reader` to GitHub Pages.
+Builds a static version (`--output-mode static`) with the right base href and force-pushes `dist/epub-reader/browser` to the `gh-pages` branch. Answers are saved in `angular-deployer-config.json`.
 
 ## Application workflow
 
@@ -108,7 +108,7 @@ Deploy the contents of `dist/epub-reader` to GitHub Pages.
 
 ## Technology stack
 
-- **Angular 21** — application framework and standalone components
+- **Angular 22** — application framework and standalone components
 - **TypeScript** — typed application logic and service orchestration
 - **JSZip** — EPUB archive extraction from `.epub` files
 - **Web Speech API** — read aloud playback with voice and audio controls
@@ -141,7 +141,7 @@ Repo: https://github.com/abrahamsanchezdev/EpubReader
 
 # EpubReader (Versión en Español)
 
-Una experiencia de lectura EPUB en el navegador construida con Angular 21.2.11.
+Una experiencia de lectura EPUB en el navegador construida con Angular 22.2.0.
 
 ## Resumen del proyecto
 
@@ -249,7 +249,7 @@ Despliega el contenido de `dist/epub-reader` en GitHub Pages.
 
 ## Stack tecnológico
 
-- **Angular 21** — framework de aplicación y componentes standalone
+- **Angular 22** — framework de aplicación y componentes standalone
 - **TypeScript** — lógica de aplicación tipada y orquestación de servicios
 - **JSZip** — extracción de archivos EPUB desde `.epub`
 - **Web Speech API** — reproducción de lectura en voz alta con controles de audio

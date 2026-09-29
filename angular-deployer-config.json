@@ -1,0 +1,7 @@
+{
+  "repo_url": "https://github.com/AbrahamSanchezDev/EpubReader.git",
+  "base_path": "/EpubReader",
+  "target_branch": "gh-pages",
+  "commit_message": "Deploy Angular build to GitHub Pages",
+  "custom_domain": ""
+}
