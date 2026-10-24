@@ -21,7 +21,7 @@
     "@angular/material": "^22.2.0",
     "@angular/platform-browser": "^22.2.0",
     "@angular/platform-server": "^22.2.0",
-    "@angular/router": "^22.2.0",
+    "@angular/router": "^22.2.1",
     "@angular/ssr": "^22.2.0",
     "@worldsdev/tools": "^0.0.5",
     "express": "^5.2.1",
